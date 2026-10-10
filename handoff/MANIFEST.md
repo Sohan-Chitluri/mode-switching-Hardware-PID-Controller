@@ -1,12 +1,12 @@
-# Design Manifest & File Integrity Catalog: `pid_top`
+# Design Manifest & File Integrity Catalog: `pid_top` & `pid_soc_top`
 
 **Project:** Mode-Switching Hardware PID Flight Controller  
-**Top-Level Module:** `pid_top`  
+**Top-Level Modules:** `pid_top` (Core 4-Axis Controller), `pid_soc_top` (SoC Wrapper + Quad-X Mixer)  
 **Target Environment:** Cadence Digital Flow (Genus Synthesis + Innovus P&R)  
-**Verification Baseline:** Verilator 5.050, Python 3.14, SymbiYosys + Z3 SMT Solver, Yosys 0.68  
+**Verification Baseline:** Verilator 5.052, Python 3.14, SymbiYosys + Z3 SMT Solver, Yosys 0.69  
 **Date:** October 2026  
-**Branch:** `feat/phase2-robustness-safety`  
-**Status:** Verification Signed-Off (100% Bit-Exact Equivalence across 20,111 vectors; 10-Step Formal BMC Proven; 4-DOF Plant Stable; Phase 2 Remediated)
+**Branch:** `feat/phase3-verification-soc`  
+**Status:** Verification Signed-Off (All 10 Regression Stages Passing; 100% Bit-Exact Equivalence; 10-Step Formal BMC Proven; 4-DOF Plant Stable; Phase 3 Complete)
 
 ---
 
@@ -27,6 +27,8 @@
 | `rtl/safety/pid_watchdog.sv` | Sensor freshness watchdog timer with programmable timeout | IEEE 1800-2012 | `6b146f8bd97bc1a479133e7149c6727aa9028dd176903df026c11e6c36dc9fa4` |
 | `rtl/safety/pid_output_stage.sv` | Actuator registered output stage & failsafe override mux | IEEE 1800-2012 | `89ee9ec5a65c6a1f8748137836bd2af756a8d90cb0af9014eda046bf59dda936` |
 | `rtl/pid_top.sv` | Full-chip 4-axis top integration & bumpless handover logic | IEEE 1800-2012 | `68939be4dd4c9afc4a6f8eeeab52b97553c58154e633b58f890136b9e67c21f3` |
+| `rtl/safety/pid_mixer.sv` | Quad-X motor mixer with orthogonal mapping & saturation guarding | IEEE 1800-2012 | `08550fed87a69c661458f3b79aeda3a24f615479774d30391825f8421b3a75e7` |
+| `rtl/pid_soc_top.sv` | Synthesizable SoC integration top wrapper with MMIO register bus | IEEE 1800-2012 | `d48e3ce629992299c9abc94baf79f60baba435079b473c16e631a0913106ca90` |
 
 ---
 
@@ -38,8 +40,8 @@
 | `handoff/CADENCE_IMPORT_GUIDE.md` | Comprehensive Cadence import and flow instructions | Markdown Doc | `a192d9af9a0c35951c89501ff80fd55826ad51bbe8a795d727d58c4152d0936b` |
 | `handoff/genus_synth.tcl` | Cadence Genus synthesis execution script | Tcl Script | `4b6e5255bbbcf54b00094bd9c8ce37f217dfc241e733e2b03f16e7a800d2a702` |
 | `handoff/innovus_pnr.tcl` | Cadence Innovus place-and-route script template | Tcl Script | `8f4247c9c691ed46017e77975c87de7c65b6f4efbf271fb088e092305d64f786` |
-| `scripts/run_regression.sh` | End-to-end regression test suite runner (7 stages) | Bash Script | `d0c97093d94b257d6cb6f5f30831264eb268e9171cf99414ea0dd30e0bda345b` |
-| `scripts/prelim_synth.tcl` | Yosys structural synthesis and elaboration check script | Tcl Script | `03266d2d212c3de3a254b6d34f266731659eafe6eeea421b7e342924a1bb04d2` |
+| `scripts/run_regression.sh` | End-to-end regression test suite runner (10 stages) | Bash Script | `ea5b00f93efbd0f308ff27c82880a95716fac7ce86cc58bafd2911fb50942b15` |
+| `scripts/prelim_synth.tcl` | Yosys structural synthesis and elaboration check script | Tcl Script | `306a9f64c9620aacdb802fcf0c42b9fbae11d72678616c335efaa2a45a8ac166` |
 
 ---
 
@@ -53,59 +55,68 @@
 | `models/generate_vectors.py` | Test vector generator (20,111 total vectors across unit and top) | `c394008936338050522f5df63e57e1c110ac9dcae954b974387c2ce31196e6e5` |
 | `tb/unit/pid_axis_core_tb.sv` | Unit testbench for `pid_axis_core` (10,111 vectors) | `5aa2783b12b76a174c36e88524493fd89dc0c01f11a039364eb11d53a19c7cd2` |
 | `tb/top/pid_top_tb.sv` | Top-level full-chip testbench (10,000 vectors + directed tests) | `c85a3e0942b74228fbbbbf1a0f69e26ee6db58bf76dd9bc18f55beaef37e3b86` |
+| `tb/unit/pid_mixer_tb.sv` | Quad-X motor mixer unit testbench (7 suites) | `c27ae2a0cba83abd1aff7b612a92ba614e07de188128485bd563a000b2587cf8` |
+| `tb/top/pid_soc_top_tb.sv` | SoC top MMIO bus integration testbench (6 suites) | `4c47bc6d4d941a4816059f7047816ee2d314df2b5ea8efa30cdf7fce7ee29cb0` |
+| `tb/top/pid_mode_stress_tb.sv` | 12 mode transitions & flight-safety stress testbench (20 suites) | `065ff65aa0fdac8b11862c0f9e2e6a73c55e2799965cb1c9e4218be22a052f62` |
 | `tb/cosim/pid_top_cosim.cpp` | C API wrapper around Verilated Vpid_top for Python ctypes cosimulation | `cebbcafae967a01cf3f0b055a89c333ee0936a0d62accb7b2c30a29e4809e0fd` |
 | `tb/formal/pid_formal_tb.sv` | Formal testbench harness for P1-P5 invariant properties | `8c423112d66b280cc85183196d0c1b5916013d19fa640fbb3080b601265ea60e` |
 | `tb/formal/pid_formal.sby` | SymbiYosys configuration file for Z3 SMT solver | `a14564abfeb1641e23ed41c20dae1944b7a8abcf66e70cae592af2f36410d98a` |
 | `handoff/PHASE1_COSIM_REPORT.md` | Phase 1 closed-loop co-sim & dynamic plant tuning report | `e3d0a5925bb47f99b63799f4ed089eaaa13226bb63239440bd0c0206e1f93b91` |
 | `handoff/PHASE2_REMEDIATION_REPORT.md` | Phase 2 robustness, safety remediation, and thrust routing report | `e5652b7be6985d1a8cadecb66f95db1c2085c2b7f109dff090d760e6707a94f6` |
+| `handoff/PHASE3_REMEDIATION_REPORT.md` | Phase 3 mode transition, safety stress, and SoC integration report | `84058992db674849dcfb7ce03d557f910e94df938e1b68db73321f5373ccb60c` |
 
 ---
 
 ## 4. Design Hierarchy Tree
 
 ```
-pid_top (Top Module)
-├── u_watchdog (pid_watchdog)
-│     └── Sample freshness counter, timeout comparator & alarm register
-├── u_mode_mgr (pid_mode_mgr)
-│     └── Mode FSM, re-arm resolution, fault latching & transition strobe
-├── u_gain_bank (pid_gain_bank)
-│     └── 8-bit memory-mapped configuration registers & mode bank selector
-├── u_outer_loop (pid_outer_loop)
-│     ├── err_phi / err_theta attitude angle comparators
-│     ├── u_mult_att_roll (pid_mult)
-│     ├── u_mult_att_pitch (pid_mult)
-│     ├── u_mult_alt_pos (pid_mult)
-│     └── Muxes for Acro vs Stabilize vs AltHold vs Failsafe setpoint routing
-├── u_core_roll (pid_axis_core)
-│     ├── u_deriv_filter (pid_deriv_filter)
-│     │     ├── u_alpha_mult (pid_mult)
-│     │     └── u_kd_mult (pid_mult)
-│     ├── u_kp_mult (pid_mult)
-│     ├── u_integ_unit (pid_integ_unit)
-│     │     └── u_ki_mult (pid_mult)
-│     └── u_sat_unit (pid_sat_unit)
-├── u_core_pitch (pid_axis_core)
-│     └── [Identical parallel architecture as Roll]
-├── u_core_yaw (pid_axis_core)
-│     └── [Identical parallel architecture as Roll]
-├── u_core_thrust (pid_axis_core)
-│     └── [Identical parallel architecture as Roll]
-├── u_tilt_comp (pid_tilt_comp)
-│     ├── u_mult_phi_sq (pid_mult)
-│     ├── u_mult_th_sq (pid_mult)
-│     └── u_mult_tilt_scale (pid_mult)
-└── u_output_stage (pid_output_stage)
-      └── Registered output drivers with single-cycle deterministic Failsafe override
+pid_soc_top (Optional SoC Top Integration Wrapper)
+├── MMIO Synchronous Bus Decoder (0x000..0x01F control/status, 0x100..0x19F gain pass-through)
+├── u_pid_top (pid_top)
+│   ├── u_watchdog (pid_watchdog)
+│   │     └── Sample freshness counter, timeout comparator & alarm register
+│   ├── u_mode_mgr (pid_mode_mgr)
+│   │     └── Mode FSM, re-arm resolution, fault latching & transition strobe
+│   ├── u_gain_bank (pid_gain_bank)
+│   │     └── 8-bit memory-mapped configuration registers & mode bank selector
+│   ├── u_outer_loop (pid_outer_loop)
+│   │     ├── err_phi / err_theta attitude angle comparators
+│   │     ├── u_mult_att_roll (pid_mult)
+│   │     ├── u_mult_att_pitch (pid_mult)
+│   │     ├── u_mult_alt_pos (pid_mult)
+│   │     └── Muxes for Acro vs Stabilize vs AltHold vs Failsafe setpoint routing
+│   ├── u_core_roll (pid_axis_core)
+│   │     ├── u_deriv_filter (pid_deriv_filter)
+│   │     │     ├── u_alpha_mult (pid_mult)
+│   │     │     └── u_kd_mult (pid_mult)
+│   │     ├── u_kp_mult (pid_mult)
+│   │     ├── u_integ_unit (pid_integ_unit)
+│   │     │     └── u_ki_mult (pid_mult)
+│   │     └── u_sat_unit (pid_sat_unit)
+│   ├── u_core_pitch (pid_axis_core)
+│   │     └── [Identical parallel architecture as Roll]
+│   ├── u_core_yaw (pid_axis_core)
+│   │     └── [Identical parallel architecture as Roll]
+│   ├── u_core_thrust (pid_axis_core)
+│   │     └── [Identical parallel architecture as Roll]
+│   ├── u_tilt_comp (pid_tilt_comp)
+│   │     ├── u_mult_phi_sq (pid_mult)
+│   │     ├── u_mult_th_sq (pid_mult)
+│   │     └── u_mult_tilt_scale (pid_mult)
+│   └── u_output_stage (pid_output_stage)
+│         └── Registered output drivers with single-cycle deterministic Failsafe override
+└── u_pid_mixer (pid_mixer)
+      └── 4-axis orthogonal Quad-X mixer with 48-bit intermediate guarding & [0.0, 1.0] clamping
 ```
 
 ---
 
 ## 5. Module Latency & Clock Contracts
 
-- **Core Latency:** 1 clock cycle registered interface latency from `sample_valid` strobe to registered actuator output update.
+- **Core Latency:** 1 clock cycle registered interface latency from `sample_valid` strobe to registered actuator output update in `pid_top`.
+- **Mixer Latency:** 1 clock cycle registered interface latency from `controller_valid` to `motor_valid` in `pid_mixer`.
 - **Clock Frequency Target:** 50 MHz nominal ($T_{clk} = 20.0\text{ ns}$).
 - **Sample Rate Target:** 4 kHz typical flight controller loop ($T_{sample} = 250\ \mu\text{s} = 12,500\text{ clock cycles}$).
 - **Reset Convention:** Fully synchronous active-low assertion and deassertion (`!rst_n`) across all internal registers.
-- **Emergency Kill Latency:** 3 clock cycles (60.0 ns at 50 MHz) from external active-low pin assertion (`!failsafe_ext_n`) to output pin clamp (2-stage flip-flop CDC synchronizer + 1-cycle output stage registration).
-- **Arithmetic Representation:** Signed two's-complement Q16.16 fixed-point throughout all control loops.
+- **Emergency Kill Latency:** Exactly 3 clock cycles (60.0 ns at 50 MHz) from external active-low pin assertion (`!failsafe_ext_n`) to output pin clamp (2-stage flip-flop CDC synchronizer + 1-cycle output stage registration).
+- **Arithmetic Representation:** Signed two's-complement Q16.16 fixed-point throughout all control loops and mixer stages.

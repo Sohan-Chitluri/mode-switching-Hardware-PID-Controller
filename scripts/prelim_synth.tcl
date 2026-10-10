@@ -15,14 +15,14 @@ read_verilog -sv -Irtl/pkg -Irtl/core -Irtl/modes -Irtl/safety rtl/safety/pid_ti
 read_verilog -sv -Irtl/pkg -Irtl/core -Irtl/modes -Irtl/safety rtl/safety/pid_watchdog.sv
 read_verilog -sv -Irtl/pkg -Irtl/core -Irtl/modes -Irtl/safety rtl/safety/pid_output_stage.sv
 read_verilog -sv -Irtl/pkg -Irtl/core -Irtl/modes -Irtl/safety rtl/pid_top.sv
+read_verilog -sv -Irtl/pkg -Irtl/core -Irtl/modes -Irtl/safety rtl/safety/pid_mixer.sv
+read_verilog -sv -Irtl -Irtl/pkg -Irtl/core -Irtl/modes -Irtl/safety rtl/pid_soc_top.sv
 
-# Elaborate top module
-hierarchy -check -top pid_top
-
-# Check for combinational loops and unresolved references
+# Check structural hierarchy of pid_soc_top (integrates pid_top and pid_mixer)
+hierarchy -check -top pid_soc_top
 check -assert
 
-# Generic structural synthesis check (without slow bit-level ABC mapping)
-synth -top pid_top -noabc
+# Full structural synthesis of SoC Top (synthesizes pid_top, pid_mixer, MMIO bus)
+synth -top pid_soc_top -noabc
 check -assert
 stat

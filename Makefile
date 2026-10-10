@@ -24,7 +24,7 @@ YOSYS          := yosys
 SBY            := sby
 GTKWAVE        := gtkwave
 
-VERILATOR_INCLUDES  := -I$(RTL_DIR)/pkg -I$(RTL_DIR)/core -I$(RTL_DIR)/modes -I$(RTL_DIR)/safety
+VERILATOR_INCLUDES  := -I$(RTL_DIR) -I$(RTL_DIR)/pkg -I$(RTL_DIR)/core -I$(RTL_DIR)/modes -I$(RTL_DIR)/safety
 
 # Verilator Flags
 VERILATOR_LINT_FLAGS := --lint-only -Wall -Wno-UNUSED -Wno-DECLFILENAME \
@@ -57,7 +57,12 @@ RTL_TOP_SRCS   := \
 	$(RTL_DIR)/safety/pid_output_stage.sv \
 	$(RTL_DIR)/pid_top.sv
 
-.PHONY: all help clean lint test-unit test-formal gen-vectors sim-plant regression
+RTL_SOC_SRCS   := \
+	$(RTL_TOP_SRCS) \
+	$(RTL_DIR)/safety/pid_mixer.sv \
+	$(RTL_DIR)/pid_soc_top.sv
+
+.PHONY: all help clean lint test-unit test-top test-mixer test-soc test-stress test-formal gen-vectors sim-plant regression
 
 all: lint test-unit
 
@@ -77,7 +82,7 @@ $(OUTPUT_DIR):
 
 lint: $(OUTPUT_DIR)
 	@echo "=== [LINT] Verilator RTL Synthesizability Lint ==="
-	$(VERILATOR) $(VERILATOR_LINT_FLAGS) $(RTL_TOP_SRCS)
+	$(VERILATOR) $(VERILATOR_LINT_FLAGS) $(RTL_SOC_SRCS)
 	@echo "=== [LINT] PASS: Zero lint errors ==="
 
 test-unit: $(OUTPUT_DIR)
@@ -99,6 +104,36 @@ test-top: $(OUTPUT_DIR)
 		$(TB_DIR)/top/pid_top_tb.sv \
 		-o $(ABS_OUTPUT)/Vpid_top_tb
 	$(ABS_OUTPUT)/Vpid_top_tb
+
+test-mixer: $(OUTPUT_DIR)
+	@echo "=== [TEST-MIXER] Running pid_mixer unit testbench ==="
+	$(VERILATOR) $(VERILATOR_SIM_FLAGS) \
+		--top-module pid_mixer_tb \
+		--Mdir $(ABS_OUTPUT)/obj_mixer \
+		$(RTL_PKG) $(RTL_DIR)/safety/pid_mixer.sv \
+		$(TB_DIR)/unit/pid_mixer_tb.sv \
+		-o $(ABS_OUTPUT)/Vpid_mixer_tb
+	$(ABS_OUTPUT)/Vpid_mixer_tb
+
+test-soc: $(OUTPUT_DIR)
+	@echo "=== [TEST-SOC] Running pid_soc_top integration testbench ==="
+	$(VERILATOR) $(VERILATOR_SIM_FLAGS) \
+		--top-module pid_soc_top_tb \
+		--Mdir $(ABS_OUTPUT)/obj_soc \
+		$(RTL_TOP_SRCS) $(RTL_DIR)/safety/pid_mixer.sv $(RTL_DIR)/pid_soc_top.sv \
+		$(TB_DIR)/top/pid_soc_top_tb.sv \
+		-o $(ABS_OUTPUT)/Vpid_soc_top_tb
+	$(ABS_OUTPUT)/Vpid_soc_top_tb
+
+test-stress: $(OUTPUT_DIR)
+	@echo "=== [TEST-STRESS] Running pid_mode_stress_tb mode transition stress testbench ==="
+	$(VERILATOR) $(VERILATOR_SIM_FLAGS) \
+		--top-module pid_mode_stress_tb \
+		--Mdir $(ABS_OUTPUT)/obj_stress \
+		$(RTL_TOP_SRCS) \
+		$(TB_DIR)/top/pid_mode_stress_tb.sv \
+		-o $(ABS_OUTPUT)/Vpid_mode_stress_tb
+	$(ABS_OUTPUT)/Vpid_mode_stress_tb
 
 gen-vectors:
 	@echo "=== [VECTORS] Generating test vectors from bit-accurate model ==="
