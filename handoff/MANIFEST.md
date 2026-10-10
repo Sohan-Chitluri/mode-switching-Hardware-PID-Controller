@@ -5,6 +5,7 @@
 **Target Environment:** Cadence Digital Flow (Genus Synthesis + Innovus P&R)  
 **Verification Baseline:** Verilator 5.052, Python 3.14, SymbiYosys + Z3 SMT Solver  
 **Date:** 2026-10-10  
+**Git Commit SHA:** `f777b2c`  
 **Status:** Verification Signed-Off (100% Bit-Exact Equivalence across 20,019 vectors; 10-Step Formal BMC Proven)
 
 ---
