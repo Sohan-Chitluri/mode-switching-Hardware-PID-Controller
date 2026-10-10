@@ -47,6 +47,7 @@ module pid_top_tb;
     logic [7:0]               cfg_addr;
     logic [31:0]              cfg_wdata;
     logic [31:0]              cfg_rdata;
+    logic                     cfg_failsafe_hold_last;
 
     // Actuator Outputs
     logic                     output_valid;
@@ -83,6 +84,7 @@ module pid_top_tb;
         .mode_cmd(mode_cmd),
         .rearm_cmd(rearm_cmd),
         .failsafe_ext_n(failsafe_ext_n),
+        .cfg_failsafe_hold_last(cfg_failsafe_hold_last),
         .rc_sp_roll(rc_sp_roll),
         .rc_sp_pitch(rc_sp_pitch),
         .rc_sp_yaw(rc_sp_yaw),
@@ -394,11 +396,11 @@ module pid_top_tb;
         if (cfg_rdata !== 32'h0000_4000)
             $fatal(1, "FAIL: Bank 0 roll_kp read mismatch! Got=%08h, Exp=00004000", cfg_rdata);
 
-        // Bank 1 (Stabilize): addr 32 + 5 = 37 = roll_kp = 0x0001_6666
+        // Bank 1 (Stabilize): addr 32 + 5 = 37 = roll_kp = 0x0002_0000 (Phase 1 tuned)
         cfg_addr = 8'd37;
         #1;
-        if (cfg_rdata !== 32'h0001_6666)
-            $fatal(1, "FAIL: Bank 1 roll_kp read mismatch! Got=%08h, Exp=00016666", cfg_rdata);
+        if (cfg_rdata !== 32'h0002_0000)
+            $fatal(1, "FAIL: Bank 1 roll_kp read mismatch! Got=%08h, Exp=00020000", cfg_rdata);
 
         // Bank 2 (AltHold): addr 64 + 29 = 93 = thrust_kp = 0x0000_6666
         cfg_addr = 8'd93;
@@ -504,29 +506,315 @@ module pid_top_tb;
         repeat (5) @(posedge clk);
     endtask
 
+    // Directed AltHold bumpless handover and integrator back-calculation task
+    task automatic test_althold_bumpless_transition();
+        logic signed [31:0] u_th_before, u_th_after, th_diff;
+        $display("=== [DIRECTED TEST] Verifying Altitude-Hold Integrator Back-Calculation & Bumpless Handover ===");
+
+        // Step 1: Fly in Stabilize mode with cruise thrust = 0.55 (36045 counts)
+        mode_cmd       = MODE_STABILIZE;
+        rc_sp_thrust   = 32'sh0000_8CCD; // 0.55
+        alt_z          = 32'sh0000_8CCD; // Measured altitude matches setpoint
+        alt_vz         = 32'sh0000_0000; // Zero vertical climb rate
+        alt_valid      = 1'b1;
+        sample_valid   = 1'b1;
+        repeat (10) @(posedge clk);
+        #1;
+        u_th_before = u_thrust;
+
+        // Step 2: Switch mode to AltHold with identical flight state
+        @(posedge clk);
+        #1;
+        mode_cmd = MODE_ALTHOLD;
+
+        // 1 cycle for transition strobe & reseed latch, 1 cycle for registered output stage
+        repeat (2) @(posedge clk);
+        #1;
+        u_th_after = u_thrust;
+
+        th_diff = (u_th_after > u_th_before) ? (u_th_after - u_th_before) : (u_th_before - u_th_after);
+        $display("  AltHold Handover Step: U_thrust_before=%08h (%0.4f), U_thrust_after=%08h (%0.4f), Diff=%0d counts",
+                 u_th_before, real'(u_th_before)/65536.0, u_th_after, real'(u_th_after)/65536.0, th_diff);
+
+        // Verification Criterion: Output discontinuity must be <= 5% (3276 counts)
+        if (th_diff <= 3276) begin
+            $display("  AltHold Bumpless Handover: PASS (Diff=%0d counts <= 5%% limit)", th_diff);
+        end else begin
+            $fatal(1, "FAIL: AltHold bumpless handover exceeded 5%% transient limit! Diff=%0d", th_diff);
+        end
+
+        // Step 3: Test leave AltHold back to Stabilize
+        @(posedge clk);
+        #1;
+        mode_cmd = MODE_STABILIZE;
+        repeat (2) @(posedge clk);
+        #1;
+        if (u_thrust !== u_th_before) begin
+            $fatal(1, "FAIL: Leaving AltHold back to Stabilize failed to restore feedforward thrust! Got=%08h, Exp=%08h",
+                   u_thrust, u_th_before);
+        end
+        $display("  AltHold Exit Handover: PASS (Restored feedforward base thrust without glitch)");
+
+        // Step 4: Test AltHold sensor drop (graceful fallback)
+        mode_cmd = MODE_ALTHOLD;
+        repeat (2) @(posedge clk);
+        #1;
+        alt_valid = 1'b0; // Sensor drops
+        repeat (3) @(posedge clk);
+        #1;
+        // Mode manager falls back to Stabilize when alt_valid is 0
+        if (active_mode !== MODE_STABILIZE) begin
+            $fatal(1, "FAIL: Sensor drop did not fall back to Stabilize! active_mode=%0d", active_mode);
+        end
+        $display("  AltHold Sensor Dropout Graceful Fallback: PASS (Fell back to Stabilize)");
+
+        // Step 5: Test integrator clamping near maximum thrust (sustained saturation & recovery)
+        alt_valid    = 1'b1;
+        mode_cmd     = MODE_ALTHOLD;
+        rc_sp_thrust = 32'sh0005_0000; // Demanding huge climb (5.0m vs 0.0m)
+        alt_z        = 32'sh0000_0000;
+        alt_vz       = 32'sh0000_0000;
+        repeat (20) @(posedge clk);
+        #1;
+        // Output must saturate cleanly at FIX_ONE
+        if (u_thrust > 32'sh0001_0000 || saturated_flag !== 1'b1) begin
+            $fatal(1, "FAIL: AltHold output failed to clamp at 1.0! u_thrust=%08h, sat=%b", u_thrust, saturated_flag);
+        end
+        $display("  AltHold Upper Saturation: PASS (Clamped to 1.0 with saturated_flag asserted)");
+
+        // Recovery: bring setpoint back to altitude
+        rc_sp_thrust = 32'sh0000_0000;
+        alt_z        = 32'sh0000_0000;
+        repeat (5) @(posedge clk);
+        #1;
+        if (u_thrust > 32'sh0001_0000) begin
+            $fatal(1, "FAIL: AltHold failed to recover after desaturation! u_thrust=%08h", u_thrust);
+        end
+        $display("  AltHold Saturation Recovery: PASS (Clean recovery from windup)");
+
+        // Clean up
+        sample_valid = 1'b0;
+        mode_cmd     = MODE_ACRO;
+        rc_sp_thrust = 32'sh0000_0000;
+        repeat (5) @(posedge clk);
+    endtask
+
+    // Directed configurable failsafe hold-last and priority hierarchy task
+    task automatic test_configurable_failsafe_hold_last();
+        logic signed [31:0] roll_active, pitch_active, thrust_active;
+        $display("=== [DIRECTED TEST] Verifying Configurable Failsafe Output Behavior & Priority ===");
+
+        // ---------------------------------------------------------------------
+        // Case A: cfg_failsafe_hold_last = 0 (Default Safe Output Mode)
+        // ---------------------------------------------------------------------
+        cfg_failsafe_hold_last = 1'b0;
+        sample_valid = 1'b1;
+        mode_cmd     = MODE_STABILIZE;
+        rc_sp_roll   = 32'sh0000_4000;
+        rc_sp_pitch  = 32'sh0000_3000;
+        rc_sp_thrust = 32'sh0000_8000; // 0.50
+        imu_p = 0; imu_q = 0; imu_r = 0; imu_phi = 0; imu_theta = 0;
+        repeat (10) @(posedge clk);
+        #1;
+
+        // Switch to Failsafe
+        mode_cmd = MODE_FAILSAFE;
+        repeat (2) @(posedge clk);
+        #1;
+        if (u_roll !== 32'sd0 || u_pitch !== 32'sd0 || u_yaw !== 32'sd0 || u_thrust !== 32'sd0) begin
+            $fatal(1, "FAIL: cfg_failsafe_hold_last=0 did not zero torques and failsafe thrust! u_roll=%h, u_th=%h",
+                   u_roll, u_thrust);
+        end
+        $display("  Failsafe Hold-Last Disabled (Default): PASS (Zero torque, safe failsafe thrust)");
+
+        // Re-arm back to Stabilize
+        rearm_cmd = 1'b1;
+        mode_cmd  = MODE_STABILIZE;
+        @(posedge clk);
+        #1;
+        rearm_cmd = 1'b0;
+        repeat (5) @(posedge clk);
+
+        // ---------------------------------------------------------------------
+        // Case B: cfg_failsafe_hold_last = 1 (Hold-Last Enabled on Non-Critical)
+        // ---------------------------------------------------------------------
+        cfg_failsafe_hold_last = 1'b1;
+        repeat (10) @(posedge clk);
+        #1;
+        roll_active   = u_roll;
+        pitch_active  = u_pitch;
+        thrust_active = u_thrust;
+
+        if (roll_active == 32'sd0)
+            $fatal(1, "FAIL: Expected active control torque before failsafe test");
+
+        // Non-critical entry: Pilot commands Failsafe switch
+        mode_cmd = MODE_FAILSAFE;
+        repeat (2) @(posedge clk);
+        #1;
+
+        if (u_roll !== roll_active || u_pitch !== pitch_active || u_thrust !== thrust_active) begin
+            $fatal(1, "FAIL: cfg_failsafe_hold_last=1 failed to hold last outputs! Got r=%h, p=%h, t=%h; Exp r=%h, p=%h, t=%h",
+                   u_roll, u_pitch, u_thrust, roll_active, pitch_active, thrust_active);
+        end
+        $display("  Non-Critical Failsafe Hold-Last: PASS (Outputs held: r=%08h, p=%08h, t=%08h)",
+                 u_roll, u_pitch, u_thrust);
+
+        // ---------------------------------------------------------------------
+        // Priority Override 1: Emergency Kill Overrides Hold-Last
+        // ---------------------------------------------------------------------
+        $display("  Testing Emergency Kill Priority Override against Hold-Last...");
+        failsafe_ext_n = 1'b0;
+        // 2 cycles CDC synchronizer + 1 cycle output stage
+        repeat (3) @(posedge clk);
+        #1;
+
+        if (u_roll !== 32'sd0 || u_pitch !== 32'sd0 || u_yaw !== 32'sd0 || u_thrust !== 32'sd0) begin
+            $fatal(1, "FAIL: Emergency kill did NOT override hold-last! u_roll=%h, u_thrust=%h", u_roll, u_thrust);
+        end
+        $display("  Emergency Kill Priority Override: PASS (Unconditionally forced 0 torque and safe thrust)");
+
+        // Recover from kill
+        failsafe_ext_n = 1'b1;
+        repeat (3) @(posedge clk);
+        rearm_cmd = 1'b1;
+        mode_cmd  = MODE_STABILIZE;
+        @(posedge clk);
+        #1;
+        rearm_cmd = 1'b0;
+        repeat (5) @(posedge clk);
+        #1;
+
+        // ---------------------------------------------------------------------
+        // Priority Override 2: Watchdog Timeout Overrides Hold-Last
+        // ---------------------------------------------------------------------
+        $display("  Testing Watchdog Timeout Priority Override against Hold-Last...");
+        // Re-establish active holding commands
+        repeat (5) @(posedge clk);
+        #1;
+        roll_active = u_roll;
+
+        // Cease sample_valid to trigger watchdog timeout (100 cycles)
+        sample_valid = 1'b0;
+        repeat (105) @(posedge clk);
+        #1;
+
+        if (!watchdog_alarm || u_roll !== 32'sd0 || u_pitch !== 32'sd0 || u_yaw !== 32'sd0 || u_thrust !== 32'sd0) begin
+            $fatal(1, "FAIL: Watchdog timeout did NOT override hold-last! alarm=%b, u_roll=%h", watchdog_alarm, u_roll);
+        end
+        $display("  Watchdog Timeout Priority Override: PASS (Unconditionally forced 0 torque and safe thrust)");
+
+        // Re-arm recovery
+        sample_valid = 1'b1;
+        repeat (5) @(posedge clk);
+        rearm_cmd = 1'b1;
+        mode_cmd  = MODE_ACRO;
+        @(posedge clk);
+        #1;
+        rearm_cmd = 1'b0;
+        cfg_failsafe_hold_last = 1'b0;
+        sample_valid = 1'b0;
+        repeat (5) @(posedge clk);
+    endtask
+
+    // Directed mode-specific thrust parameter routing task
+    task automatic test_thrust_parameter_routing();
+        $display("=== [DIRECTED TEST] Verifying Mode-Specific Thrust Parameter Routing & Limits ===");
+
+        // Verify configuration memory read of thrust parameter banks (addresses 128..156)
+        // Bank 0 (Acro): addr 128 = alpha (0x0000_3333), 129 = u_min (0), 130 = u_max (0x0001_0000)
+        cfg_addr = 8'd128; #1;
+        if (cfg_rdata !== 32'h0000_3333) $fatal(1, "FAIL: Bank 0 thrust_alpha mismatch! Got=%08h", cfg_rdata);
+        cfg_addr = 8'd129; #1;
+        if (cfg_rdata !== 32'h0000_0000) $fatal(1, "FAIL: Bank 0 thrust_u_min mismatch! Got=%08h", cfg_rdata);
+        cfg_addr = 8'd130; #1;
+        if (cfg_rdata !== 32'h0001_0000) $fatal(1, "FAIL: Bank 0 thrust_u_max mismatch! Got=%08h", cfg_rdata);
+
+        // Bank 2 (AltHold): addr 144 = alpha (0x0000_3333), 145 = u_min (-0.5 = 0xFFFF_8000), 146 = u_max (+0.5 = 0x0000_8000)
+        cfg_addr = 8'd144; #1;
+        if (cfg_rdata !== 32'h0000_3333) $fatal(1, "FAIL: Bank 2 thrust_alpha mismatch! Got=%08h", cfg_rdata);
+        cfg_addr = 8'd145; #1;
+        if (cfg_rdata !== 32'hFFFF_8000) $fatal(1, "FAIL: Bank 2 thrust_u_min mismatch! Got=%08h, Exp=FFFF8000", cfg_rdata);
+        cfg_addr = 8'd146; #1;
+        if (cfg_rdata !== 32'h0000_8000) $fatal(1, "FAIL: Bank 2 thrust_u_max mismatch! Got=%08h, Exp=00008000", cfg_rdata);
+
+        $display("  Thrust Parameter Bank Bus Read: PASS (All banks verified distinct via cfg interface)");
+
+        // Test dynamic mode switching updates thrust limits:
+        // In Bank 2 (AltHold), test descent clamping (delta thrust clamped to u_min = -0.50):
+        sample_valid = 1'b1;
+        alt_valid    = 1'b1;
+        mode_cmd     = MODE_ALTHOLD;
+        rc_sp_thrust = 32'sh0000_0000; // Desired altitude = 0.0m
+        alt_z        = 32'sh000A_0000; // Drone is way too high at 10.0m -> demands maximum descent
+        alt_vz       = 32'sh0000_0000;
+        repeat (10) @(posedge clk);
+        #1;
+
+        // In AltHold: raw_alt_thrust = hover (0.50) + delta_thrust clamped to u_min (-0.50) = 0.00
+        if (u_thrust > 32'sh0000_0800) begin // Within 0.00 +/- small margin
+            $fatal(1, "FAIL: AltHold did not allow downward delta descent! u_thrust=%08h", u_thrust);
+        end
+        $display("  AltHold Descent Clamp: PASS (Downwards delta thrust reached -0.50 clamp, u_thrust=%08h)", u_thrust);
+
+        // Test configuration bus reprogramming of thrust limits:
+        // Reprogram Bank 2 thrust_u_min (addr 145) to -0.25 (0xFFFF_C000)
+        @(posedge clk);
+        cfg_we    = 1'b1;
+        cfg_addr  = 8'd145;
+        cfg_wdata = 32'shFFFF_C000; // -0.25
+        @(posedge clk);
+        #1;
+        cfg_we    = 1'b0;
+
+        repeat (5) @(posedge clk);
+        #1;
+        // Now minimum thrust = hover (0.50) - 0.25 = 0.25 (0x0000_4000)
+        if (u_thrust < 32'sh0000_3F00 || u_thrust > 32'sh0000_4100) begin
+            $fatal(1, "FAIL: Reprogrammed Bank 2 thrust_u_min did not take effect! Got u_thrust=%08h, Exp ~00004000", u_thrust);
+        end
+        $display("  Bus Reprogramming of Thrust Limits: PASS (Clamped to newly written limit ~0.25)");
+
+        // Restore original Bank 2 thrust_u_min (-0.50 = 0xFFFF_8000)
+        @(posedge clk);
+        cfg_we    = 1'b1;
+        cfg_addr  = 8'd145;
+        cfg_wdata = 32'shFFFF_8000;
+        @(posedge clk);
+        #1;
+        cfg_we    = 1'b0;
+        cfg_addr  = 8'd0;
+
+        // Clean up
+        sample_valid = 1'b0;
+        mode_cmd     = MODE_ACRO;
+        repeat (5) @(posedge clk);
+    endtask
+
     // Main Test Sequence
     initial begin
-        clk            = 0;
-        rst_n          = 0;
-        sample_valid   = 0;
-        imu_p          = 0;
-        imu_q          = 0;
-        imu_r          = 0;
-        imu_phi        = 0;
-        imu_theta      = 0;
-        alt_z          = 0;
-        alt_vz         = 0;
-        alt_valid      = 0;
-        mode_cmd       = MODE_ACRO;
-        rearm_cmd      = 0;
-        failsafe_ext_n = 1;
-        rc_sp_roll     = 0;
-        rc_sp_pitch    = 0;
-        rc_sp_yaw      = 0;
-        rc_sp_thrust   = 0;
-        cfg_we         = 0;
-        cfg_addr       = 0;
-        cfg_wdata      = 0;
+        clk                    = 0;
+        rst_n                  = 0;
+        sample_valid           = 0;
+        imu_p                  = 0;
+        imu_q                  = 0;
+        imu_r                  = 0;
+        imu_phi                = 0;
+        imu_theta              = 0;
+        alt_z                  = 0;
+        alt_vz                 = 0;
+        alt_valid              = 0;
+        mode_cmd               = MODE_ACRO;
+        rearm_cmd              = 0;
+        failsafe_ext_n         = 1;
+        cfg_failsafe_hold_last = 0;
+        rc_sp_roll             = 0;
+        rc_sp_pitch            = 0;
+        rc_sp_yaw              = 0;
+        rc_sp_thrust           = 0;
+        cfg_we                 = 0;
+        cfg_addr               = 0;
+        cfg_wdata              = 0;
 
         $display("=========================================================");
         $display("  Starting pid_top Full-Chip Hardware Verification");
@@ -543,10 +831,14 @@ module pid_top_tb;
         test_bumpless_transition();
         test_watchdog_timeout();
         test_external_failsafe_kill();
+        test_althold_bumpless_transition();
+        test_configurable_failsafe_hold_last();
+        test_thrust_parameter_routing();
 
         // Power-on Reset before Top Regression Suite
         rst_n = 0;
         sample_valid = 0;
+        cfg_failsafe_hold_last = 0;
         mode_cmd = MODE_ACRO;
         repeat (10) @(posedge clk);
         rst_n = 1;

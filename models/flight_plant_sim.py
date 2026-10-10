@@ -140,9 +140,9 @@ def evaluate_closed_loop():
     hover_thrust = (plant.m * plant.g) / plant.max_thrust
     controller.hover_thrust_q16 = float_to_q16(hover_thrust)
 
-    # Tuned PID gains for quadrotor dynamics
-    controller.kp_att_pitch = float_to_q16(10.0) # Outer angle loop gain
-    controller.core_pitch.set_gains(kp=1.4, ki=30.0, kd=0.038, alpha=0.3)
+    # Tuned PID gains for quadrotor dynamics (Phase 1 tuned baseline)
+    controller.kp_att_pitch = float_to_q16(35.0) # Outer angle loop gain
+    controller.core_pitch.set_gains(kp=2.0, ki=25.0, kd=0.020, alpha=0.3)
 
     # --------------------------------------------------------------------------
     # Scenario: Stabilize Mode 20-Degree Pitch Step

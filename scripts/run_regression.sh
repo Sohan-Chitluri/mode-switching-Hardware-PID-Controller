@@ -43,11 +43,19 @@ echo ">>> [STAGE 5/6] Running Formal Verification (SymbiYosys)..."
 sby -f tb/formal/pid_formal.sby
 echo ">>> Stage 5 PASSED: Properties P1-P5 proven for BMC depth 10."
 
-# 6. 4-DOF Quadrotor Plant Simulation
+# 6. RTL-to-Plant Co-Simulation Harness Verification
 echo ""
-echo ">>> [STAGE 6/6] Running 4-DOF Closed-Loop Plant Simulation..."
-PYTHONPATH=models python3 models/flight_plant_sim.py
-echo ">>> Stage 6 PASSED: Closed-loop stability and dynamic metrics verified."
+echo ">>> [STAGE 6/7] Running RTL-to-Plant Co-Simulation Harness Verification..."
+make cosim-lib
+PYTHONPATH=models python3 models/flight_plant_cosim.py --verify-harness
+echo ">>> Stage 6 PASSED: Co-simulation harness proofs verified."
+
+# 7. 4-DOF Quadrotor Closed-Loop RTL Co-Simulation & Dynamic Performance
+echo ""
+echo ">>> [STAGE 7/7] Running 4-DOF Closed-Loop RTL Co-Simulation..."
+PYTHONPATH=models python3 models/flight_plant_cosim.py
+PYTHONPATH=models python3 models/flight_plant_sim.py --test-metrics
+echo ">>> Stage 7 PASSED: Closed-loop stability and dynamic metrics verified (Rise Time <= 60ms)."
 
 echo ""
 echo "======================================================================"

@@ -50,6 +50,7 @@ module pid_top #(
     input  logic [1:0]               mode_cmd,        // 00=Acro, 01=Stabilize, 10=AltHold, 11=Failsafe
     input  logic                     rearm_cmd,       // Emergency fault reset / re-arm
     input  logic                     failsafe_ext_n,  // Active-low external emergency kill
+    input  logic                     cfg_failsafe_hold_last = 1'b0, // 0: safe output, 1: hold last on non-critical
     input  logic signed [DATA_W-1:0] rc_sp_roll,     // Setpoint (Rate or Angle depending on mode)
     input  logic signed [DATA_W-1:0] rc_sp_pitch,
     input  logic signed [DATA_W-1:0] rc_sp_yaw,
@@ -195,9 +196,10 @@ module pid_top #(
     // -------------------------------------------------------------------------
     // 5. Bumpless Mode Transfer Back-Calculation Logic
     // -------------------------------------------------------------------------
-    logic signed [DATA_W-1:0] u_roll_prev, u_pitch_prev, u_yaw_prev;
-    logic signed [DATA_W-1:0] new_p_roll, new_p_pitch, new_p_yaw;
+    logic signed [DATA_W-1:0] u_roll_prev, u_pitch_prev, u_yaw_prev, u_thrust_prev;
+    logic signed [DATA_W-1:0] new_p_roll, new_p_pitch, new_p_yaw, new_p_thrust;
     logic signed [DATA_W-1:0] reseed_i_roll, reseed_i_pitch, reseed_i_yaw;
+    logic signed [DATA_W-1:0] raw_reseed_i_thrust, reseed_i_thrust;
 
     // Instantaneous P_new calculation for back-calculation
     pid_mult #(.DATA_W(DATA_W), .FRACT_W(FRACT_W)) u_pnew_r (
@@ -209,10 +211,30 @@ module pid_top #(
     pid_mult #(.DATA_W(DATA_W), .FRACT_W(FRACT_W)) u_pnew_y (
         .a(yaw_kp), .b(inner_sp_yaw - imu_r), .p(new_p_yaw)
     );
+    pid_mult #(.DATA_W(DATA_W), .FRACT_W(FRACT_W)) u_pnew_t (
+        .a(thrust_kp), .b(inner_sp_vz - alt_vz), .p(new_p_thrust)
+    );
 
     assign reseed_i_roll  = u_roll_prev  - new_p_roll;
     assign reseed_i_pitch = u_pitch_prev - new_p_pitch;
     assign reseed_i_yaw   = u_yaw_prev   - new_p_yaw;
+
+    // Altitude Thrust bumpless back-calculation:
+    // raw_alt_thrust = hover_thrust + core_u_thrust
+    // To achieve zero discontinuity: raw_alt_thrust == u_thrust_prev
+    // => core_u_thrust = u_thrust_prev - hover_thrust
+    // Since core_u_thrust = new_p_thrust + reseed_i_thrust (with D=0 at handover),
+    // raw_reseed_i_thrust = (u_thrust_prev - hover_thrust) - new_p_thrust.
+    assign raw_reseed_i_thrust = (u_thrust_prev - hover_thrust) - new_p_thrust;
+
+    always_comb begin
+        if (raw_reseed_i_thrust > thrust_i_max)
+            reseed_i_thrust = thrust_i_max;
+        else if (raw_reseed_i_thrust < thrust_i_min)
+            reseed_i_thrust = thrust_i_min;
+        else
+            reseed_i_thrust = raw_reseed_i_thrust;
+    end
 
     // -------------------------------------------------------------------------
     // 6. Fully Parallel Inner Rate Datapath (Roll, Pitch, Yaw, Altitude)
@@ -259,7 +281,7 @@ module pid_top #(
         .setpoint(inner_sp_vz), .measurement(alt_vz),
         .kp(thrust_kp), .ki_eff(thrust_ki_eff), .kd_eff(thrust_kd_eff), .alpha(thrust_alpha),
         .u_min(thrust_u_min), .u_max(thrust_u_max), .i_min(thrust_i_min), .i_max(thrust_i_max),
-        .reseed_valid(trans_strobe_w && (mode_next_w == MODE_ALTHOLD)), .reseed_val(FIX_ZERO),
+        .reseed_valid(trans_strobe_w && (mode_next_w == MODE_ALTHOLD)), .reseed_val(reseed_i_thrust),
         .u_sat(core_u_thrust), .error_out(), .p_term_out(), .i_term_out(), .d_term_out(), .raw_sum_out(),
         .clamp_high_out(ch_t), .clamp_low_out(cl_t)
     );
@@ -303,6 +325,10 @@ module pid_top #(
         .rst_n(rst_n),
         .sample_valid(sample_valid),
         .active_mode(mode_next_w),
+        .fault_code(fault_code_w),
+        .watchdog_alarm(watchdog_alarm),
+        .failsafe_ext_n(failsafe_ext_sync_n),
+        .cfg_failsafe_hold_last(cfg_failsafe_hold_last),
         .in_u_roll(core_u_roll),
         .in_u_pitch(core_u_pitch),
         .in_u_yaw(core_u_yaw),
@@ -318,17 +344,20 @@ module pid_top #(
     // Track previous outputs for bumpless transfer back-calculation
     always_ff @(posedge clk) begin
         if (!rst_n) begin
-            u_roll_prev  <= FIX_ZERO;
-            u_pitch_prev <= FIX_ZERO;
-            u_yaw_prev   <= FIX_ZERO;
+            u_roll_prev   <= FIX_ZERO;
+            u_pitch_prev  <= FIX_ZERO;
+            u_yaw_prev    <= FIX_ZERO;
+            u_thrust_prev <= FIX_ZERO;
         end else if (mode_next_w == MODE_FAILSAFE) begin
-            u_roll_prev  <= FIX_ZERO;
-            u_pitch_prev <= FIX_ZERO;
-            u_yaw_prev   <= FIX_ZERO;
+            u_roll_prev   <= FIX_ZERO;
+            u_pitch_prev  <= FIX_ZERO;
+            u_yaw_prev    <= FIX_ZERO;
+            u_thrust_prev <= FIX_ZERO;
         end else if (sample_valid) begin
-            u_roll_prev  <= core_u_roll;
-            u_pitch_prev <= core_u_pitch;
-            u_yaw_prev   <= core_u_yaw;
+            u_roll_prev   <= core_u_roll;
+            u_pitch_prev  <= core_u_pitch;
+            u_yaw_prev    <= core_u_yaw;
+            u_thrust_prev <= final_thrust_sat;
         end
     end
 

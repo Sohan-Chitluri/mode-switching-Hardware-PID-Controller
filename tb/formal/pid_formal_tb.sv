@@ -35,6 +35,10 @@ module pid_formal_tb (
 
     // Output Stage Inputs
     input logic [1:0]         out_mode,
+    input logic [3:0]         out_fault_code,
+    input logic               out_wd_alarm,
+    input logic               out_fs_ext_n,
+    input logic               out_hold_last,
     input logic signed [31:0] in_ur,
     input logic signed [31:0] in_up,
     input logic signed [31:0] in_uy,
@@ -109,6 +113,10 @@ module pid_formal_tb (
         .rst_n(rst_n),
         .sample_valid(1'b1),
         .active_mode(out_mode),
+        .fault_code(out_fault_code),
+        .watchdog_alarm(out_wd_alarm),
+        .failsafe_ext_n(out_fs_ext_n),
+        .cfg_failsafe_hold_last(out_hold_last),
         .in_u_roll(in_ur),
         .in_u_pitch(in_up),
         .in_u_yaw(in_uy),
@@ -121,24 +129,38 @@ module pid_formal_tb (
         .out_u_thrust(out_ut)
     );
 
-    // Track previous mode and thrust to verify registered output
-    logic [1:0] prev_out_mode;
-    logic prev_rst_n;
+    // Track previous mode and controls to verify registered output
+    logic [1:0]         prev_out_mode;
+    logic [3:0]         prev_out_fault_code;
+    logic               prev_out_wd_alarm;
+    logic               prev_out_fs_ext_n;
+    logic               prev_out_hold_last;
+    logic               prev_rst_n;
     logic signed [31:0] prev_fs_thrust;
     always_ff @(posedge clk) begin
-        prev_out_mode  <= out_mode;
-        prev_rst_n     <= rst_n;
-        prev_fs_thrust <= fs_thrust;
+        prev_out_mode       <= out_mode;
+        prev_out_fault_code <= out_fault_code;
+        prev_out_wd_alarm   <= out_wd_alarm;
+        prev_out_fs_ext_n   <= out_fs_ext_n;
+        prev_out_hold_last  <= out_hold_last;
+        prev_rst_n          <= rst_n;
+        prev_fs_thrust      <= fs_thrust;
     end
 
-    // Assert: when in Failsafe mode, registered outputs are strictly safe
+    wire prev_out_is_crit = (!prev_out_fs_ext_n) ||
+                            prev_out_wd_alarm ||
+                            ((prev_out_fault_code & (FAULT_EXT_FAILSAFE | FAULT_WATCHDOG_STALE)) != 4'd0);
+
+    // Assert: when in Failsafe mode with critical fault or hold_last disabled, outputs are strictly safe
     always_ff @(posedge clk) begin
         if (prev_rst_n && rst_n) begin
             if (prev_out_mode == MODE_FAILSAFE) begin
-                assert(out_ur == 32'sd0);
-                assert(out_up == 32'sd0);
-                assert(out_uy == 32'sd0);
-                assert(out_ut == prev_fs_thrust);
+                if (prev_out_is_crit || !prev_out_hold_last) begin
+                    assert(out_ur == 32'sd0);
+                    assert(out_up == 32'sd0);
+                    assert(out_uy == 32'sd0);
+                    assert(out_ut == prev_fs_thrust);
+                end
             end
         end
     end

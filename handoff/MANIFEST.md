@@ -5,8 +5,8 @@
 **Target Environment:** Cadence Digital Flow (Genus Synthesis + Innovus P&R)  
 **Verification Baseline:** Verilator 5.050, Python 3.14, SymbiYosys + Z3 SMT Solver, Yosys 0.68  
 **Date:** October 2026  
-**Branch:** `fix/audit-remediation`  
-**Status:** Verification Signed-Off (100% Bit-Exact Equivalence across 20,111 vectors; 10-Step Formal BMC Proven; 4-DOF Plant Stable)
+**Branch:** `feat/phase2-robustness-safety`  
+**Status:** Verification Signed-Off (100% Bit-Exact Equivalence across 20,111 vectors; 10-Step Formal BMC Proven; 4-DOF Plant Stable; Phase 2 Remediated)
 
 ---
 
@@ -21,12 +21,12 @@
 | `rtl/core/pid_sat_unit.sv` | 48-bit guarded summation & actuator clamping unit | IEEE 1800-2012 | `33d46396e6304e4ad156acf5c5a86be80afccb09fb93ac361d900cbf3114f68c` |
 | `rtl/core/pid_axis_core.sv` | Single-axis PID engine (Roll, Pitch, Yaw, Altitude) | IEEE 1800-2012 | `6042665cd18a29d51cd3f89b56a7856ca5b686f33844032c0081cb34015402b6` |
 | `rtl/modes/pid_outer_loop.sv` | Cascaded attitude angle-to-rate & altitude velocity generators | IEEE 1800-2012 | `e08495c544be72ff004e649bc1e53998b41a0b17f015139ddee745c19cbcaada` |
-| `rtl/modes/pid_gain_bank.sv` | Mode-specific bank registers & configuration decoder | IEEE 1800-2012 | `a7f26d03e673c5d0ad07eb77e6d631d374cfcf8135e1495f8dedd428c75c4fc9` |
+| `rtl/modes/pid_gain_bank.sv` | Mode-specific bank registers & configuration decoder | IEEE 1800-2012 | `b764f6e262c6f177bd27fb7f7538e90ef142c6f1067828ee12865b5002b263e3` |
 | `rtl/modes/pid_mode_mgr.sv` | Operating mode FSM, graceful degradation, and fault latching | IEEE 1800-2012 | `f15bb02b1a5c3cc3bf8d13166db5bd2b974a5e966a667b8d45a6aada4d3f83f4` |
 | `rtl/safety/pid_tilt_comp.sv` | Quadratic Taylor series attitude tilt compensation ($1/\cos\theta$) | IEEE 1800-2012 | `2cdc8b71b5f65aa35f7afceb63af396957f6a2902b63dfc2f46ef419ae92c2e4` |
 | `rtl/safety/pid_watchdog.sv` | Sensor freshness watchdog timer with programmable timeout | IEEE 1800-2012 | `6b146f8bd97bc1a479133e7149c6727aa9028dd176903df026c11e6c36dc9fa4` |
-| `rtl/safety/pid_output_stage.sv` | Actuator registered output stage & failsafe override mux | IEEE 1800-2012 | `ca0eef5a1403206332ef7c52bd20c46655c900e2d9cb2c3a60baaf3cb43eeefc` |
-| `rtl/pid_top.sv` | Full-chip 4-axis top integration & bumpless handover logic | IEEE 1800-2012 | `0166c288eaed1ebd4e8de7152980c3aa1dd0f7d99714f3aa12ed6ee270846237` |
+| `rtl/safety/pid_output_stage.sv` | Actuator registered output stage & failsafe override mux | IEEE 1800-2012 | `89ee9ec5a65c6a1f8748137836bd2af756a8d90cb0af9014eda046bf59dda936` |
+| `rtl/pid_top.sv` | Full-chip 4-axis top integration & bumpless handover logic | IEEE 1800-2012 | `68939be4dd4c9afc4a6f8eeeab52b97553c58154e633b58f890136b9e67c21f3` |
 
 ---
 
@@ -38,7 +38,7 @@
 | `handoff/CADENCE_IMPORT_GUIDE.md` | Comprehensive Cadence import and flow instructions | Markdown Doc | `a192d9af9a0c35951c89501ff80fd55826ad51bbe8a795d727d58c4152d0936b` |
 | `handoff/genus_synth.tcl` | Cadence Genus synthesis execution script | Tcl Script | `4b6e5255bbbcf54b00094bd9c8ce37f217dfc241e733e2b03f16e7a800d2a702` |
 | `handoff/innovus_pnr.tcl` | Cadence Innovus place-and-route script template | Tcl Script | `8f4247c9c691ed46017e77975c87de7c65b6f4efbf271fb088e092305d64f786` |
-| `scripts/run_regression.sh` | End-to-end regression test suite runner (6 stages) | Bash Script | `3d81896017f881c5f2c69741e57bb87b673639eb1ee26839b57ad78a6c80eaa3` |
+| `scripts/run_regression.sh` | End-to-end regression test suite runner (7 stages) | Bash Script | `d0c97093d94b257d6cb6f5f30831264eb268e9171cf99414ea0dd30e0bda345b` |
 | `scripts/prelim_synth.tcl` | Yosys structural synthesis and elaboration check script | Tcl Script | `03266d2d212c3de3a254b6d34f266731659eafe6eeea421b7e342924a1bb04d2` |
 
 ---
@@ -47,13 +47,17 @@
 
 | Relative File Path | Component Description | SHA-256 Checksum |
 | :--- | :--- | :--- |
-| `models/pid_golden_model.py` | Bit-accurate reference simulator & fixed-point golden model | `5c4a7a625f32fb5916acb700bc817459c734011e8c83fda1524f1e67ca26a1c5` |
-| `models/flight_plant_sim.py` | 4-DOF non-linear quadrotor dynamics plant simulator (roll, pitch, yaw, z) | `95aa6576d3d93bcef04ed0915798f54e627f54eece8467f4f6d81107e8711c20` |
+| `models/pid_golden_model.py` | Bit-accurate reference simulator & fixed-point golden model | `872e4f3004370489aa8c2efdc145ecf17b4ed48bc8e04120d14de5ff6777a00c` |
+| `models/flight_plant_sim.py` | 4-DOF non-linear quadrotor dynamics plant simulator (roll, pitch, yaw, z) | `9f9b392f0ecbca4a13cd4fccaca1ee5283af5637e59877c8b0e6e9b0873342e2` |
+| `models/flight_plant_cosim.py` | True closed-loop RTL-to-plant co-simulation harness | `0652e44076390ee1c56888c705f2e374771d25330dd4c4a24fff1b7fca0b4cff` |
 | `models/generate_vectors.py` | Test vector generator (20,111 total vectors across unit and top) | `c394008936338050522f5df63e57e1c110ac9dcae954b974387c2ce31196e6e5` |
 | `tb/unit/pid_axis_core_tb.sv` | Unit testbench for `pid_axis_core` (10,111 vectors) | `5aa2783b12b76a174c36e88524493fd89dc0c01f11a039364eb11d53a19c7cd2` |
-| `tb/top/pid_top_tb.sv` | Top-level full-chip testbench (10,000 vectors + directed tests) | `87befff81ae773bfa6a06de3069ae7dbed5b3afb517929b0ea3177e9b7a6573e` |
-| `tb/formal/pid_formal_tb.sv` | Formal testbench harness for P1-P5 invariant properties | `e6e6b49148a52d8b0df6ddce8f1d2c07e861ee1783989dd2d4920d886cb6378d` |
+| `tb/top/pid_top_tb.sv` | Top-level full-chip testbench (10,000 vectors + directed tests) | `c85a3e0942b74228fbbbbf1a0f69e26ee6db58bf76dd9bc18f55beaef37e3b86` |
+| `tb/cosim/pid_top_cosim.cpp` | C API wrapper around Verilated Vpid_top for Python ctypes cosimulation | `cebbcafae967a01cf3f0b055a89c333ee0936a0d62accb7b2c30a29e4809e0fd` |
+| `tb/formal/pid_formal_tb.sv` | Formal testbench harness for P1-P5 invariant properties | `8c423112d66b280cc85183196d0c1b5916013d19fa640fbb3080b601265ea60e` |
 | `tb/formal/pid_formal.sby` | SymbiYosys configuration file for Z3 SMT solver | `a14564abfeb1641e23ed41c20dae1944b7a8abcf66e70cae592af2f36410d98a` |
+| `handoff/PHASE1_COSIM_REPORT.md` | Phase 1 closed-loop co-sim & dynamic plant tuning report | `e3d0a5925bb47f99b63799f4ed089eaaa13226bb63239440bd0c0206e1f93b91` |
+| `handoff/PHASE2_REMEDIATION_REPORT.md` | Phase 2 robustness, safety remediation, and thrust routing report | `e5652b7be6985d1a8cadecb66f95db1c2085c2b7f109dff090d760e6707a94f6` |
 
 ---
 

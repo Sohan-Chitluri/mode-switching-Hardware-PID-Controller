@@ -108,6 +108,29 @@ sim-plant:
 	@echo "=== [PLANT] Running 6-DOF Quadrotor Plant Simulation ==="
 	$(PYTHON) $(MODELS_DIR)/flight_plant_sim.py
 
+cosim-lib: $(OUTPUT_DIR)
+	@echo "=== [COSIM] Building Verilated Shared Library libpid_top_cosim.so ==="
+	@mkdir -p $(ABS_OUTPUT)/obj_cosim
+	$(VERILATOR) --cc -O3 -CFLAGS "-O3 -fPIC" -Wno-VARHIDDEN -Wno-TIMESCALEMOD \
+		$(VERILATOR_INCLUDES) --sv \
+		--top-module pid_top \
+		--Mdir $(ABS_OUTPUT)/obj_cosim \
+		$(RTL_TOP_SRCS)
+	g++ -O3 -fPIC -shared \
+		-I$(ABS_OUTPUT)/obj_cosim \
+		-I$(shell verilator -V | grep -m1 VERILATOR_ROOT | awk '{print $$3}')/include \
+		-I$(shell verilator -V | grep -m1 VERILATOR_ROOT | awk '{print $$3}')/include/vltstd \
+		$(shell verilator -V | grep -m1 VERILATOR_ROOT | awk '{print $$3}')/include/verilated.cpp \
+		$(shell verilator -V | grep -m1 VERILATOR_ROOT | awk '{print $$3}')/include/verilated_threads.cpp \
+		$(ABS_OUTPUT)/obj_cosim/Vpid_top*.cpp \
+		$(TB_DIR)/cosim/pid_top_cosim.cpp \
+		-o $(ABS_OUTPUT)/libpid_top_cosim.so
+	@echo "=== [COSIM] libpid_top_cosim.so built successfully ==="
+
+test-cosim: cosim-lib
+	@echo "=== [COSIM] Running RTL-to-Plant Co-Simulation ==="
+	PYTHONPATH=$(MODELS_DIR) $(PYTHON) $(MODELS_DIR)/flight_plant_cosim.py
+
 regression: gen-vectors test-top
 	@echo "=== [REGRESSION] Full Regression Complete ==="
 

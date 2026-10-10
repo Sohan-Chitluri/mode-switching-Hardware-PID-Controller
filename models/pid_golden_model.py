@@ -141,6 +141,13 @@ class PidAxisCoreGolden:
         self.kd_eff_q16 = kd_eff_q16
         self.alpha_q16 = alpha_q16
 
+    def set_limits_q16(self, u_min_q16: int, u_max_q16: int, i_min_q16: int, i_max_q16: int):
+        """Set saturation limits with safety clamping against invalid inversion."""
+        self.u_max_q16 = u_max_q16
+        self.u_min_q16 = u_min_q16 if u_min_q16 <= u_max_q16 else u_max_q16
+        self.i_max_q16 = i_max_q16
+        self.i_min_q16 = i_min_q16 if i_min_q16 <= i_max_q16 else i_max_q16
+
     def step(
         self,
         sp_q16: int,
@@ -240,9 +247,10 @@ class PidTopGolden:
     MODE_ALTHOLD = 2
     MODE_FAILSAFE = 3
 
-    def __init__(self, timeout_cycles: int = 50000, ts: float = 0.00025):
+    def __init__(self, timeout_cycles: int = 50000, ts: float = 0.00025, cfg_failsafe_hold_last: bool = False):
         self.timeout_cycles = timeout_cycles
         self.ts = ts
+        self.cfg_failsafe_hold_last = cfg_failsafe_hold_last
 
         # Core PID Channels (Parallel Hardware)
         self.core_roll = PidAxisCoreGolden(kp=0.15, ki=0.20, kd=0.004, alpha=0.3, ts=ts, u_min=-1.0, u_max=+1.0)
@@ -272,6 +280,12 @@ class PidTopGolden:
         self.u_yaw_prev = 0
         self.u_thrust_prev = 0
 
+        self.last_valid_roll = 0
+        self.last_valid_pitch = 0
+        self.last_valid_yaw = 0
+        self.last_valid_thrust = 0
+        self.has_valid_sample = False
+
         self._apply_mode_gains(self.active_mode)
 
     def _apply_mode_gains(self, mode: int):
@@ -287,17 +301,31 @@ class PidTopGolden:
             self.core_pitch.set_gains_q16(kp_q16=0x00004000, ki_eff_q16=0x00000007, kd_eff_q16=0x00140000, alpha_q16=0x00004CCD)
             self.core_yaw.set_gains_q16(kp_q16=0x00004000, ki_eff_q16=0x00000002, kd_eff_q16=0x00000000, alpha_q16=0x00004CCD)
             self.core_thrust.set_gains_q16(kp_q16=0x00006666, ki_eff_q16=0x00000005, kd_eff_q16=0x00280000, alpha_q16=0x00003333)
-        elif mode in (self.MODE_STABILIZE, self.MODE_ALTHOLD):
-            self.kp_att_roll = 0x000A0000 # 10.0
-            self.kp_att_pitch = 0x000A0000 # 10.0
+            self.core_thrust.set_limits_q16(u_min_q16=0x00000000, u_max_q16=0x00010000, i_min_q16=-0x00004000, i_max_q16=0x00004000)
+        elif mode == self.MODE_STABILIZE:
+            self.kp_att_roll = 0x00230000 # 35.0
+            self.kp_att_pitch = 0x00230000 # 35.0
             self.kp_alt_pos = 0x00013333 # 1.2
             self.hover_thrust_q16 = 0x00008000
             self.failsafe_thrust_q16 = 0x00000000
-            # Stabilize / AltHold tuned rate gains (kp=1.4, ki=30.0, kd=0.038)
-            self.core_roll.set_gains_q16(kp_q16=0x00016666, ki_eff_q16=0x000001EC, kd_eff_q16=0x00980000, alpha_q16=0x00004CCD)
-            self.core_pitch.set_gains_q16(kp_q16=0x00016666, ki_eff_q16=0x000001EC, kd_eff_q16=0x00980000, alpha_q16=0x00004CCD)
+            # Stabilize Phase 1 tuned rate gains (kp=2.0, ki=25.0, kd=0.020)
+            self.core_roll.set_gains_q16(kp_q16=0x00020000, ki_eff_q16=0x0000019A, kd_eff_q16=0x00500000, alpha_q16=0x00004CCD)
+            self.core_pitch.set_gains_q16(kp_q16=0x00020000, ki_eff_q16=0x0000019A, kd_eff_q16=0x00500000, alpha_q16=0x00004CCD)
             self.core_yaw.set_gains_q16(kp_q16=0x00004000, ki_eff_q16=0x00000002, kd_eff_q16=0x00000000, alpha_q16=0x00004CCD)
             self.core_thrust.set_gains_q16(kp_q16=0x00006666, ki_eff_q16=0x00000005, kd_eff_q16=0x00280000, alpha_q16=0x00003333)
+            self.core_thrust.set_limits_q16(u_min_q16=0x00000000, u_max_q16=0x00010000, i_min_q16=-0x00004000, i_max_q16=0x00004000)
+        elif mode == self.MODE_ALTHOLD:
+            self.kp_att_roll = 0x00230000 # 35.0
+            self.kp_att_pitch = 0x00230000 # 35.0
+            self.kp_alt_pos = 0x00013333 # 1.2
+            self.hover_thrust_q16 = 0x00008000
+            self.failsafe_thrust_q16 = 0x00000000
+            self.core_roll.set_gains_q16(kp_q16=0x00020000, ki_eff_q16=0x0000019A, kd_eff_q16=0x00500000, alpha_q16=0x00004CCD)
+            self.core_pitch.set_gains_q16(kp_q16=0x00020000, ki_eff_q16=0x0000019A, kd_eff_q16=0x00500000, alpha_q16=0x00004CCD)
+            self.core_yaw.set_gains_q16(kp_q16=0x00004000, ki_eff_q16=0x00000002, kd_eff_q16=0x00000000, alpha_q16=0x00004CCD)
+            self.core_thrust.set_gains_q16(kp_q16=0x00006666, ki_eff_q16=0x00000005, kd_eff_q16=0x00280000, alpha_q16=0x00003333)
+            # AltHold delta limits: [-0.5, +0.5] allows climb and descent control
+            self.core_thrust.set_limits_q16(u_min_q16=-0x00008000, u_max_q16=0x00008000, i_min_q16=-0x00004000, i_max_q16=0x00004000)
         else: # MODE_FAILSAFE
             self.kp_att_roll = 0
             self.kp_att_pitch = 0
@@ -308,6 +336,7 @@ class PidTopGolden:
             self.core_pitch.set_gains_q16(kp_q16=0, ki_eff_q16=0, kd_eff_q16=0, alpha_q16=0x00004CCD)
             self.core_yaw.set_gains_q16(kp_q16=0, ki_eff_q16=0, kd_eff_q16=0, alpha_q16=0x00004CCD)
             self.core_thrust.set_gains_q16(kp_q16=0, ki_eff_q16=0, kd_eff_q16=0, alpha_q16=0x00003333)
+            self.core_thrust.set_limits_q16(u_min_q16=0x00000000, u_max_q16=0x00010000, i_min_q16=-0x00004000, i_max_q16=0x00004000)
 
     def reset(self):
         """System reset."""
@@ -325,6 +354,11 @@ class PidTopGolden:
         self.u_pitch_prev = 0
         self.u_yaw_prev = 0
         self.u_thrust_prev = 0
+        self.last_valid_roll = 0
+        self.last_valid_pitch = 0
+        self.last_valid_yaw = 0
+        self.last_valid_thrust = 0
+        self.has_valid_sample = False
         self._apply_mode_gains(self.active_mode)
 
     def step(
@@ -393,19 +427,33 @@ class PidTopGolden:
         self.active_mode = target_mode
         self._apply_mode_gains(self.active_mode)
 
-        # Immediate deterministic failsafe override (even when sensor samples stop)
+        # Failsafe Output Override logic with priority hierarchy:
+        # Priority 1: Critical fault (Kill / Watchdog) -> Immediate safe disarm
+        # Priority 2: Failsafe mode with hold-last enabled and initialized -> Hold last valid
+        # Priority 3: Failsafe mode with hold-last disabled or uninitialized -> Configured safe output
         if self.active_mode == self.MODE_FAILSAFE:
+            is_critical_fault = (not fs_sync_n) or self.watchdog_alarm or bool(self.sticky_fault & 0x3)
+            if is_critical_fault or (not self.cfg_failsafe_hold_last) or (not self.has_valid_sample):
+                u_r = 0
+                u_p = 0
+                u_y = 0
+                u_t = self.failsafe_thrust_q16
+            else:
+                u_r = self.last_valid_roll
+                u_p = self.last_valid_pitch
+                u_y = self.last_valid_yaw
+                u_t = self.last_valid_thrust
             self.u_roll_prev = 0
             self.u_pitch_prev = 0
             self.u_yaw_prev = 0
-            self.u_thrust_prev = self.failsafe_thrust_q16
+            self.u_thrust_prev = 0
             return {
                 "output_valid": True,
                 "active_mode": self.active_mode,
-                "u_roll": 0,
-                "u_pitch": 0,
-                "u_yaw": 0,
-                "u_thrust": self.failsafe_thrust_q16,
+                "u_roll": u_r,
+                "u_pitch": u_p,
+                "u_yaw": u_y,
+                "u_thrust": u_t,
                 "watchdog_alarm": self.watchdog_alarm,
                 "fault_code": self.sticky_fault,
             }
@@ -472,6 +520,17 @@ class PidTopGolden:
         new_p_yaw = mult_q16(self.core_yaw.kp_q16, to_signed32(inner_sp_yaw - imu_r))
         reseed_val_yaw = to_signed32(self.u_yaw_prev - new_p_yaw)
 
+        # Altitude Thrust bumpless back-calculation:
+        # raw_alt_thrust = hover_thrust + delta_thrust
+        # delta_thrust = new_p_thrust + reseed_i_thrust (D=0 at handover)
+        # raw_alt_thrust == u_thrust_prev => reseed_i_thrust = (u_thrust_prev - hover_thrust) - new_p_thrust
+        if self.active_mode == self.MODE_ALTHOLD and alt_valid:
+            new_p_thrust = mult_q16(self.core_thrust.kp_q16, to_signed32(inner_sp_thrust - thrust_meas))
+            raw_reseed_t = to_signed32(to_signed32(self.u_thrust_prev - self.hover_thrust_q16) - new_p_thrust)
+            reseed_val_thrust = clamp(raw_reseed_t, self.core_thrust.i_min_q16, self.core_thrust.i_max_q16)
+        else:
+            reseed_val_thrust = 0
+
         # ----------------------------------------------------------------------
         # Inner Datapath (Roll, Pitch, Yaw)
         # ----------------------------------------------------------------------
@@ -483,7 +542,7 @@ class PidTopGolden:
         # Altitude Thrust Datapath & Tilt Compensation
         # ----------------------------------------------------------------------
         if self.active_mode == self.MODE_ALTHOLD and alt_valid:
-            out_t = self.core_thrust.step(inner_sp_thrust, thrust_meas, reseed_t, 0)
+            out_t = self.core_thrust.step(inner_sp_thrust, thrust_meas, reseed_t, reseed_val_thrust)
             delta_thrust = out_t["u_sat"]
             raw_thrust = to_signed32(self.hover_thrust_q16 + delta_thrust)
 
@@ -516,6 +575,12 @@ class PidTopGolden:
         self.u_pitch_prev = u_pitch
         self.u_yaw_prev = u_yaw
         self.u_thrust_prev = u_thrust
+
+        self.last_valid_roll = u_roll
+        self.last_valid_pitch = u_pitch
+        self.last_valid_yaw = u_yaw
+        self.last_valid_thrust = u_thrust
+        self.has_valid_sample = True
 
         return {
             "output_valid": True,
@@ -561,5 +626,52 @@ if __name__ == "__main__":
     diff = abs(res['u_sat'] - prev_u)
     print(f"Bumpless handover: Target={q16_to_float(prev_u):.4f}, Got={q16_to_float(res['u_sat']):.4f}, Diff={diff}")
     assert diff <= 1, f"Expected zero or 1 LSB bump on handover, got diff={diff}"
+
+    # Test 4: Top-level AltHold thrust bumpless handover
+    top = PidTopGolden(timeout_cycles=100)
+    # Fly in Stabilize at 55% thrust
+    st_th = float_to_q16(0.55)
+    for _ in range(5):
+        r = top.step(sample_valid=True, imu_p=0, imu_q=0, imu_r=0, imu_phi=0, imu_theta=0,
+                     alt_z=st_th, alt_vz=0, alt_valid=True, mode_cmd=1, failsafe_ext_n=True,
+                     sp_roll=0, sp_pitch=0, sp_yaw=0, sp_thrust=st_th)
+    u_th_stab = r['u_thrust']
+    # Switch to AltHold
+    r_alt = top.step(sample_valid=True, imu_p=0, imu_q=0, imu_r=0, imu_phi=0, imu_theta=0,
+                     alt_z=st_th, alt_vz=0, alt_valid=True, mode_cmd=2, failsafe_ext_n=True,
+                     sp_roll=0, sp_pitch=0, sp_yaw=0, sp_thrust=st_th)
+    diff_th = abs(r_alt['u_thrust'] - u_th_stab)
+    print(f"Top AltHold Bumpless: Stab={q16_to_float(u_th_stab):.4f}, AltHold={q16_to_float(r_alt['u_thrust']):.4f}, Diff={diff_th}")
+    assert diff_th <= 1, f"Expected bumpless thrust transition, got diff={diff_th}"
+
+    # Test 5: Configurable Failsafe Hold-Last and Critical Fault Override
+    top_hl = PidTopGolden(timeout_cycles=10, cfg_failsafe_hold_last=True)
+    # Fly with nonzero roll command
+    r_fly = top_hl.step(sample_valid=True, imu_p=0, imu_q=0, imu_r=0, imu_phi=0, imu_theta=0,
+                        alt_z=0, alt_vz=0, alt_valid=True, mode_cmd=1, failsafe_ext_n=True,
+                        sp_roll=float_to_q16(0.20), sp_pitch=0, sp_yaw=0, sp_thrust=float_to_q16(0.50))
+    last_u_roll = r_fly['u_roll']
+    assert last_u_roll != 0, "Expected nonzero roll output in flight"
+
+    # Switch to Failsafe mode (non-critical pilot switch)
+    r_fs = top_hl.step(sample_valid=True, imu_p=0, imu_q=0, imu_r=0, imu_phi=0, imu_theta=0,
+                       alt_z=0, alt_vz=0, alt_valid=True, mode_cmd=3, failsafe_ext_n=True,
+                       sp_roll=0, sp_pitch=0, sp_yaw=0, sp_thrust=0)
+    print(f"Hold-last non-critical failsafe: roll={q16_to_float(r_fs['u_roll']):.4f}, exp={q16_to_float(last_u_roll):.4f}")
+    assert r_fs['u_roll'] == last_u_roll, "Expected hold-last to retain previous roll command"
+
+    # Emergency kill override: failsafe_ext_n = False
+    # Takes 3 clock cycles: fs_stage1 -> fs_stage2 -> output stage
+    top_hl.step(sample_valid=True, imu_p=0, imu_q=0, imu_r=0, imu_phi=0, imu_theta=0,
+                alt_z=0, alt_vz=0, alt_valid=True, mode_cmd=3, failsafe_ext_n=False,
+                sp_roll=0, sp_pitch=0, sp_yaw=0, sp_thrust=0) # cycle 1
+    top_hl.step(sample_valid=True, imu_p=0, imu_q=0, imu_r=0, imu_phi=0, imu_theta=0,
+                alt_z=0, alt_vz=0, alt_valid=True, mode_cmd=3, failsafe_ext_n=False,
+                sp_roll=0, sp_pitch=0, sp_yaw=0, sp_thrust=0) # cycle 2
+    r_kill = top_hl.step(sample_valid=True, imu_p=0, imu_q=0, imu_r=0, imu_phi=0, imu_theta=0,
+                         alt_z=0, alt_vz=0, alt_valid=True, mode_cmd=3, failsafe_ext_n=False,
+                         sp_roll=0, sp_pitch=0, sp_yaw=0, sp_thrust=0) # cycle 3
+    print(f"Emergency kill override: roll={r_kill['u_roll']}, thrust={r_kill['u_thrust']}")
+    assert r_kill['u_roll'] == 0 and r_kill['u_thrust'] == 0, "Emergency kill must override hold-last!"
 
     print("=== All Golden Model Self-Tests PASSED ===")
