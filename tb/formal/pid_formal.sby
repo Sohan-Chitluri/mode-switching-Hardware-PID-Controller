@@ -1,0 +1,29 @@
+[options]
+mode bmc
+depth 10
+
+[engines]
+smtbmc z3
+
+[script]
+read_verilog -sv -I. pid_pkg.sv
+read_verilog -sv -I. pid_mult.sv
+read_verilog -sv -I. pid_deriv_filter.sv
+read_verilog -sv -I. pid_integ_unit.sv
+read_verilog -sv -I. pid_sat_unit.sv
+read_verilog -sv -I. pid_output_stage.sv
+read_verilog -sv -I. pid_watchdog.sv
+read_verilog -sv -I. pid_mode_mgr.sv
+read_verilog -sv -I. pid_formal_tb.sv
+prep -top pid_formal_tb
+
+[files]
+tb/formal/pid_formal_tb.sv
+rtl/pkg/pid_pkg.sv
+rtl/core/pid_mult.sv
+rtl/core/pid_deriv_filter.sv
+rtl/core/pid_integ_unit.sv
+rtl/core/pid_sat_unit.sv
+rtl/safety/pid_output_stage.sv
+rtl/safety/pid_watchdog.sv
+rtl/modes/pid_mode_mgr.sv

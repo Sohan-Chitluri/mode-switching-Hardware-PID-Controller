@@ -1,0 +1,11 @@
+output/
+obj_dir/
+.venv/
+*.vcd
+*.fst
+*.log
+pid_formal_*/
+__pycache__/
+*.pyc
+.cache/
+tb/formal/pid_formal/
