@@ -129,6 +129,9 @@ module pid_top_tb;
 
         logic [31:0] pipe_ur, pipe_up, pipe_uy, pipe_ut;
         logic [1:0]  pipe_mode;
+        logic        pipe_alarm;
+        logic [3:0]  pipe_fault;
+        logic        pipe_out_valid;
         logic        pipe_valid;
 
         $display("--- Opening Top Vector File: %s ---", filename);
@@ -155,6 +158,10 @@ module pid_top_tb;
                 if (pipe_valid) begin
                     total_vectors++;
 
+                    if (output_valid !== pipe_out_valid) begin
+                        $display("FAIL [Vector %0d]: output_valid mismatch! Got=%0b, Exp=%0b", total_vectors, output_valid, pipe_out_valid);
+                        mismatches++;
+                    end
                     if (active_mode !== pipe_mode) begin
                         $display("FAIL [Vector %0d]: active_mode mismatch! Got=%0d, Exp=%0d", total_vectors, active_mode, pipe_mode);
                         mismatches++;
@@ -170,6 +177,20 @@ module pid_top_tb;
                     end
                     if (u_yaw !== pipe_uy) begin
                         $display("FAIL [Vector %0d]: u_yaw mismatch! Got=%08h, Exp=%08h", total_vectors, u_yaw, pipe_uy);
+                        mismatches++;
+                    end
+                    if (u_thrust !== pipe_ut) begin
+                        $display("FAIL [Vector %0d]: u_thrust mismatch! Got=%08h, Exp=%08h", total_vectors, u_thrust, pipe_ut);
+                        $display("DEBUG [Vector %0d]: active_mode=%0d, mode_next_w=%0d, final_pre_sat=%08h, tilt_comp=%08h, base_thrust=%08h, core_u_thrust=%08h, hover_thrust=%08h",
+                                 total_vectors, active_mode, dut.mode_next_w, dut.final_pre_sat_thrust, dut.tilt_comp_thrust, dut.base_thrust, dut.core_u_thrust, dut.hover_thrust);
+                        mismatches++;
+                    end
+                    if (watchdog_alarm !== pipe_alarm) begin
+                        $display("FAIL [Vector %0d]: watchdog_alarm mismatch! Got=%0b, Exp=%0b", total_vectors, watchdog_alarm, pipe_alarm);
+                        mismatches++;
+                    end
+                    if (fault_code !== pipe_fault) begin
+                        $display("FAIL [Vector %0d]: fault_code mismatch! Got=%0h, Exp=%0h", total_vectors, fault_code, pipe_fault);
                         mismatches++;
                     end
 
@@ -197,12 +218,54 @@ module pid_top_tb;
                 rc_sp_thrust   = v_spt;
 
                 // Latch expected outputs for check on next cycle
+                pipe_out_valid = exp_v;
                 pipe_ur    = exp_ur;
                 pipe_up    = exp_up;
                 pipe_uy    = exp_uy;
                 pipe_ut    = exp_ut;
                 pipe_mode  = exp_mode;
-                pipe_valid = v_sv;
+                pipe_alarm = exp_alarm;
+                pipe_fault = exp_fault;
+                pipe_valid = 1'b1;
+            end
+        end
+
+        // Check final pipelined vector
+        if (pipe_valid) begin
+            @(posedge clk);
+            #1;
+            total_vectors++;
+            if (output_valid !== pipe_out_valid) begin
+                $display("FAIL [Vector %0d]: output_valid mismatch! Got=%0b, Exp=%0b", total_vectors, output_valid, pipe_out_valid);
+                mismatches++;
+            end
+            if (active_mode !== pipe_mode) begin
+                $display("FAIL [Vector %0d]: active_mode mismatch! Got=%0d, Exp=%0d", total_vectors, active_mode, pipe_mode);
+                mismatches++;
+            end
+            if (u_roll !== pipe_ur) begin
+                $display("FAIL [Vector %0d]: u_roll mismatch! Got=%08h, Exp=%08h", total_vectors, u_roll, pipe_ur);
+                mismatches++;
+            end
+            if (u_pitch !== pipe_up) begin
+                $display("FAIL [Vector %0d]: u_pitch mismatch! Got=%08h, Exp=%08h", total_vectors, u_pitch, pipe_up);
+                mismatches++;
+            end
+            if (u_yaw !== pipe_uy) begin
+                $display("FAIL [Vector %0d]: u_yaw mismatch! Got=%08h, Exp=%08h", total_vectors, u_yaw, pipe_uy);
+                mismatches++;
+            end
+            if (u_thrust !== pipe_ut) begin
+                $display("FAIL [Vector %0d]: u_thrust mismatch! Got=%08h, Exp=%08h", total_vectors, u_thrust, pipe_ut);
+                mismatches++;
+            end
+            if (watchdog_alarm !== pipe_alarm) begin
+                $display("FAIL [Vector %0d]: watchdog_alarm mismatch! Got=%0b, Exp=%0b", total_vectors, watchdog_alarm, pipe_alarm);
+                mismatches++;
+            end
+            if (fault_code !== pipe_fault) begin
+                $display("FAIL [Vector %0d]: fault_code mismatch! Got=%0h, Exp=%0h", total_vectors, fault_code, pipe_fault);
+                mismatches++;
             end
         end
 
@@ -217,9 +280,9 @@ module pid_top_tb;
         logic signed [31:0] diff;
         $display("=== [DIRECTED TEST] Verifying Bumpless Mode Handover ===");
 
-        // Step 1: Fly in Acro mode with stick in position
+        // Step 1: Fly in Acro mode with stick holding trim attitude
         mode_cmd = MODE_ACRO;
-        rc_sp_roll = 32'sh0000_4000; // Stick position: 0.25 (rate in Acro, target angle in Stab)
+        rc_sp_roll = 32'sh0000_3000; // Stick holding current attitude: 0.1875 rad
         imu_p = 32'sh0000_3000;      // Gyro rate: 0.1875 rad/s
         imu_phi = 32'sh0000_3000;    // Attitude angle: 0.1875 rad
         sample_valid = 1;
@@ -286,6 +349,161 @@ module pid_top_tb;
         end
     endtask
 
+    // Directed synchronous reset verification task
+    task automatic test_synchronous_reset();
+        $display("=== [DIRECTED TEST] Verifying Synchronous Reset Behavior ===");
+        // Drive non-zero state in flight
+        sample_valid = 1;
+        mode_cmd = MODE_STABILIZE;
+        rc_sp_roll = 32'sh0000_4000;
+        imu_p = 32'sh0000_1000;
+        imu_phi = 32'sh0000_2000;
+        repeat (10) @(posedge clk);
+        #1;
+        if (u_roll == 32'sd0) begin
+            $fatal(1, "FAIL: Expected active u_roll before reset, got 0");
+        end
+
+        // Assert synchronous reset
+        rst_n = 0;
+        @(posedge clk);
+        #1;
+        // Verify immediate synchronous clear
+        if (u_roll !== 32'sd0 || u_pitch !== 32'sd0 || u_yaw !== 32'sd0 || u_thrust !== 32'sd0 ||
+            output_valid !== 1'b0 || active_mode !== MODE_ACRO || fault_code !== 4'd0) begin
+            $fatal(1, "FAIL: Synchronous reset failed to clear DUT state! u_roll=%h, valid=%b, mode=%d",
+                   u_roll, output_valid, active_mode);
+        end
+        $display("  Synchronous Reset Result: PASS (All states cleared to default on clock edge)");
+
+        // Release reset
+        rst_n = 1;
+        sample_valid = 0;
+        repeat (5) @(posedge clk);
+    endtask
+
+    // Directed mode-dependent gain selection verification task
+    task automatic test_mode_gain_selection();
+        logic signed [31:0] u_acro, u_stab;
+        $display("=== [DIRECTED TEST] Verifying Mode-Dependent Gain Bank Selection ===");
+
+        // Verify configuration memory read of gain banks
+        // Bank 0 (Acro): addr 5 = roll_kp = 0x0000_4000
+        cfg_addr = 8'd5;
+        #1;
+        if (cfg_rdata !== 32'h0000_4000)
+            $fatal(1, "FAIL: Bank 0 roll_kp read mismatch! Got=%08h, Exp=00004000", cfg_rdata);
+
+        // Bank 1 (Stabilize): addr 32 + 5 = 37 = roll_kp = 0x0001_6666
+        cfg_addr = 8'd37;
+        #1;
+        if (cfg_rdata !== 32'h0001_6666)
+            $fatal(1, "FAIL: Bank 1 roll_kp read mismatch! Got=%08h, Exp=00016666", cfg_rdata);
+
+        // Bank 2 (AltHold): addr 64 + 29 = 93 = thrust_kp = 0x0000_6666
+        cfg_addr = 8'd93;
+        #1;
+        if (cfg_rdata !== 32'h0000_6666)
+            $fatal(1, "FAIL: Bank 2 thrust_kp read mismatch! Got=%08h, Exp=00006666", cfg_rdata);
+
+        // Bank 3 (Failsafe): addr 96 + 5 = 101 = roll_kp = 0x0000_0000
+        cfg_addr = 8'd101;
+        #1;
+        if (cfg_rdata !== 32'h0000_0000)
+            $fatal(1, "FAIL: Bank 3 roll_kp read mismatch! Got=%08h, Exp=00000000", cfg_rdata);
+
+        $display("  Gain Bank Memory Read: PASS (All 4 banks verified distinct via cfg interface)");
+
+        // Test behavioral response: Apply identical stimulus in Acro vs Stabilize
+        rc_sp_roll = 32'sh0000_4000;
+        imu_p      = 32'sh0000_0000;
+        imu_phi    = 32'sh0000_0000;
+        sample_valid = 1;
+
+        // Run in Acro
+        mode_cmd = MODE_ACRO;
+        repeat (5) @(posedge clk);
+        #1;
+        u_acro = u_roll;
+
+        // Run in Stabilize with identical input
+        mode_cmd = MODE_STABILIZE;
+        repeat (5) @(posedge clk);
+        #1;
+        u_stab = u_roll;
+
+        // Run in Failsafe
+        mode_cmd = MODE_FAILSAFE;
+        repeat (5) @(posedge clk);
+        #1;
+
+        if (u_roll !== 32'sd0)
+            $fatal(1, "FAIL: Failsafe mode output not zero! Got=%08h", u_roll);
+
+        if (u_acro == u_stab)
+            $fatal(1, "FAIL: Acro and Stabilize produced identical output! Mode gain bank not switching.");
+
+        $display("  Behavioral Mode Response: PASS (Acro u_roll=%08h != Stab u_roll=%08h, Failsafe=0)", u_acro, u_stab);
+
+        // Reset inputs
+        sample_valid = 0;
+        mode_cmd = MODE_ACRO;
+        rc_sp_roll = 0;
+        repeat (5) @(posedge clk);
+    endtask
+
+    // Directed external failsafe kill verification task
+    task automatic test_external_failsafe_kill();
+        $display("=== [DIRECTED TEST] Verifying External Failsafe Kill Latency and Override ===");
+        sample_valid = 1;
+        mode_cmd = MODE_STABILIZE;
+        rc_sp_roll = 32'sh0000_4000;
+        imu_phi = 32'sh0000_2000;
+        failsafe_ext_n = 1;
+        repeat (5) @(posedge clk);
+        #1;
+        if (u_roll == 32'sd0)
+            $fatal(1, "FAIL: Controller not producing active torque before kill assertion");
+
+        // Assert asynchronous external kill pin
+        failsafe_ext_n = 0;
+
+        // Cycle 1: Captured by fs_sync_q1
+        @(posedge clk);
+        #1;
+
+        // Cycle 2: Captured by fs_sync_q2 (failsafe_ext_sync_n drops, next_mode becomes FAILSAFE)
+        @(posedge clk);
+        #1;
+
+        // Cycle 3: Registered by output_stage (u_roll becomes 0)
+        @(posedge clk);
+        #1;
+
+        if (active_mode !== MODE_FAILSAFE || u_roll !== 32'sd0 || u_pitch !== 32'sd0 || u_yaw !== 32'sd0 || (fault_code & FAULT_EXT_FAILSAFE) == 0) begin
+            $fatal(1, "FAIL: External failsafe kill failed to clamp outputs! mode=%d, u_roll=%h, fault=%h",
+                   active_mode, u_roll, fault_code);
+        end
+        $display("  External Kill Result: PASS (Outputs clamped within 3 clock cycles, fault code latched)");
+
+        // Test recovery
+        failsafe_ext_n = 1;
+        repeat (2) @(posedge clk);
+        rearm_cmd = 1;
+        mode_cmd = MODE_STABILIZE;
+        @(posedge clk);
+        #1;
+        rearm_cmd = 0;
+        repeat (5) @(posedge clk);
+        #1;
+        if (active_mode !== MODE_STABILIZE)
+            $fatal(1, "FAIL: Re-arm failed after external kill recovery! active_mode=%d", active_mode);
+
+        $display("  External Kill Recovery: PASS (Re-armed back to Stabilize)");
+        sample_valid = 0;
+        repeat (5) @(posedge clk);
+    endtask
+
     // Main Test Sequence
     initial begin
         clk            = 0;
@@ -320,8 +538,11 @@ module pid_top_tb;
         repeat (5) @(posedge clk);
 
         // Run Directed Tests First
+        test_synchronous_reset();
+        test_mode_gain_selection();
         test_bumpless_transition();
         test_watchdog_timeout();
+        test_external_failsafe_kill();
 
         // Power-on Reset before Top Regression Suite
         rst_n = 0;

@@ -257,6 +257,10 @@ class PidTopGolden:
         self.hover_thrust_q16 = float_to_q16(0.50) # 50% baseline hover throttle
         self.failsafe_thrust_q16 = float_to_q16(0.0) # Motor disarm / 0 throttle
 
+        # 2-Stage CDC Synchronizer for failsafe_ext_n (active-low, default True = inactive)
+        self.fs_stage1 = True
+        self.fs_stage2 = True
+
         # State Registers
         self.active_mode = self.MODE_ACRO
         self.watchdog_counter = 0
@@ -268,6 +272,43 @@ class PidTopGolden:
         self.u_yaw_prev = 0
         self.u_thrust_prev = 0
 
+        self._apply_mode_gains(self.active_mode)
+
+    def _apply_mode_gains(self, mode: int):
+        """Dynamically apply gain bank matrix matching pid_gain_bank.sv."""
+        if mode == self.MODE_ACRO:
+            self.kp_att_roll = 0x00048000
+            self.kp_att_pitch = 0x00048000
+            self.kp_alt_pos = 0x00013333
+            self.hover_thrust_q16 = 0x00008000
+            self.failsafe_thrust_q16 = 0x00000000
+            # Acro mode agile rate gains
+            self.core_roll.set_gains_q16(kp_q16=0x00004000, ki_eff_q16=0x00000007, kd_eff_q16=0x00140000, alpha_q16=0x00004CCD)
+            self.core_pitch.set_gains_q16(kp_q16=0x00004000, ki_eff_q16=0x00000007, kd_eff_q16=0x00140000, alpha_q16=0x00004CCD)
+            self.core_yaw.set_gains_q16(kp_q16=0x00004000, ki_eff_q16=0x00000002, kd_eff_q16=0x00000000, alpha_q16=0x00004CCD)
+            self.core_thrust.set_gains_q16(kp_q16=0x00006666, ki_eff_q16=0x00000005, kd_eff_q16=0x00280000, alpha_q16=0x00003333)
+        elif mode in (self.MODE_STABILIZE, self.MODE_ALTHOLD):
+            self.kp_att_roll = 0x000A0000 # 10.0
+            self.kp_att_pitch = 0x000A0000 # 10.0
+            self.kp_alt_pos = 0x00013333 # 1.2
+            self.hover_thrust_q16 = 0x00008000
+            self.failsafe_thrust_q16 = 0x00000000
+            # Stabilize / AltHold tuned rate gains (kp=1.4, ki=30.0, kd=0.038)
+            self.core_roll.set_gains_q16(kp_q16=0x00016666, ki_eff_q16=0x000001EC, kd_eff_q16=0x00980000, alpha_q16=0x00004CCD)
+            self.core_pitch.set_gains_q16(kp_q16=0x00016666, ki_eff_q16=0x000001EC, kd_eff_q16=0x00980000, alpha_q16=0x00004CCD)
+            self.core_yaw.set_gains_q16(kp_q16=0x00004000, ki_eff_q16=0x00000002, kd_eff_q16=0x00000000, alpha_q16=0x00004CCD)
+            self.core_thrust.set_gains_q16(kp_q16=0x00006666, ki_eff_q16=0x00000005, kd_eff_q16=0x00280000, alpha_q16=0x00003333)
+        else: # MODE_FAILSAFE
+            self.kp_att_roll = 0
+            self.kp_att_pitch = 0
+            self.kp_alt_pos = 0
+            self.hover_thrust_q16 = 0
+            self.failsafe_thrust_q16 = 0
+            self.core_roll.set_gains_q16(kp_q16=0, ki_eff_q16=0, kd_eff_q16=0, alpha_q16=0x00004CCD)
+            self.core_pitch.set_gains_q16(kp_q16=0, ki_eff_q16=0, kd_eff_q16=0, alpha_q16=0x00004CCD)
+            self.core_yaw.set_gains_q16(kp_q16=0, ki_eff_q16=0, kd_eff_q16=0, alpha_q16=0x00004CCD)
+            self.core_thrust.set_gains_q16(kp_q16=0, ki_eff_q16=0, kd_eff_q16=0, alpha_q16=0x00003333)
+
     def reset(self):
         """System reset."""
         self.core_roll.reset()
@@ -278,10 +319,13 @@ class PidTopGolden:
         self.watchdog_counter = 0
         self.watchdog_alarm = False
         self.sticky_fault = 0
+        self.fs_stage1 = True
+        self.fs_stage2 = True
         self.u_roll_prev = 0
         self.u_pitch_prev = 0
         self.u_yaw_prev = 0
         self.u_thrust_prev = 0
+        self._apply_mode_gains(self.active_mode)
 
     def step(
         self,
@@ -305,6 +349,11 @@ class PidTopGolden:
         """
         Execute one clock/sample cycle of the integrated controller.
         """
+        # 2-Stage CDC Synchronizer for asynchronous external kill switch
+        fs_sync_n = self.fs_stage2
+        self.fs_stage2 = self.fs_stage1
+        self.fs_stage1 = failsafe_ext_n
+
         # Watchdog logic
         if sample_valid:
             self.watchdog_counter = 0
@@ -315,32 +364,53 @@ class PidTopGolden:
             self.watchdog_alarm = True
             self.sticky_fault |= 0x1  # Bit 0: Watchdog timeout
 
-        if not failsafe_ext_n:
+        if not fs_sync_n:
             self.sticky_fault |= 0x2  # Bit 1: External failsafe trigger
 
-        # Clear sticky faults on valid pilot re-arm handshake
-        if rearm_cmd and (not self.watchdog_alarm) and failsafe_ext_n:
+        # Clear sticky faults on valid pilot re-arm handshake with valid sensor samples
+        if rearm_cmd and sample_valid and (not self.watchdog_alarm) and fs_sync_n:
             self.sticky_fault = 0
 
         # Mode Transition Logic
         target_mode = mode_cmd
         if self.sticky_fault != 0:
             target_mode = self.MODE_FAILSAFE
-        elif self.active_mode == self.MODE_FAILSAFE:
-            if rearm_cmd and (self.sticky_fault == 0):
-                target_mode = mode_cmd  # Recovered
-            else:
-                target_mode = self.MODE_FAILSAFE  # Sticky lock
+        elif not sample_valid:
+            target_mode = self.active_mode
+        else:
+            if self.active_mode == self.MODE_FAILSAFE:
+                if rearm_cmd and (self.sticky_fault == 0):
+                    target_mode = mode_cmd  # Recovered
+                else:
+                    target_mode = self.MODE_FAILSAFE  # Sticky lock
 
-        # If in AltHold and alt_valid drops, degrade gracefully to Stabilize
-        if (target_mode == self.MODE_ALTHOLD) and (not alt_valid):
-            target_mode = self.MODE_STABILIZE
+            # If in AltHold and alt_valid drops, degrade gracefully to Stabilize
+            if (target_mode == self.MODE_ALTHOLD) and (not alt_valid):
+                target_mode = self.MODE_STABILIZE
 
         is_transition = (target_mode != self.active_mode)
         prev_mode = self.active_mode
         self.active_mode = target_mode
+        self._apply_mode_gains(self.active_mode)
 
-        # If not sample_valid, pipeline holds previous outputs
+        # Immediate deterministic failsafe override (even when sensor samples stop)
+        if self.active_mode == self.MODE_FAILSAFE:
+            self.u_roll_prev = 0
+            self.u_pitch_prev = 0
+            self.u_yaw_prev = 0
+            self.u_thrust_prev = self.failsafe_thrust_q16
+            return {
+                "output_valid": True,
+                "active_mode": self.active_mode,
+                "u_roll": 0,
+                "u_pitch": 0,
+                "u_yaw": 0,
+                "u_thrust": self.failsafe_thrust_q16,
+                "watchdog_alarm": self.watchdog_alarm,
+                "fault_code": self.sticky_fault,
+            }
+
+        # If not sample_valid in normal modes, pipeline holds previous outputs
         if not sample_valid:
             return {
                 "output_valid": False,

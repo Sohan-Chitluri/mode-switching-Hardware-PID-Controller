@@ -17,19 +17,19 @@ set init_pwr_net "VDD"
 set init_gnd_net "VSS"
 
 # Target PDK LEF files (tech lef + standard cell lef)
-# Replace with target technology LEF files:
-set init_lef_file [list \
-    "$env(PDK_TECH_LEF)" \
-    "$env(PDK_CELL_LEF)" \
-]
+set init_lef_file [list]
+if {[info exists env(PDK_TECH_LEF)]} { lappend init_lef_file $env(PDK_TECH_LEF) }
+if {[info exists env(PDK_CELL_LEF)]} { lappend init_lef_file $env(PDK_CELL_LEF) }
 
 init_design
 
 # ==============================================================================
 # 2. Floorplanning & Power Mesh
 # ==============================================================================
-# Initialize floorplan with 70% utilization, 15 um core margin
-floorPlan -site core -r 1.0 0.70 15 15 15 15
+# Target standard cell site (configurable via PDK_CORE_SITE, default 'core')
+set CORE_SITE    [expr {[info exists env(PDK_CORE_SITE)] ? $env(PDK_CORE_SITE) : "core"}]
+set UTILIZATION  [expr {[info exists env(PDK_UTILIZATION)] ? $env(PDK_UTILIZATION) : "0.70"}]
+floorPlan -site $CORE_SITE -r 1.0 $UTILIZATION 15 15 15 15
 
 # Global Net Connections
 globalNetConnect VDD -type pgpin -pin VDD -inst *
@@ -37,9 +37,14 @@ globalNetConnect VSS -type pgpin -pin VSS -inst *
 globalNetConnect VDD -type tiehi
 globalNetConnect VSS -type tielo
 
-# Power Rings & Stripes
-addRing -type core_rings -nets {VDD VSS} -width 2.0 -spacing 1.0 -layer {top M5 bottom M5 left M4 right M4}
-sroute -connect { blockPin padPin padRing corePin floatingStripe } -layerChangeRange { M1 M5 }
+# Power Rings & Stripes (configurable metal layers via env)
+set PWR_RING_TOP_BOT    [expr {[info exists env(PDK_PWR_TOP_BOT_LAYER)] ? $env(PDK_PWR_TOP_BOT_LAYER) : "M5"}]
+set PWR_RING_LEFT_RIGHT [expr {[info exists env(PDK_PWR_LEFT_RIGHT_LAYER)] ? $env(PDK_PWR_LEFT_RIGHT_LAYER) : "M4"}]
+set SROUTE_MIN_LAYER    [expr {[info exists env(PDK_SROUTE_MIN_LAYER)] ? $env(PDK_SROUTE_MIN_LAYER) : "M1"}]
+set SROUTE_MAX_LAYER    [expr {[info exists env(PDK_SROUTE_MAX_LAYER)] ? $env(PDK_SROUTE_MAX_LAYER) : "M5"}]
+
+addRing -type core_rings -nets {VDD VSS} -width 2.0 -spacing 1.0 -layer [list top $PWR_RING_TOP_BOT bottom $PWR_RING_TOP_BOT left $PWR_RING_LEFT_RIGHT right $PWR_RING_LEFT_RIGHT]
+sroute -connect { blockPin padPin padRing corePin floatingStripe } -layerChangeRange [list $SROUTE_MIN_LAYER $SROUTE_MAX_LAYER]
 
 # ==============================================================================
 # 3. Standard Cell Placement
@@ -79,7 +84,13 @@ report_power  > pnr_reports/power_post_route.rpt
 report_area   > pnr_reports/area_post_route.rpt
 
 # Export Layout
-streamOut "netlist/pid_top.gds" -merge "$env(PDK_GDS_DIR)"
+if {[info exists env(PDK_GDS_FILES)] && [file exists $env(PDK_GDS_FILES)]} {
+    streamOut "netlist/pid_top.gds" -merge $env(PDK_GDS_FILES)
+} elseif {[info exists env(PDK_GDS_DIR)] && [file exists $env(PDK_GDS_DIR)]} {
+    streamOut "netlist/pid_top.gds" -merge $env(PDK_GDS_DIR)
+} else {
+    streamOut "netlist/pid_top.gds"
+}
 defOut -floorplan -netlist -routing "netlist/pid_top.def"
 saveNetlist "netlist/pid_top_pnr.v"
 

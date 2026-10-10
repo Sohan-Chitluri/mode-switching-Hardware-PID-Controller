@@ -20,6 +20,7 @@ set_clock_transition 0.150 [get_clocks clk]
 # 2. Synchronous Input Delays (20% of clock period = 4.0 ns)
 # ==============================================================================
 set sync_inputs [get_ports { \
+    rst_n \
     sample_valid \
     imu_p[*] \
     imu_q[*] \
@@ -66,10 +67,8 @@ set_output_delay -clock clk -min 0.500 $sync_outputs
 # ==============================================================================
 # 4. Asynchronous / Quasi-Static Paths (False Paths)
 # ==============================================================================
-# Asynchronous active-low power-on reset
-set_false_path -from [get_ports rst_n]
-
-# Asynchronous physical emergency kill switch input
+# Asynchronous physical emergency kill switch input.
+# Safely synchronized into the clk domain via a dedicated 2-stage flip-flop synchronizer in pid_top.
 set_false_path -from [get_ports failsafe_ext_n]
 
 # ==============================================================================
@@ -78,5 +77,6 @@ set_false_path -from [get_ports failsafe_ext_n]
 # Default output capacitive load: 25 fF per output pin
 set_load -pin_load 0.025 [all_outputs]
 
-# Default input transition slew: 100 ps
-set_input_transition 0.100 [all_inputs]
+# Default input transition slew: 100 ps (excluding primary clock port)
+set_input_transition 0.100 [remove_from_collection [all_inputs] [get_ports clk]]
+

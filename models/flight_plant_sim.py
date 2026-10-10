@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
 models/flight_plant_sim.py
-6-DOF Quadrotor Rigid-Body Dynamics Simulation & Closed-Loop Stability Evaluator.
+4-DOF Quadrotor Dynamics Simulation & Closed-Loop Stability Evaluator.
+Simulates 3 rotational DOFs (roll phi, pitch theta, yaw psi) and 1 translational DOF (altitude z).
+Note: Horizontal planar translations (x, y) are decoupled and not modeled.
 Executes in pure Python using numerical RK4 integration.
-Evaluates rise time, overshoot, settling time, steady-state error, and bumpless transfer.
+Evaluates rise time, overshoot, settling time, steady-state error, and stability.
 """
 
 import sys
@@ -19,16 +21,16 @@ from pid_golden_model import (
 )
 
 # ==============================================================================
-# 6-DOF QUADROTOR PHYSICAL PLANT MODEL
+# 4-DOF QUADROTOR PHYSICAL PLANT MODEL
 # ==============================================================================
 
 class QuadrotorPlant:
     """
-    Non-linear 6-DOF Quadrotor flight dynamics simulator.
+    Non-linear 4-DOF Quadrotor flight dynamics simulator.
     States:
-      phi, theta, psi : Euler angles (rad)
+      phi, theta, psi : Euler angles (rad) - 3 Rotational DOFs
       p, q, r         : Body angular velocities (rad/s)
-      z, vz           : Vertical position and velocity (m, m/s) (NED or Z-up)
+      z, vz           : Vertical position and velocity (m, m/s) - 1 Translational DOF
     """
 
     def __init__(
@@ -124,7 +126,7 @@ class QuadrotorPlant:
 
 def evaluate_closed_loop():
     print("===================================================================")
-    print("  6-DOF Quadrotor Closed-Loop Plant Simulation & Metrics Evaluation")
+    print("  4-DOF Quadrotor Closed-Loop Plant Simulation & Metrics Evaluation")
     print("===================================================================")
 
     dt = 0.00025  # 4 kHz sample rate
@@ -198,55 +200,16 @@ def evaluate_closed_loop():
         pitch_history.append(pitch_deg)
         u_pitch_history.append(u_pitch)
 
-    # Compute Control Metrics
-    # 1. Steady-state error (average of last 200 ms)
-    ss_samples = int(0.2 / dt)
-    final_pitch = sum(pitch_history[-ss_samples:]) / ss_samples
-    ss_error = abs(final_pitch - target_pitch_deg)
+    results = compute_control_metrics(times, pitch_history, target_pitch_deg, dt)
 
-    # 2. Peak overshoot
-    max_pitch = max(pitch_history)
-    overshoot_deg = max(0.0, max_pitch - target_pitch_deg)
-    overshoot_pct = (overshoot_deg / target_pitch_deg) * 100.0
-
-    # 3. 10% to 90% Rise Time
-    val_10 = 0.10 * target_pitch_deg
-    val_90 = 0.90 * target_pitch_deg
-    t_10 = None
-    t_90 = None
-    for t, p in zip(times, pitch_history):
-        if t_10 is None and p >= val_10:
-            t_10 = t
-        if t_90 is None and p >= val_90:
-            t_90 = t
-            break
-    rise_time_ms = ((t_90 - t_10) * 1000.0) if (t_10 and t_90) else 999.0
-
-    # 4. 2% Settling Time
-    settling_band = 0.02 * target_pitch_deg
-    t_settle = 0.0
-    for t, p in zip(times, pitch_history):
-        if abs(p - target_pitch_deg) > settling_band:
-            t_settle = t
-    settling_time_ms = t_settle * 1000.0
-
-    print(f"Target Pitch Angle : {target_pitch_deg:.1f} deg")
-    print(f"Achieved Steady Pitch: {final_pitch:.3f} deg")
-    print(f"Steady-State Error : {ss_error:.3f} deg (Spec: <= 0.10 deg) -> {'PASS' if ss_error <= 0.10 else 'MARGINAL'}")
-    print(f"Peak Pitch Angle   : {max_pitch:.3f} deg")
-    print(f"Peak Overshoot     : {overshoot_pct:.2f}% (Spec: <= 10.0%) -> {'PASS' if overshoot_pct <= 10.0 else 'FAIL'}")
-    print(f"10-90% Rise Time   : {rise_time_ms:.1f} ms (Spec: <= 60.0 ms) -> {'PASS' if rise_time_ms <= 60.0 else 'PASS'}")
-    print(f"2% Settling Time   : {settling_time_ms:.1f} ms (Spec: <= 500.0 ms) -> {'PASS' if settling_time_ms <= 500.0 else 'FAIL'}")
-
-    results = {
-        "target_pitch_deg": target_pitch_deg,
-        "final_pitch_deg": final_pitch,
-        "steady_state_error_deg": ss_error,
-        "overshoot_pct": overshoot_pct,
-        "rise_time_ms": rise_time_ms,
-        "settling_time_ms": settling_time_ms,
-        "pass_all_criteria": (ss_error <= 0.10 and overshoot_pct <= 10.0 and settling_time_ms <= 500.0)
-    }
+    print(f"Target Pitch Angle   : {target_pitch_deg:.1f} deg")
+    print(f"Achieved Steady Pitch: {results['final_pitch_deg']:.3f} deg")
+    print(f"Steady-State Error   : {results['steady_state_error_deg']:.3f} deg (Spec: <= 0.10 deg) -> {'PASS' if results['ss_error_pass'] else 'FAIL'}")
+    print(f"Peak Pitch Angle     : {results['max_pitch_deg']:.3f} deg")
+    print(f"Peak Overshoot       : {results['overshoot_pct']:.2f}% (Spec: <= 10.0%) -> {'PASS' if results['overshoot_pass'] else 'FAIL'}")
+    print(f"10-90% Rise Time     : {results['rise_time_ms']:.1f} ms (Spec: <= 60.0 ms) -> {'PASS' if results['rise_time_pass'] else 'FAIL'}")
+    print(f"2% Settling Time     : {results['settling_time_ms']:.1f} ms (Spec: <= 500.0 ms) -> {'PASS' if results['settling_pass'] else 'FAIL'}")
+    print(f"Overall Acceptance   : {'PASS' if results['pass_all_criteria'] else 'FAIL (Dynamic rise time violates 60 ms spec)'}")
 
     os.makedirs("output", exist_ok=True)
     with open("output/flight_metrics.json", "w") as f:
@@ -256,5 +219,149 @@ def evaluate_closed_loop():
     return results
 
 
+def compute_control_metrics(times, pitch_history, target_pitch_deg=20.0, dt=0.00025):
+    """
+    Computes standard step response metrics with strict NaN/Inf guarding
+    and exact physical specification gates:
+      - Steady-state error: <= 0.10 deg
+      - Peak overshoot:     <= 10.0%
+      - 10-90% Rise time:   <= 60.0 ms
+      - 2% Settling time:   <= 500.0 ms
+    """
+    # Guard against empty or invalid data
+    if not times or not pitch_history or len(times) != len(pitch_history):
+        return {
+            "target_pitch_deg": target_pitch_deg,
+            "final_pitch_deg": float("nan"),
+            "steady_state_error_deg": float("nan"),
+            "overshoot_pct": float("nan"),
+            "rise_time_ms": float("nan"),
+            "settling_time_ms": float("nan"),
+            "ss_error_pass": False,
+            "overshoot_pass": False,
+            "rise_time_pass": False,
+            "settling_pass": False,
+            "pass_all_criteria": False,
+            "model_dof": "4-DOF (phi, theta, psi, z)"
+        }
+
+    # Check for NaN / Inf in samples
+    if any(not math.isfinite(p) for p in pitch_history):
+        return {
+            "target_pitch_deg": target_pitch_deg,
+            "final_pitch_deg": float("nan"),
+            "steady_state_error_deg": float("nan"),
+            "overshoot_pct": float("nan"),
+            "rise_time_ms": float("nan"),
+            "settling_time_ms": float("nan"),
+            "ss_error_pass": False,
+            "overshoot_pass": False,
+            "rise_time_pass": False,
+            "settling_pass": False,
+            "pass_all_criteria": False,
+            "model_dof": "4-DOF (phi, theta, psi, z)"
+        }
+
+    # 1. Steady-state error (average over final 200 ms)
+    ss_samples = max(1, int(0.2 / dt))
+    final_pitch = sum(pitch_history[-ss_samples:]) / ss_samples
+    ss_error = abs(final_pitch - target_pitch_deg)
+
+    # 2. Peak overshoot
+    max_pitch = max(pitch_history)
+    overshoot_deg = max(0.0, max_pitch - target_pitch_deg)
+    overshoot_pct = (overshoot_deg / target_pitch_deg) * 100.0 if target_pitch_deg != 0 else 0.0
+
+    # 3. 10% to 90% Rise Time
+    val_10 = 0.10 * target_pitch_deg
+    val_90 = 0.90 * target_pitch_deg
+    t_10 = next((t for t, p in zip(times, pitch_history) if p >= val_10), None)
+    t_90 = next((t for t, p in zip(times, pitch_history) if p >= val_90), None)
+    rise_time_ms = ((t_90 - t_10) * 1000.0) if (t_10 is not None and t_90 is not None) else float("inf")
+
+    # 4. 2% Settling Time
+    settling_band = 0.02 * target_pitch_deg
+    t_settle = max((t for t, p in zip(times, pitch_history) if abs(p - target_pitch_deg) > settling_band), default=0.0)
+    settling_time_ms = t_settle * 1000.0
+
+    ss_error_pass = math.isfinite(ss_error) and ss_error <= 0.10
+    overshoot_pass = math.isfinite(overshoot_pct) and overshoot_pct <= 10.0
+    rise_time_pass = math.isfinite(rise_time_ms) and rise_time_ms <= 60.0
+    settling_pass = math.isfinite(settling_time_ms) and settling_time_ms <= 500.0
+
+    pass_all = bool(ss_error_pass and overshoot_pass and rise_time_pass and settling_pass)
+
+    return {
+        "target_pitch_deg": target_pitch_deg,
+        "final_pitch_deg": final_pitch,
+        "max_pitch_deg": max_pitch,
+        "steady_state_error_deg": ss_error,
+        "overshoot_pct": overshoot_pct,
+        "rise_time_ms": rise_time_ms,
+        "settling_time_ms": settling_time_ms,
+        "ss_error_pass": ss_error_pass,
+        "overshoot_pass": overshoot_pass,
+        "rise_time_pass": rise_time_pass,
+        "settling_pass": settling_pass,
+        "model_dof": "4-DOF (phi, theta, psi, z)",
+        "pass_all_criteria": pass_all
+    }
+
+
+def test_plant_metrics_evaluator():
+    """Self-test verifying that the metric evaluator properly rejects out-of-spec/invalid inputs."""
+    print("=== [TEST] Running Plant Metric Evaluator Unit Verification ===")
+
+    dt = 0.00025
+    steps = 4000
+    times = [i * dt for i in range(steps)]
+
+    # Case 1: Out-of-spec slow rise time (160 ms rise time, like current un-tuned plant)
+    # Reaches 10% at 20 ms, 90% at 180 ms -> rise_time = 160 ms (> 60 ms)
+    history_slow = [min(20.0, (t / 0.20) * 20.0) for t in times]
+    r1 = compute_control_metrics(times, history_slow, 20.0, dt)
+    assert not r1["rise_time_pass"], "Failed to reject slow rise time!"
+    assert not r1["pass_all_criteria"], "Failed to reject out-of-spec rise time in overall pass!"
+    print("  Case 1 (Slow Rise Time 160 ms)  : Correctly REJECTED (FAIL)")
+
+    # Case 2: Excessive overshoot (15% > 10%)
+    history_os = [20.0 * (1.15 if 0.1 < t < 0.3 else 1.0) for t in times]
+    r2 = compute_control_metrics(times, history_os, 20.0, dt)
+    assert not r2["overshoot_pass"], "Failed to reject excessive overshoot!"
+    assert not r2["pass_all_criteria"], "Failed to reject overshoot in overall pass!"
+    print("  Case 2 (Excessive Overshoot 15%): Correctly REJECTED (FAIL)")
+
+    # Case 3: NaN contamination
+    history_nan = [float("nan") if i == 50 else 20.0 for i in range(steps)]
+    r3 = compute_control_metrics(times, history_nan, 20.0, dt)
+    assert not r3["pass_all_criteria"], "Failed to reject NaN in samples!"
+    print("  Case 3 (NaN Sample Guard)       : Correctly REJECTED (FAIL)")
+
+    # Case 4: Infinite value contamination
+    history_inf = [float("inf") if i == 50 else 20.0 for i in range(steps)]
+    r4 = compute_control_metrics(times, history_inf, 20.0, dt)
+    assert not r4["pass_all_criteria"], "Failed to reject Inf in samples!"
+    print("  Case 4 (Inf Sample Guard)       : Correctly REJECTED (FAIL)")
+
+    # Case 5: Valid fast step response (rise = 40 ms, overshoot = 2%, settle = 60 ms)
+    history_good = []
+    for t in times:
+        if t < 0.01:
+            history_good.append(0.0)
+        elif t < 0.05:
+            history_good.append((t - 0.01) / 0.04 * 20.0)
+        else:
+            history_good.append(20.0)
+    r5 = compute_control_metrics(times, history_good, 20.0, dt)
+    assert r5["pass_all_criteria"], "Failed to accept valid step response!"
+    print("  Case 5 (Ideal Fast Step Response): Correctly ACCEPTED (PASS)")
+
+    print("=== [TEST] Plant Metric Evaluator Unit Tests PASSED ===")
+    return True
+
+
 if __name__ == "__main__":
-    evaluate_closed_loop()
+    if "--test-metrics" in sys.argv:
+        test_plant_metrics_evaluator()
+    else:
+        evaluate_closed_loop()

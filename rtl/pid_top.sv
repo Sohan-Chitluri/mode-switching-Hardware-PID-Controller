@@ -23,9 +23,9 @@
 `include "pid_watchdog.sv"
 `include "pid_output_stage.sv"
 
-module pid_top
-    import pid_pkg::*;
-#(
+import pid_pkg::*;
+
+module pid_top #(
     parameter int DATA_W      = 32,
     parameter int FRACT_W     = 16,
     parameter int ACCUM_W     = 48,
@@ -95,9 +95,23 @@ module pid_top
     );
 
     // -------------------------------------------------------------------------
-    // 2. Mode Management FSM
+    // 2. Mode Management FSM & Emergency Kill Synchronizer
     // -------------------------------------------------------------------------
+    // 2-stage flip-flop synchronizer for external asynchronous failsafe kill pin
+    logic fs_sync_q1, fs_sync_q2;
+    always_ff @(posedge clk) begin
+        if (!rst_n) begin
+            fs_sync_q1 <= 1'b1; // Active-low inactive default during reset
+            fs_sync_q2 <= 1'b1;
+        end else begin
+            fs_sync_q1 <= failsafe_ext_n;
+            fs_sync_q2 <= fs_sync_q1;
+        end
+    end
+    wire failsafe_ext_sync_n = fs_sync_q2;
+
     logic [1:0] mode_active_w;
+    logic [1:0] mode_next_w;
     logic [1:0] mode_prev_w;
     logic       trans_strobe_w;
     logic [3:0] fault_code_w;
@@ -105,12 +119,14 @@ module pid_top
     pid_mode_mgr u_mode_mgr (
         .clk(clk),
         .rst_n(rst_n),
+        .sample_valid(sample_valid),
         .mode_cmd(mode_cmd),
         .rearm_cmd(rearm_cmd),
         .watchdog_alarm(watchdog_alarm),
-        .failsafe_ext_n(failsafe_ext_n),
+        .failsafe_ext_n(failsafe_ext_sync_n),
         .alt_valid(alt_valid),
         .active_mode(mode_active_w),
+        .next_mode(mode_next_w),
         .prev_mode(mode_prev_w),
         .transition_strobe(trans_strobe_w),
         .fault_code(fault_code_w)
@@ -131,7 +147,7 @@ module pid_top
     pid_gain_bank #(.DATA_W(DATA_W)) u_gain_bank (
         .clk(clk),
         .rst_n(rst_n),
-        .active_mode(mode_active_w),
+        .active_mode(mode_next_w),
         .cfg_we(cfg_we),
         .cfg_addr(cfg_addr),
         .cfg_wdata(cfg_wdata),
@@ -157,7 +173,7 @@ module pid_top
     logic signed [DATA_W-1:0] inner_sp_roll, inner_sp_pitch, inner_sp_yaw, inner_sp_vz, base_thrust;
 
     pid_outer_loop #(.DATA_W(DATA_W), .FRACT_W(FRACT_W)) u_outer_loop (
-        .active_mode(mode_active_w),
+        .active_mode(mode_next_w),
         .rc_sp_roll(rc_sp_roll),
         .rc_sp_pitch(rc_sp_pitch),
         .rc_sp_yaw(rc_sp_yaw),
@@ -243,7 +259,7 @@ module pid_top
         .setpoint(inner_sp_vz), .measurement(alt_vz),
         .kp(thrust_kp), .ki_eff(thrust_ki_eff), .kd_eff(thrust_kd_eff), .alpha(thrust_alpha),
         .u_min(thrust_u_min), .u_max(thrust_u_max), .i_min(thrust_i_min), .i_max(thrust_i_max),
-        .reseed_valid(trans_strobe_w && (mode_active_w == MODE_ALTHOLD)), .reseed_val(FIX_ZERO),
+        .reseed_valid(trans_strobe_w && (mode_next_w == MODE_ALTHOLD)), .reseed_val(FIX_ZERO),
         .u_sat(core_u_thrust), .error_out(), .p_term_out(), .i_term_out(), .d_term_out(), .raw_sum_out(),
         .clamp_high_out(ch_t), .clamp_low_out(cl_t)
     );
@@ -266,8 +282,18 @@ module pid_top
         .comp_thrust(tilt_comp_thrust)
     );
 
-    assign final_pre_sat_thrust = (mode_active_w == MODE_ALTHOLD && alt_valid) ?
+    assign final_pre_sat_thrust = (mode_next_w == MODE_ALTHOLD && alt_valid) ?
                                   tilt_comp_thrust : base_thrust;
+
+    logic signed [DATA_W-1:0] final_thrust_sat;
+    always_comb begin
+        if (final_pre_sat_thrust > FIX_ONE)
+            final_thrust_sat = FIX_ONE;
+        else if (final_pre_sat_thrust < FIX_ZERO)
+            final_thrust_sat = FIX_ZERO;
+        else
+            final_thrust_sat = final_pre_sat_thrust;
+    end
 
     // -------------------------------------------------------------------------
     // 8. Output Stage & Failsafe Override
@@ -276,11 +302,11 @@ module pid_top
         .clk(clk),
         .rst_n(rst_n),
         .sample_valid(sample_valid),
-        .active_mode(mode_active_w),
+        .active_mode(mode_next_w),
         .in_u_roll(core_u_roll),
         .in_u_pitch(core_u_pitch),
         .in_u_yaw(core_u_yaw),
-        .in_u_thrust(final_pre_sat_thrust),
+        .in_u_thrust(final_thrust_sat),
         .cfg_failsafe_thrust(failsafe_thrust),
         .output_valid(output_valid),
         .out_u_roll(u_roll),
@@ -295,10 +321,14 @@ module pid_top
             u_roll_prev  <= FIX_ZERO;
             u_pitch_prev <= FIX_ZERO;
             u_yaw_prev   <= FIX_ZERO;
+        end else if (mode_next_w == MODE_FAILSAFE) begin
+            u_roll_prev  <= FIX_ZERO;
+            u_pitch_prev <= FIX_ZERO;
+            u_yaw_prev   <= FIX_ZERO;
         end else if (sample_valid) begin
-            u_roll_prev  <= (mode_active_w == MODE_FAILSAFE) ? FIX_ZERO : core_u_roll;
-            u_pitch_prev <= (mode_active_w == MODE_FAILSAFE) ? FIX_ZERO : core_u_pitch;
-            u_yaw_prev   <= (mode_active_w == MODE_FAILSAFE) ? FIX_ZERO : core_u_yaw;
+            u_roll_prev  <= core_u_roll;
+            u_pitch_prev <= core_u_pitch;
+            u_yaw_prev   <= core_u_yaw;
         end
     end
 

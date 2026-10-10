@@ -56,6 +56,7 @@ module pid_formal_tb (
 
     // Mode Manager Inputs
     input logic [1:0]         mm_cmd,
+    input logic               mm_sample_v,
     input logic               mm_rearm,
     input logic               mm_wd_alarm,
     input logic               mm_fs_ext_n,
@@ -227,19 +228,21 @@ module pid_formal_tb (
     // -------------------------------------------------------------------------
     // Property P5: Mode Manager Safety Invariant
     // -------------------------------------------------------------------------
-    logic [1:0] mm_active_mode, mm_prev_mode;
+    logic [1:0] mm_active_mode, mm_next_mode, mm_prev_mode;
     logic mm_trans_strobe;
     logic [3:0] mm_fault;
 
     pid_mode_mgr u_mm_inst (
         .clk(clk),
         .rst_n(rst_n),
+        .sample_valid(mm_sample_v),
         .mode_cmd(mm_cmd),
         .rearm_cmd(mm_rearm),
         .watchdog_alarm(mm_wd_alarm),
         .failsafe_ext_n(mm_fs_ext_n),
         .alt_valid(mm_alt_v),
         .active_mode(mm_active_mode),
+        .next_mode(mm_next_mode),
         .prev_mode(mm_prev_mode),
         .transition_strobe(mm_trans_strobe),
         .fault_code(mm_fault)
@@ -248,7 +251,7 @@ module pid_formal_tb (
     // Invariant: If external failsafe is active or watchdog alarm is active, mode MUST be FAILSAFE
     always_comb begin
         if (!mm_fs_ext_n || mm_wd_alarm) begin
-            assert(mm_active_mode == MODE_FAILSAFE);
+            assert(mm_next_mode == MODE_FAILSAFE);
         end
     end
 

@@ -84,6 +84,7 @@ test-unit: $(OUTPUT_DIR)
 	@echo "=== [TEST-UNIT] Running pid_axis_core unit testbench ==="
 	$(VERILATOR) $(VERILATOR_SIM_FLAGS) \
 		--top-module pid_axis_core_tb \
+		--Mdir $(ABS_OUTPUT)/obj_unit \
 		$(RTL_CORE_SRCS) \
 		$(TB_DIR)/unit/pid_axis_core_tb.sv \
 		-o $(ABS_OUTPUT)/Vpid_axis_core_tb
@@ -93,6 +94,7 @@ test-top: $(OUTPUT_DIR)
 	@echo "=== [TEST-TOP] Running pid_top integrated testbench ==="
 	$(VERILATOR) $(VERILATOR_SIM_FLAGS) \
 		--top-module pid_top_tb \
+		--Mdir $(ABS_OUTPUT)/obj_top \
 		$(RTL_TOP_SRCS) \
 		$(TB_DIR)/top/pid_top_tb.sv \
 		-o $(ABS_OUTPUT)/Vpid_top_tb

@@ -12,7 +12,7 @@
 The hardware PID controller is designed as a high-reliability, low-latency, hard-real-time digital feedback coprocessor for autonomous and pilot-assisted UAV flight control. The architecture must satisfy seven core requirements:
 
 1. **Multi-Axis Control:** Simultaneous stabilization of three rotational degrees of freedom (**Roll**, **Pitch**, **Yaw**) with integrated vertical **Altitude Hold** ($Z$-axis thrust).
-2. **Deterministic Latency:** Fixed, cycle-accurate pipeline latency from sensor sample arrival to actuator command output ($L = 6$ clock cycles at 50 MHz = 120 ns), eliminating control jitter.
+2. **Deterministic Latency:** Fixed, cycle-accurate pipeline latency from sensor sample arrival to registered actuator command output ($L = 1$ clock cycle at 50 MHz = 20.0 ns), eliminating control jitter and phase lag.
 3. **Four Operating Modes:**
    - **Acro:** Direct pilot angular rate control (inner loop only).
    - **Stabilize:** Cascaded attitude angle outer loop driving rate inner loop.
@@ -103,7 +103,7 @@ To avoid over-fragmentation while maintaining strict modularity and unit testabi
 ### 3.1. `pid_top` (Top-Level Controller Integration)
 - **Role:** Structural top-level wrapper interconnecting sub-modules, synchronizing internal pipeline control signals, registering inputs, and exporting actuator and status ports.
 - **Clock/Reset:** Synchronous to single primary clock `clk`, active-low synchronous reset `rst_n`.
-- **Latency Contract:** Input-to-output latency is strictly fixed at **$L = 6$ clock cycles**.
+- **Latency Contract:** Input-to-output latency is strictly fixed at **$L = 1$ clock cycle (20.0 ns at 50 MHz)**.
 
 ### 3.2. `pid_watchdog` (Sensor Freshness & Input Sanity)
 - **Role:** Monitors the arrival rate of sensor samples. Detects stale, missing, or frozen IMU and altitude samples.
@@ -193,7 +193,7 @@ flowchart TD
 | :--- | :--- | :--- | :--- |
 | **Logic Cell Area (Gates)** | $\sim 18,000 - 24,000$ cells | $\sim 7,500 - 10,500$ cells | Parallel consumes $\approx 2.3\times$ more logic gates. However, on any modern CMOS node ($\le 130$ nm), 24k cells occupies $< 0.12\text{ mm}^2$, an insignificant silicon footprint. |
 | **Hardware Multipliers** | 12 to 16 multipliers ($32 \times 32$) | 3 to 4 multipliers ($32 \times 32$) | Parallel replicates arithmetic multipliers; shared reuses them over time. |
-| **Throughput & Pipeline Latency** | **$L = 6$ cycles** total for all axes simultaneously | **$L = 24 - 30$ cycles** (6 cycles per axis sequential) | Parallel delivers minimum latency and zero inter-axis skew. |
+| **Throughput & Pipeline Latency** | **$L = 1$ cycle (20 ns)** total for all axes simultaneously | **$L = 4 - 8$ cycles** sequential | Parallel delivers minimum latency (20 ns) and zero inter-axis skew. |
 | **Clock Budget Feasibility** | Abundant margin: at 50 MHz and 4 kHz sample rate, sample period is 12,500 cycles. | Abundant margin: 24 cycles is still $< 0.2\%$ of available 12,500 cycle window. | Clock budget is non-critical for both options; flight control sample rates are low relative to ASIC clock frequencies. |
 | **Control Logic Complexity** | **Very Low:** Pure feed-forward synchronous pipeline registers with identical delay matching. | **High:** Multi-state sequencing FSM, register-file addressing, context read/modify/write hazards, complex stall logic. | Shared datapath significantly increases state-space complexity and control bugs. |
 | **Formal Verification Tractability** | **Trivial:** Each axis core is an isolated mathematical block; SMT proofs converge in seconds. | **Difficult:** SMT solvers must reason across multiple unrolled sequencing cycles and RAM/RF states; proof depth explodes. | Formal verification with SymbiYosys/Z3 is vastly superior on parallel cores. |
@@ -372,15 +372,10 @@ gantt
     Stage 5 : Output Saturation & Failsafe Mux Register : 5, 6
 ```
 
-- **Cycle 0 ($T_0$):** `sample_valid` asserted. Input measurements latched into input registers; watchdog counter reset.
-- **Cycle 1 ($T_1$):** Outer attitude/altitude error evaluated; active gains latched from gain bank.
-- **Cycle 2 ($T_2$):** Multipliers evaluate $K_p \cdot e$, $K_i \cdot e \cdot T_s$, and $K_d \cdot \Delta y_f$.
-- **Cycle 3 ($T_3$):** Derivative IIR state updated; integrator anti-windup clamping condition evaluated.
-- **Cycle 4 ($T_4$):** 48-bit summation $P + I + D$ evaluated; tilt-compensation scaling applied.
-- **Cycle 5 ($T_5$):** Saturation bounds applied; failsafe multiplexer checked; final outputs registered.
-- **Cycle 6 ($T_6$):** `output_valid` asserted high; actuator ports present stable outputs.
+- **Cycle 0 ($T_0$):** `sample_valid` strobe asserted. Sensors, setpoints, and mode commands evaluate combinationally through the gain bank, outer loop, 4 parallel PID axis cores (P, I, D terms and saturation), tilt compensation, and failsafe multiplexer.
+- **Cycle 1 ($T_1$):** At `posedge clk`, `pid_output_stage` registers the active actuator commands (`u_roll`, `u_pitch`, `u_yaw`, `u_thrust`), asserts `output_valid`, and updates integrator and filter state registers.
 
-**Guaranteed Latency:** Exactly **6 clock cycles (120 ns)** from `sample_valid` to `output_valid`.
+**Guaranteed Latency:** Exactly **1 clock cycle (20.0 ns at 50 MHz)** from `sample_valid` to `output_valid`.
 
 ---
 

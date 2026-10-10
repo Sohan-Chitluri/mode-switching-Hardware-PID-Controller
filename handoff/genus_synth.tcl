@@ -7,16 +7,18 @@
 # ==============================================================================
 # 1. Environment & Library Configuration (Customize for target PDK)
 # ==============================================================================
-set_db init_lib_search_path [list \
-    "." \
-    "./lib" \
-    "$env(PDK_LIB_DIR)" \
-]
+set lib_paths [list "." "./lib"]
+if {[info exists env(PDK_LIB_DIR)]} { lappend lib_paths $env(PDK_LIB_DIR) }
+set_db init_lib_search_path $lib_paths
 
 # Set Target and Link Libraries (Replace with target technology standard cells)
 # Example: slow_vdd1v0_basicCells.lib
-set_db target_library "$env(TARGET_LIB)"
-set_db link_library   "$env(LINK_LIB)"
+if {[info exists env(TARGET_LIB)]} {
+    set_db target_library $env(TARGET_LIB)
+}
+if {[info exists env(LINK_LIB)]} {
+    set_db link_library $env(LINK_LIB)
+}
 
 set_db information_level 7
 

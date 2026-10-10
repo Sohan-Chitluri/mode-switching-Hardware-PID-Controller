@@ -96,12 +96,21 @@ Upon completion, inspect the generated reports in `handoff/reports/`:
 ## 4. Cadence Innovus Place & Route Flow
 
 ### 4.1 Environment Variable Configuration
-Configure the physical technology LEF and standard-cell LEF variables:
+Configure the physical technology LEF, standard-cell LEF, site, and layer variables:
 
 ```bash
+# Required PDK Paths
 export PDK_TECH_LEF="/opt/pdk/technology_node/lef/tech.lef"
 export PDK_CELL_LEF="/opt/pdk/technology_node/lef/cells.lef"
-export PDK_GDS_DIR="/opt/pdk/technology_node/gds/cells.gds"
+export PDK_GDS_FILES="/opt/pdk/technology_node/gds/cells.gds"   # Optional GDS merge file
+
+# Optional PDK-Specific Physical Settings (Defaults shown)
+export PDK_CORE_SITE="core"                 # Standard cell site name
+export PDK_UTILIZATION="0.70"               # Target core placement utilization
+export PDK_PWR_TOP_BOT_LAYER="M5"           # Power ring horizontal layer
+export PDK_PWR_LEFT_RIGHT_LAYER="M4"        # Power ring vertical layer
+export PDK_SROUTE_MIN_LAYER="M1"            # SRoute followpin minimum layer
+export PDK_SROUTE_MAX_LAYER="M5"            # SRoute followpin maximum layer
 ```
 
 ### 4.2 Executing P&R
@@ -115,13 +124,13 @@ innovus -files innovus_pnr.tcl -log innovus.log
 ### 4.3 Flow Milestones
 The script automatically executes:
 - **Design Initialization:** Loads netlist, SDC, and technology LEFs.
-- **Floorplanning:** Sets die boundary with 70% core target utilization.
-- **Power Routing:** Adds VDD/VSS core rings and standard-cell followpins.
+- **Floorplanning:** Sets die boundary with configurable core target utilization and site.
+- **Power Routing:** Adds VDD/VSS core rings and standard-cell followpins on specified metal layers.
 - **Placement:** Timing-driven placement with congestion mitigation.
 - **Clock Tree Synthesis (CCOpt):** Synthesizes balanced clock tree targeting $< 150\text{ ps}$ skew.
 - **Detailed Routing:** NanoRoute executes antenna-aware, SI-driven routing on available metal layers.
 - **Verification:** Runs `verifyGeometry` and `verifyConnectivity` for zero DRC and zero shorts.
-- **Layout Export:** Writes `netlist/pid_top.gds` and `netlist/pid_top.def`.
+- **Layout Export:** Writes `netlist/pid_top.gds` (with optional cell merge) and `netlist/pid_top.def`.
 
 ---
 
@@ -129,13 +138,16 @@ The script automatically executes:
 
 ### 5.1 Clock & Reset Architecture
 - **Clock Port:** `clk` — single primary clock domain at 50 MHz ($T_{period} = 20.0\text{ ns}$).
-- **Reset Port:** `rst_n` — active-low asynchronous reset assertion, synchronous deassertion.
-  - All sequential registers in the datapath, FSM, and watchdog have deterministic reset states (`FIX_ZERO` or `MODE_ACRO`).
+- **Reset Port:** `rst_n` — active-low synchronous reset.
+  - All sequential registers in the datapath, FSM, and watchdog have deterministic synchronous reset states (`FIX_ZERO` or `MODE_ACRO`).
+  - `rst_n` is constrained as a synchronous input in `pid_timing.sdc` without false-path exclusions.
+- **Asynchronous CDC Safety:**
+  - The external emergency kill pin `failsafe_ext_n` is synchronized to `clk` via a dedicated 2-stage flip-flop synchronizer (`fs_sync_q1`, `fs_sync_q2`) in `pid_top.sv`.
+  - A `set_false_path -from [get_ports failsafe_ext_n]` constraint is defined in `pid_timing.sdc` to correctly model the CDC crossing without timing violations.
 
 ### 5.2 Latency Contract
 - **Throughput:** 1 sample per clock cycle maximum; typically sampled at 4 kHz ($12,500$ clock cycles per sample interval).
-- **Processing Latency:** Exactly 1 clock cycle from `sample_valid` strobe to registered actuator command update (`u_roll`, `u_pitch`, `u_yaw`, `u_thrust`).
-- **Emergency Override Latency:** Exactly 1 clock cycle to deterministic safe outputs upon `watchdog_alarm` or `!failsafe_ext_n`.
+- **Emergency Override Latency:** Exactly 1 clock cycle for internal synchronous faults (`watchdog_alarm`), and 3 clock cycles (60.0 ns at 50 MHz; 2-cycle flip-flop CDC synchronizer + 1-cycle output stage registration) for the asynchronous external emergency kill pin (`!failsafe_ext_n`).
 
 ### 5.3 Fixed-Point Representation
 - **Standard Format:** Q16.16 signed two's-complement (`DATA_W = 32`).

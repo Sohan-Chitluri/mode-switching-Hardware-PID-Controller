@@ -80,99 +80,236 @@ module pid_gain_bank #(
     // Yaw rate: Kp=0.25 (0x0000_4000), Ki_eff=0.0000375 (0x0000_0002), Kd_eff=0, alpha=0.3 (0x0000_4CCD)
     // Thrust velocity: Kp=0.40 (0x0000_6666), Ki_eff=0.000075 (0x0000_0005), Kd_eff=40.0 (0x0028_0000), alpha=0.2 (0x0000_3333)
 
-    // Register File Storage: 32 registers
-    logic [DATA_W-1:0] reg_bank [0:31];
+    // 4 Mode Banks of 32 registers each:
+    // Bank 0 (2'b00): MODE_ACRO
+    // Bank 1 (2'b01): MODE_STABILIZE
+    // Bank 2 (2'b10): MODE_ALTHOLD
+    // Bank 3 (2'b11): MODE_FAILSAFE
+    logic [DATA_W-1:0] reg_bank [0:3][0:31];
 
     always_ff @(posedge clk) begin
         if (!rst_n) begin
-            reg_bank[0]  <= 32'sh0004_8000; // kp_att_roll
-            reg_bank[1]  <= 32'sh0004_8000; // kp_att_pitch
-            reg_bank[2]  <= 32'sh0001_3333; // kp_alt_pos (1.2)
-            reg_bank[3]  <= 32'sh0000_8000; // hover_thrust (0.50)
-            reg_bank[4]  <= 32'sh0000_0000; // failsafe_thrust (0.0)
+            // -------------------------------------------------------------
+            // Bank 0: MODE_ACRO (Rate feedback loop)
+            // -------------------------------------------------------------
+            reg_bank[0][0]  <= 32'sh0004_8000; // kp_att_roll
+            reg_bank[0][1]  <= 32'sh0004_8000; // kp_att_pitch
+            reg_bank[0][2]  <= 32'sh0001_3333; // kp_alt_pos (1.2)
+            reg_bank[0][3]  <= 32'sh0000_8000; // hover_thrust (0.50)
+            reg_bank[0][4]  <= 32'sh0000_0000; // failsafe_thrust (0.0)
 
-            // Roll
-            reg_bank[5]  <= 32'sh0000_2666; // roll_kp
-            reg_bank[6]  <= 32'sh0000_0003; // roll_ki_eff
-            reg_bank[7]  <= 32'sh0010_0000; // roll_kd_eff
-            reg_bank[8]  <= 32'sh0000_4CCD; // roll_alpha
-            reg_bank[9]  <= -32'sh0001_0000;// roll_u_min
-            reg_bank[10] <= 32'sh0001_0000; // roll_u_max
-            reg_bank[11] <= -32'sh0000_8000;// roll_i_min
-            reg_bank[12] <= 32'sh0000_8000; // roll_i_max
+            // Roll rate (agile rate control)
+            reg_bank[0][5]  <= 32'sh0000_4000; // roll_kp = 0.25
+            reg_bank[0][6]  <= 32'sh0000_0007; // roll_ki_eff = 0.0001 (Ki=0.40)
+            reg_bank[0][7]  <= 32'sh0014_0000; // roll_kd_eff = 20.0 (Kd=0.005)
+            reg_bank[0][8]  <= 32'sh0000_4CCD; // roll_alpha = 0.3
+            reg_bank[0][9]  <= -32'sh0001_0000;// roll_u_min = -1.0
+            reg_bank[0][10] <= 32'sh0001_0000; // roll_u_max = +1.0
+            reg_bank[0][11] <= -32'sh0000_8000;// roll_i_min = -0.5
+            reg_bank[0][12] <= 32'sh0000_8000; // roll_i_max = +0.5
 
-            // Pitch
-            reg_bank[13] <= 32'sh0000_2666; // pitch_kp
-            reg_bank[14] <= 32'sh0000_0003; // pitch_ki_eff
-            reg_bank[15] <= 32'sh0010_0000; // pitch_kd_eff
-            reg_bank[16] <= 32'sh0000_4CCD; // pitch_alpha
-            reg_bank[17] <= -32'sh0001_0000;// pitch_u_min
-            reg_bank[18] <= 32'sh0001_0000; // pitch_u_max
-            reg_bank[19] <= -32'sh0000_8000;// pitch_i_min
-            reg_bank[20] <= 32'sh0000_8000; // pitch_i_max
+            // Pitch rate (agile rate control)
+            reg_bank[0][13] <= 32'sh0000_4000; // pitch_kp = 0.25
+            reg_bank[0][14] <= 32'sh0000_0007; // pitch_ki_eff = 0.0001
+            reg_bank[0][15] <= 32'sh0014_0000; // pitch_kd_eff = 20.0
+            reg_bank[0][16] <= 32'sh0000_4CCD; // pitch_alpha = 0.3
+            reg_bank[0][17] <= -32'sh0001_0000;// pitch_u_min = -1.0
+            reg_bank[0][18] <= 32'sh0001_0000; // pitch_u_max = +1.0
+            reg_bank[0][19] <= -32'sh0000_8000;// pitch_i_min = -0.5
+            reg_bank[0][20] <= 32'sh0000_8000; // pitch_i_max = +0.5
 
-            // Yaw
-            reg_bank[21] <= 32'sh0000_4000; // yaw_kp
-            reg_bank[22] <= 32'sh0000_0002; // yaw_ki_eff
-            reg_bank[23] <= 32'sh0000_0000; // yaw_kd_eff
-            reg_bank[24] <= 32'sh0000_4CCD; // yaw_alpha
-            reg_bank[25] <= -32'sh0001_0000;// yaw_u_min
-            reg_bank[26] <= 32'sh0001_0000; // yaw_u_max
-            reg_bank[27] <= -32'sh0000_8000;// yaw_i_min
-            reg_bank[28] <= 32'sh0000_8000; // yaw_i_max
+            // Yaw rate
+            reg_bank[0][21] <= 32'sh0000_4000; // yaw_kp = 0.25
+            reg_bank[0][22] <= 32'sh0000_0002; // yaw_ki_eff = 0.0000375
+            reg_bank[0][23] <= 32'sh0000_0000; // yaw_kd_eff = 0
+            reg_bank[0][24] <= 32'sh0000_4CCD; // yaw_alpha = 0.3
+            reg_bank[0][25] <= -32'sh0001_0000;// yaw_u_min = -1.0
+            reg_bank[0][26] <= 32'sh0001_0000; // yaw_u_max = +1.0
+            reg_bank[0][27] <= -32'sh0000_8000;// yaw_i_min = -0.5
+            reg_bank[0][28] <= 32'sh0000_8000; // yaw_i_max = +0.5
 
             // Thrust
-            reg_bank[29] <= 32'sh0000_6666; // thrust_kp
-            reg_bank[30] <= 32'sh0000_0005; // thrust_ki_eff
-            reg_bank[31] <= 32'sh0028_0000; // thrust_kd_eff
-        end else if (cfg_we && (cfg_addr < 32)) begin
-            reg_bank[cfg_addr[4:0]] <= cfg_wdata;
+            reg_bank[0][29] <= 32'sh0000_6666; // thrust_kp = 0.40
+            reg_bank[0][30] <= 32'sh0000_0005; // thrust_ki_eff = 0.000075
+            reg_bank[0][31] <= 32'sh0028_0000; // thrust_kd_eff = 40.0
+
+            // -------------------------------------------------------------
+            // Bank 1: MODE_STABILIZE (Cascaded attitude angle -> rate loop)
+            // Tuned for quadrotor physical stabilization
+            // -------------------------------------------------------------
+            reg_bank[1][0]  <= 32'sh000A_0000; // kp_att_roll = 10.0
+            reg_bank[1][1]  <= 32'sh000A_0000; // kp_att_pitch = 10.0
+            reg_bank[1][2]  <= 32'sh0001_3333; // kp_alt_pos = 1.2
+            reg_bank[1][3]  <= 32'sh0000_8000; // hover_thrust = 0.50
+            reg_bank[1][4]  <= 32'sh0000_0000; // failsafe_thrust = 0.0
+
+            // Roll rate (stabilizing damping)
+            reg_bank[1][5]  <= 32'sh0001_6666; // roll_kp = 1.4
+            reg_bank[1][6]  <= 32'sh0000_01EC; // roll_ki_eff = 0.0075 (Ki=30.0)
+            reg_bank[1][7]  <= 32'sh0098_0000; // roll_kd_eff = 152.0 (Kd=0.038)
+            reg_bank[1][8]  <= 32'sh0000_4CCD; // roll_alpha = 0.3
+            reg_bank[1][9]  <= -32'sh0001_0000;// roll_u_min = -1.0
+            reg_bank[1][10] <= 32'sh0001_0000; // roll_u_max = +1.0
+            reg_bank[1][11] <= -32'sh0000_8000;// roll_i_min = -0.5
+            reg_bank[1][12] <= 32'sh0000_8000; // roll_i_max = +0.5
+
+            // Pitch rate (stabilizing damping)
+            reg_bank[1][13] <= 32'sh0001_6666; // pitch_kp = 1.4
+            reg_bank[1][14] <= 32'sh0000_01EC; // pitch_ki_eff = 0.0075 (Ki=30.0)
+            reg_bank[1][15] <= 32'sh0098_0000; // pitch_kd_eff = 152.0 (Kd=0.038)
+            reg_bank[1][16] <= 32'sh0000_4CCD; // pitch_alpha = 0.3
+            reg_bank[1][17] <= -32'sh0001_0000;// pitch_u_min = -1.0
+            reg_bank[1][18] <= 32'sh0001_0000; // pitch_u_max = +1.0
+            reg_bank[1][19] <= -32'sh0000_8000;// pitch_i_min = -0.5
+            reg_bank[1][20] <= 32'sh0000_8000; // pitch_i_max = +0.5
+
+            // Yaw rate
+            reg_bank[1][21] <= 32'sh0000_4000; // yaw_kp = 0.25
+            reg_bank[1][22] <= 32'sh0000_0002; // yaw_ki_eff = 0.0000375
+            reg_bank[1][23] <= 32'sh0000_0000; // yaw_kd_eff = 0
+            reg_bank[1][24] <= 32'sh0000_4CCD; // yaw_alpha = 0.3
+            reg_bank[1][25] <= -32'sh0001_0000;
+            reg_bank[1][26] <= 32'sh0001_0000;
+            reg_bank[1][27] <= -32'sh0000_8000;
+            reg_bank[1][28] <= 32'sh0000_8000;
+
+            // Thrust
+            reg_bank[1][29] <= 32'sh0000_6666; // thrust_kp = 0.40
+            reg_bank[1][30] <= 32'sh0000_0005; // thrust_ki_eff = 0.000075
+            reg_bank[1][31] <= 32'sh0028_0000; // thrust_kd_eff = 40.0
+
+            // -------------------------------------------------------------
+            // Bank 2: MODE_ALTHOLD (Attitude + Altitude position loop)
+            // -------------------------------------------------------------
+            reg_bank[2][0]  <= 32'sh000A_0000; // kp_att_roll = 10.0
+            reg_bank[2][1]  <= 32'sh000A_0000; // kp_att_pitch = 10.0
+            reg_bank[2][2]  <= 32'sh0001_3333; // kp_alt_pos = 1.2
+            reg_bank[2][3]  <= 32'sh0000_8000; // hover_thrust = 0.50
+            reg_bank[2][4]  <= 32'sh0000_0000; // failsafe_thrust = 0.0
+
+            // Roll rate
+            reg_bank[2][5]  <= 32'sh0001_6666;
+            reg_bank[2][6]  <= 32'sh0000_01EC;
+            reg_bank[2][7]  <= 32'sh0098_0000;
+            reg_bank[2][8]  <= 32'sh0000_4CCD;
+            reg_bank[2][9]  <= -32'sh0001_0000;
+            reg_bank[2][10] <= 32'sh0001_0000;
+            reg_bank[2][11] <= -32'sh0000_8000;
+            reg_bank[2][12] <= 32'sh0000_8000;
+
+            // Pitch rate
+            reg_bank[2][13] <= 32'sh0001_6666;
+            reg_bank[2][14] <= 32'sh0000_01EC;
+            reg_bank[2][15] <= 32'sh0098_0000;
+            reg_bank[2][16] <= 32'sh0000_4CCD;
+            reg_bank[2][17] <= -32'sh0001_0000;
+            reg_bank[2][18] <= 32'sh0001_0000;
+            reg_bank[2][19] <= -32'sh0000_8000;
+            reg_bank[2][20] <= 32'sh0000_8000;
+
+            // Yaw rate
+            reg_bank[2][21] <= 32'sh0000_4000;
+            reg_bank[2][22] <= 32'sh0000_0002;
+            reg_bank[2][23] <= 32'sh0000_0000;
+            reg_bank[2][24] <= 32'sh0000_4CCD;
+            reg_bank[2][25] <= -32'sh0001_0000;
+            reg_bank[2][26] <= 32'sh0001_0000;
+            reg_bank[2][27] <= -32'sh0000_8000;
+            reg_bank[2][28] <= 32'sh0000_8000;
+
+            // Altitude Thrust climb velocity loop
+            reg_bank[2][29] <= 32'sh0000_6666; // thrust_kp = 0.40
+            reg_bank[2][30] <= 32'sh0000_0005; // thrust_ki_eff = 0.000075
+            reg_bank[2][31] <= 32'sh0028_0000; // thrust_kd_eff = 40.0
+
+            // -------------------------------------------------------------
+            // Bank 3: MODE_FAILSAFE (Deterministic Safe Bounds)
+            // -------------------------------------------------------------
+            reg_bank[3][0]  <= 32'sh0000_0000;
+            reg_bank[3][1]  <= 32'sh0000_0000;
+            reg_bank[3][2]  <= 32'sh0000_0000;
+            reg_bank[3][3]  <= 32'sh0000_0000;
+            reg_bank[3][4]  <= 32'sh0000_0000; // failsafe_thrust = 0.0
+
+            reg_bank[3][5]  <= 32'sh0000_0000;
+            reg_bank[3][6]  <= 32'sh0000_0000;
+            reg_bank[3][7]  <= 32'sh0000_0000;
+            reg_bank[3][8]  <= 32'sh0000_4CCD;
+            reg_bank[3][9]  <= -32'sh0001_0000;
+            reg_bank[3][10] <= 32'sh0001_0000;
+            reg_bank[3][11] <= -32'sh0000_8000;
+            reg_bank[3][12] <= 32'sh0000_8000;
+
+            reg_bank[3][13] <= 32'sh0000_0000;
+            reg_bank[3][14] <= 32'sh0000_0000;
+            reg_bank[3][15] <= 32'sh0000_0000;
+            reg_bank[3][16] <= 32'sh0000_4CCD;
+            reg_bank[3][17] <= -32'sh0001_0000;
+            reg_bank[3][18] <= 32'sh0001_0000;
+            reg_bank[3][19] <= -32'sh0000_8000;
+            reg_bank[3][20] <= 32'sh0000_8000;
+
+            reg_bank[3][21] <= 32'sh0000_0000;
+            reg_bank[3][22] <= 32'sh0000_0000;
+            reg_bank[3][23] <= 32'sh0000_0000;
+            reg_bank[3][24] <= 32'sh0000_4CCD;
+            reg_bank[3][25] <= -32'sh0001_0000;
+            reg_bank[3][26] <= 32'sh0001_0000;
+            reg_bank[3][27] <= -32'sh0000_8000;
+            reg_bank[3][28] <= 32'sh0000_8000;
+
+            reg_bank[3][29] <= 32'sh0000_0000;
+            reg_bank[3][30] <= 32'sh0000_0000;
+            reg_bank[3][31] <= 32'sh0000_0000;
+
+        end else if (cfg_we && (cfg_addr < 128)) begin
+            reg_bank[cfg_addr[6:5]][cfg_addr[4:0]] <= cfg_wdata;
         end
     end
 
-    assign cfg_rdata = (cfg_addr < 32) ? reg_bank[cfg_addr[4:0]] : 32'd0;
+    assign cfg_rdata = (cfg_addr < 128) ? reg_bank[cfg_addr[6:5]][cfg_addr[4:0]] : 32'd0;
 
-    // Output assignments
-    assign kp_att_roll     = reg_bank[0];
-    assign kp_att_pitch    = reg_bank[1];
-    assign kp_alt_pos      = reg_bank[2];
-    assign hover_thrust    = reg_bank[3];
-    assign failsafe_thrust = reg_bank[4];
+    // Active Mode Multiplexed Output Assignments
+    assign kp_att_roll     = reg_bank[active_mode][0];
+    assign kp_att_pitch    = reg_bank[active_mode][1];
+    assign kp_alt_pos      = reg_bank[active_mode][2];
+    assign hover_thrust    = reg_bank[active_mode][3];
+    assign failsafe_thrust = reg_bank[active_mode][4];
 
-    // Roll
-    assign roll_kp      = reg_bank[5];
-    assign roll_ki_eff  = reg_bank[6];
-    assign roll_kd_eff  = reg_bank[7];
-    assign roll_alpha   = reg_bank[8];
-    assign roll_u_min   = reg_bank[9];
-    assign roll_u_max   = reg_bank[10];
-    assign roll_i_min   = reg_bank[11];
-    assign roll_i_max   = reg_bank[12];
+    // Roll Active Channel
+    assign roll_kp      = reg_bank[active_mode][5];
+    assign roll_ki_eff  = reg_bank[active_mode][6];
+    assign roll_kd_eff  = reg_bank[active_mode][7];
+    assign roll_alpha   = reg_bank[active_mode][8];
+    assign roll_u_min   = reg_bank[active_mode][9];
+    assign roll_u_max   = reg_bank[active_mode][10];
+    assign roll_i_min   = reg_bank[active_mode][11];
+    assign roll_i_max   = reg_bank[active_mode][12];
 
-    // Pitch
-    assign pitch_kp     = reg_bank[13];
-    assign pitch_ki_eff = reg_bank[14];
-    assign pitch_kd_eff = reg_bank[15];
-    assign pitch_alpha  = reg_bank[16];
-    assign pitch_u_min  = reg_bank[17];
-    assign pitch_u_max  = reg_bank[18];
-    assign pitch_i_min  = reg_bank[19];
-    assign pitch_i_max  = reg_bank[20];
+    // Pitch Active Channel
+    assign pitch_kp     = reg_bank[active_mode][13];
+    assign pitch_ki_eff = reg_bank[active_mode][14];
+    assign pitch_kd_eff = reg_bank[active_mode][15];
+    assign pitch_alpha  = reg_bank[active_mode][16];
+    assign pitch_u_min  = reg_bank[active_mode][17];
+    assign pitch_u_max  = reg_bank[active_mode][18];
+    assign pitch_i_min  = reg_bank[active_mode][19];
+    assign pitch_i_max  = reg_bank[active_mode][20];
 
-    // Yaw
-    assign yaw_kp       = reg_bank[21];
-    assign yaw_ki_eff   = reg_bank[22];
-    assign yaw_kd_eff   = reg_bank[23];
-    assign yaw_alpha    = reg_bank[24];
-    assign yaw_u_min    = reg_bank[25];
-    assign yaw_u_max    = reg_bank[26];
-    assign yaw_i_min    = reg_bank[27];
-    assign yaw_i_max    = reg_bank[28];
+    // Yaw Active Channel
+    assign yaw_kp       = reg_bank[active_mode][21];
+    assign yaw_ki_eff   = reg_bank[active_mode][22];
+    assign yaw_kd_eff   = reg_bank[active_mode][23];
+    assign yaw_alpha    = reg_bank[active_mode][24];
+    assign yaw_u_min    = reg_bank[active_mode][25];
+    assign yaw_u_max    = reg_bank[active_mode][26];
+    assign yaw_i_min    = reg_bank[active_mode][27];
+    assign yaw_i_max    = reg_bank[active_mode][28];
 
-    // Altitude Thrust
-    assign thrust_kp     = reg_bank[29];
-    assign thrust_ki_eff = reg_bank[30];
-    assign thrust_kd_eff = reg_bank[31];
+    // Altitude Thrust Active Channel
+    assign thrust_kp     = reg_bank[active_mode][29];
+    assign thrust_ki_eff = reg_bank[active_mode][30];
+    assign thrust_kd_eff = reg_bank[active_mode][31];
     assign thrust_alpha  = 32'sh0000_3333; // 0.20
     assign thrust_u_min  = 32'sh0000_0000; // 0.0
     assign thrust_u_max  = 32'sh0001_0000; // 1.0

@@ -16,7 +16,7 @@ module pid_mode_mgr (
     input  logic       clk,
     input  logic       rst_n,
 
-    // Pilot Commands
+    input  logic       sample_valid,    // IMU sensor sample valid strobe
     input  logic [1:0] mode_cmd,        // 00=Acro, 01=Stab, 10=AltHold, 11=Failsafe
     input  logic       rearm_cmd,       // Strobe to clear sticky fault and exit failsafe
 
@@ -26,7 +26,8 @@ module pid_mode_mgr (
     input  logic       alt_valid,       // Altitude sensor valid flag
 
     // Mode Status and Handover Strobes
-    output logic [1:0] active_mode,       // Current operating mode
+    output logic [1:0] active_mode,       // Registered operating mode
+    output logic [1:0] next_mode,         // Combinational target mode for current cycle
     output logic [1:0] prev_mode,         // Previous mode before latest transition
     output logic       transition_strobe, // 1-cycle pulse asserted on mode boundary
     output logic [3:0] fault_code         // Diagnostic sticky fault status
@@ -36,12 +37,11 @@ module pid_mode_mgr (
     logic [1:0] prev_state_r;
     logic [1:0] next_state;
     logic [3:0] fault_r;
-    logic       trans_r;
 
     logic [3:0] active_fault;
 
-    // Instantaneous fault resolution (rearm clears sticky fault combinationally if conditions are safe)
-    assign active_fault = (rearm_cmd && !watchdog_alarm && failsafe_ext_n) ? FAULT_NONE :
+    // Instantaneous fault resolution (rearm clears sticky fault combinationally if conditions are safe and sensor sample is valid)
+    assign active_fault = (rearm_cmd && sample_valid && !watchdog_alarm && failsafe_ext_n) ? FAULT_NONE :
                           (fault_r | (watchdog_alarm ? FAULT_WATCHDOG_STALE : 4'd0) | (!failsafe_ext_n ? FAULT_EXT_FAILSAFE : 4'd0));
 
     // Fault latching logic
@@ -49,7 +49,7 @@ module pid_mode_mgr (
         if (!rst_n) begin
             fault_r <= FAULT_NONE;
         end else begin
-            if (rearm_cmd && !watchdog_alarm && failsafe_ext_n) begin
+            if (rearm_cmd && sample_valid && !watchdog_alarm && failsafe_ext_n) begin
                 fault_r <= FAULT_NONE; // Clear sticky fault on re-arm
             end else begin
                 if (watchdog_alarm)
@@ -66,10 +66,14 @@ module pid_mode_mgr (
     always_comb begin
         req_mode = MODE_FAILSAFE;
         if (active_fault != FAULT_NONE) begin
-            // Safety invariant: Any active fault locks controller into Failsafe
+            // Safety invariant: Any active fault locks controller into Failsafe immediately
             next_state = MODE_FAILSAFE;
+        end else if (!sample_valid) begin
+            // Hold current operating mode between sample valid strobes
+            next_state = state_r;
         end else begin
-            // Sticky Failsafe lock until explicit re-arm
+            // Normal mode transitions evaluated synchronously on sample boundaries
+            // Sticky Failsafe lock until explicit re-arm with valid sensor data
             if (state_r == MODE_FAILSAFE) begin
                 req_mode = (rearm_cmd) ? mode_cmd : MODE_FAILSAFE;
             end else begin
@@ -103,15 +107,16 @@ module pid_mode_mgr (
         end
     end
 
-    assign active_mode       = next_state;
-    assign prev_mode         = state_r;
+    assign active_mode       = state_r;
+    assign next_mode         = next_state;
+    assign prev_mode         = prev_state_r;
     assign transition_strobe = (next_state != state_r);
     assign fault_code        = fault_r;
 
 `ifdef FORMAL
     always_comb begin
         if (!failsafe_ext_n || watchdog_alarm) begin
-            assert(active_mode == MODE_FAILSAFE);
+            assert(next_mode == MODE_FAILSAFE);
         end
     end
 `endif
