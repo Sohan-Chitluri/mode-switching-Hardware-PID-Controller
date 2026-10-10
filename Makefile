@@ -28,7 +28,7 @@ VERILATOR_INCLUDES  := -I$(RTL_DIR)/pkg -I$(RTL_DIR)/core -I$(RTL_DIR)/modes -I$
 
 # Verilator Flags
 VERILATOR_LINT_FLAGS := --lint-only -Wall -Wno-UNUSED -Wno-DECLFILENAME \
-                        -Wno-PINCONNECTEMPTY -Wno-VARHIDDEN $(VERILATOR_INCLUDES) --sv
+                        -Wno-PINCONNECTEMPTY -Wno-VARHIDDEN -Wno-IMPORTSTAR $(VERILATOR_INCLUDES) --sv
 
 VERILATOR_SIM_FLAGS  := --binary -j 0 -O3 -CFLAGS "-O3 -std=c++17" \
                         --trace --trace-structs \
