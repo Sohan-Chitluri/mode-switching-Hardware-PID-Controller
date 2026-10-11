@@ -62,7 +62,7 @@ RTL_SOC_SRCS   := \
 	$(RTL_DIR)/safety/pid_mixer.sv \
 	$(RTL_DIR)/pid_soc_top.sv
 
-.PHONY: all help clean lint test-unit test-top test-mixer test-soc test-stress test-fixed-point test-mixer-edge test-safety-edge test-edge-all test-formal gen-vectors sim-plant regression
+.PHONY: all help clean lint test-unit test-top test-mixer test-soc test-stress test-fixed-point test-mixer-edge test-safety-edge test-edge-all test-axi test-apb test-notch test-matrix test-2dof test-advanced test-formal gen-vectors sim-plant regression
 
 all: lint test-unit
 
@@ -174,6 +174,60 @@ test-safety-edge: $(OUTPUT_DIR)
 
 test-edge-all: test-fixed-point test-mixer-edge test-safety-edge
 	@echo "=== [EDGE-ALL] All edge-case verification testbenches passed ==="
+
+test-axi: $(OUTPUT_DIR)
+	@echo "=== [TEST-AXI] Running pid_soc_axi_top_tb AXI4-Lite integration testbench ==="
+	$(VERILATOR) $(VERILATOR_SIM_FLAGS) -I$(RTL_DIR)/bus \
+		--top-module pid_soc_axi_top_tb \
+		--Mdir $(ABS_OUTPUT)/obj_axi \
+		$(RTL_SOC_SRCS) $(RTL_DIR)/bus/pid_axi_lite_bridge.sv $(RTL_DIR)/pid_soc_axi_top.sv \
+		$(TB_DIR)/top/pid_soc_axi_top_tb.sv \
+		-o $(ABS_OUTPUT)/Vpid_soc_axi_top_tb
+	$(ABS_OUTPUT)/Vpid_soc_axi_top_tb
+
+test-apb: $(OUTPUT_DIR)
+	@echo "=== [TEST-APB] Running pid_soc_apb_top_tb APB4 integration testbench ==="
+	$(VERILATOR) $(VERILATOR_SIM_FLAGS) -I$(RTL_DIR)/bus \
+		--top-module pid_soc_apb_top_tb \
+		--Mdir $(ABS_OUTPUT)/obj_apb \
+		$(RTL_SOC_SRCS) $(RTL_DIR)/bus/pid_apb4_bridge.sv $(RTL_DIR)/bus/pid_soc_apb_top.sv \
+		$(TB_DIR)/top/pid_soc_apb_top_tb.sv \
+		-o $(ABS_OUTPUT)/Vpid_soc_apb_top_tb
+	$(ABS_OUTPUT)/Vpid_soc_apb_top_tb
+
+test-notch: $(OUTPUT_DIR)
+	@echo "=== [TEST-NOTCH] Running pid_gyro_notch_tb Biquad filter testbench ==="
+	$(VERILATOR) $(VERILATOR_SIM_FLAGS) -I$(RTL_DIR)/dsp \
+		--top-module pid_gyro_notch_tb \
+		--Mdir $(ABS_OUTPUT)/obj_notch \
+		$(RTL_PKG) $(RTL_DIR)/dsp/pid_gyro_notch.sv \
+		$(TB_DIR)/unit/pid_gyro_notch_tb.sv \
+		-o $(ABS_OUTPUT)/Vpid_gyro_notch_tb
+	$(ABS_OUTPUT)/Vpid_gyro_notch_tb
+
+test-matrix: $(OUTPUT_DIR)
+	@echo "=== [TEST-MATRIX] Running pid_mixer_matrix_tb multi-rotor mixer testbench ==="
+	$(VERILATOR) $(VERILATOR_SIM_FLAGS) -I$(RTL_DIR)/safety \
+		--top-module pid_mixer_matrix_tb \
+		--Mdir $(ABS_OUTPUT)/obj_matrix \
+		$(RTL_PKG) $(RTL_DIR)/safety/pid_mixer_matrix.sv \
+		$(TB_DIR)/unit/pid_mixer_matrix_tb.sv \
+		-o $(ABS_OUTPUT)/Vpid_mixer_matrix_tb
+	$(ABS_OUTPUT)/Vpid_mixer_matrix_tb
+
+test-2dof: $(OUTPUT_DIR)
+	@echo "=== [TEST-2DOF] Running pid_axis_core_2dof_tb 2-DOF PID engine testbench ==="
+	$(VERILATOR) $(VERILATOR_SIM_FLAGS) \
+		--top-module pid_axis_core_2dof_tb \
+		--Mdir $(ABS_OUTPUT)/obj_2dof \
+		$(RTL_PKG) $(RTL_DIR)/core/pid_mult.sv $(RTL_DIR)/core/pid_deriv_filter.sv $(RTL_DIR)/core/pid_integ_unit.sv $(RTL_DIR)/core/pid_sat_unit.sv $(RTL_DIR)/core/pid_axis_core_2dof.sv \
+		$(TB_DIR)/unit/pid_axis_core_2dof_tb.sv \
+		-o $(ABS_OUTPUT)/Vpid_axis_core_2dof_tb
+	$(ABS_OUTPUT)/Vpid_axis_core_2dof_tb
+
+test-advanced: test-axi test-apb test-notch test-matrix test-2dof
+	@echo "=== [ADVANCED-ALL] All post-hackathon advanced features verified 100% PASS ==="
+
 
 gen-vectors:
 	@echo "=== [VECTORS] Generating test vectors from bit-accurate model ==="
