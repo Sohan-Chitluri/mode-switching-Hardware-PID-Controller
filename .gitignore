@@ -9,3 +9,6 @@ __pycache__/
 *.pyc
 .cache/
 tb/formal/pid_formal/
+PID_resources.zip
+netlist/
+reports/

@@ -236,6 +236,154 @@ module pid_mixer_tb;
         end
 
         // -------------------------------------------------------------
+        // Test 8: Pure Negative Roll Torque (-0.10)
+        // M1 (RL, left)  = 0.5 - 0.1 = 0.40
+        // M2 (RR, right) = 0.5 + 0.1 = 0.60
+        // M3 (FR, right) = 0.5 + 0.1 = 0.60
+        // M4 (FL, left)  = 0.5 - 0.1 = 0.40
+        // -------------------------------------------------------------
+        test_count++;
+        $display(">>> [Test 8] Pure Negative Roll Torque (-0.10)");
+        apply_step(32'sh0000_8000, -32'sh0000_199A, 32'sd0, 32'sd0);
+        if (motor_1 == 32'sh0000_6666 && motor_2 == 32'sh0000_999A &&
+            motor_3 == 32'sh0000_999A && motor_4 == 32'sh0000_6666 &&
+            !saturated_flag) begin
+            $display("  PASS: Left motors M1,M4 = 0.40, Right motors M2,M3 = 0.60");
+            pass_count++;
+        end else begin
+            $display("  FAIL: Negative roll response incorrect: M1=%0d, M2=%0d, M3=%0d, M4=%0d",
+                     motor_1, motor_2, motor_3, motor_4);
+            fail_count++;
+        end
+
+        // -------------------------------------------------------------
+        // Test 9: Pure Negative Pitch Torque (-0.10 nose-down)
+        // M1 (RL, rear)  = 0.5 + 0.1 = 0.60
+        // M2 (RR, rear)  = 0.5 + 0.1 = 0.60
+        // M3 (FR, front) = 0.5 - 0.1 = 0.40
+        // M4 (FL, front) = 0.5 - 0.1 = 0.40
+        // -------------------------------------------------------------
+        test_count++;
+        $display(">>> [Test 9] Pure Negative Pitch Torque (-0.10)");
+        apply_step(32'sh0000_8000, 32'sd0, -32'sh0000_199A, 32'sd0);
+        if (motor_1 == 32'sh0000_999A && motor_2 == 32'sh0000_999A &&
+            motor_3 == 32'sh0000_6666 && motor_4 == 32'sh0000_6666 &&
+            !saturated_flag) begin
+            $display("  PASS: Rear motors M1,M2 = 0.60, Front motors M3,M4 = 0.40");
+            pass_count++;
+        end else begin
+            $display("  FAIL: Negative pitch response incorrect: M1=%0d, M2=%0d, M3=%0d, M4=%0d",
+                     motor_1, motor_2, motor_3, motor_4);
+            fail_count++;
+        end
+
+        // -------------------------------------------------------------
+        // Test 10: Pure Negative Yaw Torque (-0.10 counter-clockwise)
+        // M1 (RL, CW ) = 0.5 + 0.1 = 0.60
+        // M2 (RR, CCW) = 0.5 - 0.1 = 0.40
+        // M3 (FR, CW ) = 0.5 + 0.1 = 0.60
+        // M4 (FL, CCW) = 0.5 - 0.1 = 0.40
+        // -------------------------------------------------------------
+        test_count++;
+        $display(">>> [Test 10] Pure Negative Yaw Torque (-0.10)");
+        apply_step(32'sh0000_8000, 32'sd0, 32'sd0, -32'sh0000_199A);
+        if (motor_1 == 32'sh0000_999A && motor_2 == 32'sh0000_6666 &&
+            motor_3 == 32'sh0000_999A && motor_4 == 32'sh0000_6666 &&
+            !saturated_flag) begin
+            $display("  PASS: CW pair M1,M3 = 0.60, CCW pair M2,M4 = 0.40");
+            pass_count++;
+        end else begin
+            $display("  FAIL: Negative yaw response incorrect: M1=%0d, M2=%0d, M3=%0d, M4=%0d",
+                     motor_1, motor_2, motor_3, motor_4);
+            fail_count++;
+        end
+
+        // -------------------------------------------------------------
+        // Test 11: Mixed 4-Axis Demands
+        // T=0.50, R=0.05 (3277), P=0.05, Y=0.05
+        // M1 = 0.50 - 0.05 + 0.05 - 0.05 = 0.45 (29491)
+        // M2 = 0.50 - 0.05 - 0.05 + 0.05 = 0.45 (29491)
+        // M3 = 0.50 + 0.05 - 0.05 - 0.05 = 0.45 (29491)
+        // M4 = 0.50 + 0.05 + 0.05 + 0.05 = 0.65 (42598)
+        // -------------------------------------------------------------
+        test_count++;
+        $display(">>> [Test 11] Mixed 4-Axis Demands (T=0.50, R=0.05, P=0.05, Y=0.05)");
+        apply_step(32'sh0000_8000, 32'sh0000_0CCD, 32'sh0000_0CCD, 32'sh0000_0CCD);
+        if (motor_1 == 32'sh0000_7333 && motor_2 == 32'sh0000_7333 &&
+            motor_3 == 32'sh0000_7333 && motor_4 == 32'sh0000_A667 &&
+            !saturated_flag) begin
+            $display("  PASS: Mixed mapping bit-exact: M1,M2,M3=0.45, M4=0.65");
+            pass_count++;
+        end else begin
+            $display("  FAIL: Mixed mapping mismatch: M1=%0d, M2=%0d, M3=%0d, M4=%0d",
+                     motor_1, motor_2, motor_3, motor_4);
+            fail_count++;
+        end
+
+        // -------------------------------------------------------------
+        // Test 12: Minimum (0.0) and Maximum (1.0) Neutral Commands
+        // -------------------------------------------------------------
+        test_count++;
+        $display(">>> [Test 12] Minimum (0.0) and Maximum (1.0) Commands");
+        apply_step(32'sd0, 32'sd0, 32'sd0, 32'sd0);
+        if (motor_1 == 32'sd0 && motor_2 == 32'sd0 && motor_3 == 32'sd0 && motor_4 == 32'sd0 && !saturated_flag) begin
+            apply_step(FIX_ONE, 32'sd0, 32'sd0, 32'sd0);
+            if (motor_1 == FIX_ONE && motor_2 == FIX_ONE && motor_3 == FIX_ONE && motor_4 == FIX_ONE && !saturated_flag) begin
+                $display("  PASS: Min command (0.0) and Max command (1.0) cleanly handled without spurious saturation");
+                pass_count++;
+            end else begin
+                $display("  FAIL: Max command output incorrect");
+                fail_count++;
+            end
+        end else begin
+            $display("  FAIL: Min command output incorrect");
+            fail_count++;
+        end
+
+        // -------------------------------------------------------------
+        // Test 13: Saturation Recovery back to Linear Region
+        // -------------------------------------------------------------
+        test_count++;
+        $display(">>> [Test 13] Saturation Recovery & Flag Deassertion");
+        // Force saturation first
+        apply_step(32'sh0000_E666, 32'sd0, 32'sh0000_4CCD, 32'sd0);
+        if (saturated_flag == 1'b1) begin
+            // Return to nominal hover
+            apply_step(32'sh0000_8000, 32'sd0, 32'sd0, 32'sd0);
+            if (motor_1 == 32'sh0000_8000 && motor_2 == 32'sh0000_8000 &&
+                motor_3 == 32'sh0000_8000 && motor_4 == 32'sh0000_8000 &&
+                saturated_flag == 1'b0) begin
+                $display("  PASS: Successfully recovered from saturation, flag cleanly deasserted");
+                pass_count++;
+            end else begin
+                $display("  FAIL: Flag failed to deassert on return to linear range (sat=%0b)", saturated_flag);
+                fail_count++;
+            end
+        end else begin
+            $display("  FAIL: Prerequisite saturation not established");
+            fail_count++;
+        end
+
+        // -------------------------------------------------------------
+        // Test 14: Invalid & Extreme Input Handling (No 48-bit Wrap)
+        // -------------------------------------------------------------
+        test_count++;
+        $display(">>> [Test 14] Extreme Dynamic Range & Intermediate Guarding");
+        // Extreme positive and negative inputs: T=+2.0, P=+3.0, R=-4.0, Y=+2.0
+        apply_step(32'sh0002_0000, -32'sh0004_0000, 32'sh0003_0000, 32'sh0002_0000);
+        if (motor_1 >= 32'sd0 && motor_1 <= FIX_ONE &&
+            motor_2 >= 32'sd0 && motor_2 <= FIX_ONE &&
+            motor_3 >= 32'sd0 && motor_3 <= FIX_ONE &&
+            motor_4 >= 32'sd0 && motor_4 <= FIX_ONE &&
+            saturated_flag == 1'b1) begin
+            $display("  PASS: 48-bit guarding prevented arithmetic wrap; all motors clamped in [0.0, 1.0]");
+            pass_count++;
+        end else begin
+            $display("  FAIL: Arithmetic overflow or invalid clamping detected!");
+            fail_count++;
+        end
+
+        // -------------------------------------------------------------
         // Summary
         // -------------------------------------------------------------
         $display("=========================================================");

@@ -22,7 +22,7 @@ else
 fi
 
 echo "======================================================================"
-echo " Starting Full Hardware PID Regression Suite (Phase 3)"
+echo " Starting Full Hardware PID Regression Suite (Phase 4)"
 echo " Working Directory: ${REPO_ROOT}"
 echo " Python Binary    : ${PYTHON}"
 echo "======================================================================"
@@ -51,7 +51,7 @@ echo ">>> Stage 3 PASSED: 10,111 unit vectors 100% bit-exact."
 echo ""
 echo ">>> [STAGE 4/10] Running Quad-X Motor Mixer Unit Testbench (pid_mixer_tb)..."
 make test-mixer
-echo ">>> Stage 4 PASSED: 7 mixer unit test suites passed."
+echo ">>> Stage 4 PASSED: 14 mixer unit test suites passed."
 
 # 5. Top-Level Full-Chip Regression
 echo ""

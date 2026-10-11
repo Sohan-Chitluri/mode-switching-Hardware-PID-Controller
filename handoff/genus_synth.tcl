@@ -75,23 +75,25 @@ syn_map
 syn_opt
 
 # ==============================================================================
-# 6. Reporting & Sign-Off Generation
+# 6. Export Gate-Level Netlist and Constraints for Innovus
+# ==============================================================================
+# Write netlist and SDC immediately after synthesis optimization so critical
+# handoff artifacts are guaranteed to exist even if an optional report command fails.
+file mkdir netlist
+write_hdl -mapped > netlist/pid_top_synth.v
+write_sdc         > netlist/pid_top_synth.sdc
+
+# ==============================================================================
+# 7. Reporting & Sign-Off Generation
 # ==============================================================================
 file mkdir reports
-file mkdir netlist
 
 report_timing -max_paths 20 > reports/pid_top_timing_setup.rpt
-report_timing -min_paths 20 > reports/pid_top_timing_hold.rpt
+# Note: Hold timing closure is performed post-CTS in Innovus, not in Genus.
 report_area -detail         > reports/pid_top_area.rpt
 report_power                > reports/pid_top_power.rpt
 report_qor                  > reports/pid_top_qor.rpt
 report_gates                > reports/pid_top_gates.rpt
-
-# ==============================================================================
-# 7. Export Gate-Level Netlist and Constraints for Innovus
-# ==============================================================================
-write_hdl -mapped > netlist/pid_top_synth.v
-write_sdc         > netlist/pid_top_synth.sdc
 
 puts "=========================================================================="
 puts "  Cadence Genus Synthesis for pid_top Completed Successfully!            "

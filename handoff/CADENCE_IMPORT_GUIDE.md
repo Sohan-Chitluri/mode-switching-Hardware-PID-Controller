@@ -52,11 +52,19 @@ pid_handoff_package/
 │   └── pid_top.sv                     # Top-level full-chip integration
 ├── constraints/
 │   └── pid_timing.sdc                 # 50 MHz timing constraints
+├── scripts/
+│   ├── genus_synth.tcl                # Cadence Genus synthesis script
+│   ├── innovus_pnr.tcl                # Cadence Innovus P&R execution script
+│   ├── innovus_pnr_fast.tcl           # Fast-track Innovus P&R execution script
+│   ├── pid_mmmc.tcl                   # Multi-Mode Multi-Corner timing configuration
+│   └── innovus_timing_reports.tcl     # Sign-off setup & hold timing report snippet
+├── reports/
+│   ├── genus/                         # Dedicated Genus synthesis reports and logs
+│   └── innovus/                       # Dedicated Innovus P&R timing reports and logs
+├── netlist/                           # Synthesized gate netlists, SDC, GDS, and DEF
 └── handoff/
     ├── MANIFEST.md                    # File catalog & SHA-256 integrity hashes
-    ├── CADENCE_IMPORT_GUIDE.md        # This implementation guide
-    ├── genus_synth.tcl                # Cadence Genus synthesis script
-    └── innovus_pnr.tcl                # Cadence Innovus P&R execution script
+    └── CADENCE_IMPORT_GUIDE.md        # This implementation guide
 ```
 
 ---
@@ -67,27 +75,27 @@ pid_handoff_package/
 Before executing Genus, set the environment variables pointing to the target PDK libraries:
 
 ```bash
-# Example for TSMC 65nm, GlobalFoundries 22nm, or SkyWater 130nm:
-export PDK_LIB_DIR="/opt/pdk/technology_node/libs"
-export TARGET_LIB="${PDK_LIB_DIR}/typical_vdd1v0_basicCells.lib"
+# Example for TSMC 180nm, 65nm, GlobalFoundries 22nm, or SkyWater 130nm:
+export PDK_LIB_DIR="/home/install/FOUNDRY/digital/180nm/dig/lib"
+export TARGET_LIB="${PDK_LIB_DIR}/typical.lib"
 export LINK_LIB="${TARGET_LIB}"
 ```
 
 ### 3.2 Executing Synthesis
-Run Genus in batch mode from the `handoff/` directory:
+Run Genus in batch mode from the project root:
 
 ```bash
-cd handoff
-genus -f genus_synth.tcl -log genus_synth.log
+genus -f scripts/genus_synth.tcl -log reports/genus/genus_synth.log
 ```
 
 ### 3.3 Expected Outputs & Sign-Off Checklist
-Upon completion, inspect the generated reports in `handoff/reports/`:
+Upon completion, inspect the generated reports in `reports/genus/`:
 1. `pid_top_timing_setup.rpt`: Worst Negative Slack (WNS) $\ge 0.000\text{ ns}$ at 50 MHz.
-2. `pid_top_timing_hold.rpt`: Hold margin satisfied.
+2. Note: Hold timing report (`pid_top_timing_hold.rpt`) is generated post-CTS in Innovus via `view_hold` MMMC analysis, not in Genus.
 3. `pid_top_area.rpt`: Verify total cell count and equivalent NAND2 gate count.
-4. `pid_top_qor.rpt`: Review datapath resource sharing, multiplier inferencing, and runtime summary.
-5. Exported files in `handoff/netlist/`:
+4. `pid_top_power.rpt`: Verify static leakage and dynamic switching power.
+5. `pid_top_qor.rpt`: Review datapath resource sharing, multiplier inferencing, and runtime summary.
+6. Exported files in `netlist/`:
    - `pid_top_synth.v`: Mapped gate-level netlist.
    - `pid_top_synth.sdc`: Post-synthesis timing constraints.
 
@@ -100,37 +108,42 @@ Configure the physical technology LEF, standard-cell LEF, site, and layer variab
 
 ```bash
 # Required PDK Paths
-export PDK_TECH_LEF="/opt/pdk/technology_node/lef/tech.lef"
-export PDK_CELL_LEF="/opt/pdk/technology_node/lef/cells.lef"
-export PDK_GDS_FILES="/opt/pdk/technology_node/gds/cells.gds"   # Optional GDS merge file
+export PDK_TECH_LEF="/home/install/FOUNDRY/digital/180nm/dig/lef/all.lef"
+export PDK_CELL_LEF="/home/install/FOUNDRY/digital/180nm/dig/lef/all.lef"
+export PDK_GDS_FILES="/home/vlsi/streamOut.map"
 
 # Optional PDK-Specific Physical Settings (Defaults shown)
-export PDK_CORE_SITE="core"                 # Standard cell site name
-export PDK_UTILIZATION="0.70"               # Target core placement utilization
-export PDK_PWR_TOP_BOT_LAYER="M5"           # Power ring horizontal layer
-export PDK_PWR_LEFT_RIGHT_LAYER="M4"        # Power ring vertical layer
-export PDK_SROUTE_MIN_LAYER="M1"            # SRoute followpin minimum layer
-export PDK_SROUTE_MAX_LAYER="M5"            # SRoute followpin maximum layer
+export PDK_CORE_SITE="tsm3site"             # Standard cell site name
+export PDK_UTILIZATION="0.60"               # Target core placement utilization (0.60 standard, 0.40 fast)
+export PDK_PWR_TOP_BOT_LAYER="Metal6"       # Power ring horizontal layer
+export PDK_PWR_LEFT_RIGHT_LAYER="Metal5"    # Power ring vertical layer
+export PDK_SROUTE_MIN_LAYER="Metal1"        # SRoute followpin minimum layer
+export PDK_SROUTE_MAX_LAYER="Metal6"        # SRoute followpin maximum layer
 ```
 
 ### 4.2 Executing P&R
-Run Innovus in batch or interactive GUI mode:
+Run Innovus in batch or interactive GUI mode from the project root:
 
 ```bash
-cd handoff
-innovus -files innovus_pnr.tcl -log innovus.log
+# Standard Production P&R:
+innovus -files scripts/innovus_pnr.tcl -log reports/innovus/innovus.log
+
+# Or Fast-Track P&R (~6-8 minutes, 0.40 utilization):
+innovus -files scripts/innovus_pnr_fast.tcl -log reports/innovus/innovus_fast.log
 ```
 
 ### 4.3 Flow Milestones
 The script automatically executes:
-- **Design Initialization:** Loads netlist, SDC, and technology LEFs.
-- **Floorplanning:** Sets die boundary with configurable core target utilization and site.
-- **Power Routing:** Adds VDD/VSS core rings and standard-cell followpins on specified metal layers.
-- **Placement:** Timing-driven placement with congestion mitigation.
-- **Clock Tree Synthesis (CCOpt):** Synthesizes balanced clock tree targeting $< 150\text{ ps}$ skew.
-- **Detailed Routing:** NanoRoute executes antenna-aware, SI-driven routing on available metal layers.
+- **Design Initialization:** Loads netlist, SDC, MMMC views, and technology LEFs.
+- **Floorplanning:** Sets die boundary with configurable core target utilization and site (tsm3site), distributing 571 I/O pins evenly across 4 die edges on Metal3/Metal4.
+- **Power Routing:** Adds VDD/VSS core rings (Metal6/Metal5) and standard-cell followpins on specified metal layers.
+- **Placement:** Timing-driven placement with congestion mitigation (`place_opt_design`).
+- **Clock Tree Synthesis (CCOpt):** Synthesizes balanced clock tree targeting $\le 0.5\text{ ns}$ transition.
+- **Detailed Routing:** NanoRoute executes antenna-aware, timing-driven routing.
+- **Post-Route Hold Fixing:** `optDesign -postRoute -hold` to resolve hold violations.
 - **Verification:** Runs `verifyGeometry` and `verifyConnectivity` for zero DRC and zero shorts.
-- **Layout Export:** Writes `netlist/pid_top.gds` (with optional cell merge) and `netlist/pid_top.def`.
+- **Reports Export:** Populates `reports/innovus/` with timing, power, area, and sign-off reports.
+- **Layout Export:** Writes `netlist/pid_top.gds`, `netlist/pid_top.def`, and `netlist/pid_top_pnr.v`.
 
 ---
 

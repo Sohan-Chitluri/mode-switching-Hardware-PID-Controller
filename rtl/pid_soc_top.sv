@@ -156,7 +156,7 @@ module pid_soc_top #(
             reg_sample_valid <= 1'b0;
             reg_rearm_cmd    <= 1'b0;
 
-            if (bus_we && !bus_addr[8]) begin
+            if (bus_we && (bus_addr[8:5] == 4'b0000)) begin
                 case (bus_addr[4:0])
                     5'h00: begin // REG_CTRL
                         reg_sample_valid           <= bus_wdata[0];
@@ -187,7 +187,7 @@ module pid_soc_top #(
         if (bus_addr[8]) begin
             // 0x100..0x1FF: Forwarded Gain Bank registers
             bus_rdata = top_cfg_rdata;
-        end else begin
+        end else if (bus_addr[7:5] == 3'b000) begin
             case (bus_addr[4:0])
                 5'h00: bus_rdata = {28'd0, reg_cfg_failsafe_hold_last, reg_alt_valid, reg_rearm_cmd, reg_sample_valid};
                 5'h01: bus_rdata = {30'd0, reg_mode_cmd};
@@ -214,6 +214,8 @@ module pid_soc_top #(
                 5'h15: bus_rdata = motor_4;
                 default: bus_rdata = 32'd0;
             endcase
+        end else begin
+            bus_rdata = 32'd0;
         end
     end
 

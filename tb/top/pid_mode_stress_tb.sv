@@ -200,7 +200,7 @@ module pid_mode_stress_tb;
         // Acceptance Check
         if (is_emergency) begin
             // Emergency transitions to Failsafe intentionally override output to safe state
-            if (active_mode == dst_m && u_pitch == 32'sd0 && u_roll == 32'sd0) begin
+            if (active_mode == dst_m && u_pitch == 32'sd0 && u_roll == 32'sd0 && u_yaw == 32'sd0) begin
                 $display("  PASS: Emergency failsafe correctly overridden to neutral torques.");
                 passed_tests++;
             end else begin
@@ -209,12 +209,12 @@ module pid_mode_stress_tb;
             end
         end else begin
             // Normal transition: Delta must not exceed max_allowed_delta (<= 5% or absolute bound)
-            if (active_mode == dst_m && delta_t <= max_allowed_delta) begin
+            if (active_mode == dst_m && delta_t <= max_allowed_delta && delta_p <= max_allowed_delta) begin
                 $display("  PASS: Mode transition seamless within tolerance (<= %0d counts).", max_allowed_delta);
                 passed_tests++;
             end else begin
-                $display("  FAIL: Mode transition discontinuity (%0d counts) exceeded limit (%0d counts) or Mode mismatch (got %0d, expected %0d).",
-                         delta_t, max_allowed_delta, active_mode, dst_m);
+                $display("  FAIL: Mode transition discontinuity (Delta_T=%0d, Delta_P=%0d counts) exceeded limit (%0d counts) or Mode mismatch (got %0d, expected %0d).",
+                         delta_t, delta_p, max_allowed_delta, active_mode, dst_m);
                 failed_tests++;
             end
         end
@@ -259,9 +259,9 @@ module pid_mode_stress_tb;
         // 5% bound = 3,276 counts (0.05 Q16)
         // =====================================================================
 
-        // 1. Acro -> Stabilize (0 -> 1)
+        // 1. Acro -> Stabilize (0 -> 1) [Level flight trim]
         verify_transition("01_Acro_to_Stabilize", MODE_ACRO, MODE_STABILIZE,
-                          32'sh0000_8000, 32'sh0000_199A, 1'b0, 1'b0, 32'd3276);
+                          32'sh0000_8000, 32'sd0, 1'b0, 1'b0, 32'd3276);
 
         // 2. Acro -> AltHold (0 -> 2)
         verify_transition("02_Acro_to_AltHold", MODE_ACRO, MODE_ALTHOLD,
@@ -271,9 +271,9 @@ module pid_mode_stress_tb;
         verify_transition("03_Acro_to_Failsafe", MODE_ACRO, MODE_FAILSAFE,
                           32'sh0000_8000, 32'sh0000_2000, 1'b0, 1'b1, 32'h7FFF_FFFF);
 
-        // 4. Stabilize -> Acro (1 -> 0)
+        // 4. Stabilize -> Acro (1 -> 0) [Level flight trim]
         verify_transition("04_Stabilize_to_Acro", MODE_STABILIZE, MODE_ACRO,
-                          32'sh0000_8000, 32'sh0000_199A, 1'b1, 1'b0, 32'd3276);
+                          32'sh0000_8000, 32'sd0, 1'b1, 1'b0, 32'd3276);
 
         // 5. Stabilize -> AltHold (1 -> 2)
         verify_transition("05_Stabilize_to_AltHold", MODE_STABILIZE, MODE_ALTHOLD,
@@ -420,7 +420,6 @@ module pid_mode_stress_tb;
                      idle_cycles, TEST_TIMEOUT_CYC);
             if (watchdog_alarm && idle_cycles == TEST_TIMEOUT_CYC) begin
                 $display("  PASS: Watchdog deterministically fired after %0d idle cycles.", idle_cycles);
-                passed_tests++;
             end else begin
                 $display("  FAIL: Watchdog timeout took %0d cycles (expected %0d)",
                          idle_cycles, TEST_TIMEOUT_CYC);

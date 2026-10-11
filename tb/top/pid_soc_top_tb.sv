@@ -152,26 +152,50 @@ module pid_soc_top_tb;
         end
 
         // -------------------------------------------------------------
-        // Test 2: Unsupported Address Handling
+        // Test 2: Unsupported Address Handling & Anti-Aliasing
         // -------------------------------------------------------------
         test_count++;
-        $display(">>> [Test 2] Reading Unsupported Addresses (0x020, 0x0FF)");
+        $display(">>> [Test 2] Reading & Writing Unsupported Addresses (0x020..0x0FF)");
         begin
             logic [31:0] rval;
+            // First configure REG_CTRL and REG_SP_PITCH to non-zero values
+            mmio_write(9'h00, 32'h04);           // alt_valid = 1
+            mmio_write(9'h04, 32'sh0000_1234);  // Pitch setpoint = 0x1234
+
+            // Verify aliased addresses return 0x0, not the value of 0x00 or 0x04
             mmio_read(9'h020, rval);
-            if (rval == 32'd0) begin
-                mmio_read(9'h0FF, rval);
-                if (rval == 32'd0) begin
-                    $display("  PASS: Unsupported addresses return 0x00000000");
-                    pass_count++;
-                end else begin
-                    $display("  FAIL: 0x0FF returned %h", rval);
-                    fail_count++;
-                end
-            end else begin
-                $display("  FAIL: 0x020 returned %h", rval);
+            if (rval != 32'd0) begin
+                $display("  FAIL: 0x020 aliased to REG_CTRL! Returned %h instead of 0", rval);
                 fail_count++;
+            end else begin
+                mmio_read(9'h024, rval);
+                if (rval != 32'd0) begin
+                    $display("  FAIL: 0x024 aliased to REG_SP_PITCH! Returned %h instead of 0", rval);
+                    fail_count++;
+                end else begin
+                    // Attempt write to unmapped address 0x024
+                    mmio_write(9'h024, 32'hDEADBEEF);
+                    // Verify REG_SP_PITCH was NOT corrupted by write to 0x024
+                    mmio_read(9'h04, rval);
+                    if (rval != 32'sh0000_1234) begin
+                        $display("  FAIL: Write to 0x024 corrupted REG_SP_PITCH! Got %h", rval);
+                        fail_count++;
+                    end else begin
+                        mmio_read(9'h0FF, rval);
+                        if (rval == 32'd0) begin
+                            $display("  PASS: Unsupported addresses return 0x00000000 and ignore writes without aliasing");
+                            pass_count++;
+                        end else begin
+                            $display("  FAIL: 0x0FF returned %h", rval);
+                            fail_count++;
+                        end
+                    end
+                end
             end
+
+            // Reset REG_CTRL and REG_SP_PITCH back to defaults
+            mmio_write(9'h00, 32'd0);
+            mmio_write(9'h04, 32'd0);
         end
 
         // -------------------------------------------------------------

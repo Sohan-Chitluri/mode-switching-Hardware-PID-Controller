@@ -86,8 +86,13 @@ report_area   > pnr_reports/area_post_route.rpt
 # Export Layout
 if {[info exists env(PDK_GDS_FILES)] && [file exists $env(PDK_GDS_FILES)]} {
     streamOut "netlist/pid_top.gds" -merge $env(PDK_GDS_FILES)
-} elseif {[info exists env(PDK_GDS_DIR)] && [file exists $env(PDK_GDS_DIR)]} {
-    streamOut "netlist/pid_top.gds" -merge $env(PDK_GDS_DIR)
+} elseif {[info exists env(PDK_GDS_DIR)] && [file isdirectory $env(PDK_GDS_DIR)]} {
+    set gds_list [glob -nocomplain -directory $env(PDK_GDS_DIR) *.gds]
+    if {[llength $gds_list] > 0} {
+        streamOut "netlist/pid_top.gds" -merge $gds_list
+    } else {
+        streamOut "netlist/pid_top.gds"
+    }
 } else {
     streamOut "netlist/pid_top.gds"
 }

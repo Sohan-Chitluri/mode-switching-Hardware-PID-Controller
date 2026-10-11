@@ -326,34 +326,52 @@ module pid_gain_bank #(
     assign failsafe_thrust = reg_bank[active_mode][4];
 
     // Roll Active Channel
-    assign roll_kp      = reg_bank[active_mode][5];
-    assign roll_ki_eff  = reg_bank[active_mode][6];
-    assign roll_kd_eff  = reg_bank[active_mode][7];
-    assign roll_alpha   = reg_bank[active_mode][8];
-    assign roll_u_min   = reg_bank[active_mode][9];
-    assign roll_u_max   = reg_bank[active_mode][10];
-    assign roll_i_min   = reg_bank[active_mode][11];
-    assign roll_i_max   = reg_bank[active_mode][12];
+    logic signed [DATA_W-1:0] raw_roll_u_min, raw_roll_u_max, raw_roll_i_min, raw_roll_i_max;
+    assign roll_kp         = reg_bank[active_mode][5];
+    assign roll_ki_eff     = reg_bank[active_mode][6];
+    assign roll_kd_eff     = reg_bank[active_mode][7];
+    assign roll_alpha      = reg_bank[active_mode][8];
+    assign raw_roll_u_min  = reg_bank[active_mode][9];
+    assign raw_roll_u_max  = reg_bank[active_mode][10];
+    assign raw_roll_i_min  = reg_bank[active_mode][11];
+    assign raw_roll_i_max  = reg_bank[active_mode][12];
+
+    assign roll_u_max = raw_roll_u_max;
+    assign roll_u_min = (raw_roll_u_min <= raw_roll_u_max) ? raw_roll_u_min : raw_roll_u_max;
+    assign roll_i_max = raw_roll_i_max;
+    assign roll_i_min = (raw_roll_i_min <= raw_roll_i_max) ? raw_roll_i_min : raw_roll_i_max;
 
     // Pitch Active Channel
-    assign pitch_kp     = reg_bank[active_mode][13];
-    assign pitch_ki_eff = reg_bank[active_mode][14];
-    assign pitch_kd_eff = reg_bank[active_mode][15];
-    assign pitch_alpha  = reg_bank[active_mode][16];
-    assign pitch_u_min  = reg_bank[active_mode][17];
-    assign pitch_u_max  = reg_bank[active_mode][18];
-    assign pitch_i_min  = reg_bank[active_mode][19];
-    assign pitch_i_max  = reg_bank[active_mode][20];
+    logic signed [DATA_W-1:0] raw_pitch_u_min, raw_pitch_u_max, raw_pitch_i_min, raw_pitch_i_max;
+    assign pitch_kp         = reg_bank[active_mode][13];
+    assign pitch_ki_eff     = reg_bank[active_mode][14];
+    assign pitch_kd_eff     = reg_bank[active_mode][15];
+    assign pitch_alpha      = reg_bank[active_mode][16];
+    assign raw_pitch_u_min  = reg_bank[active_mode][17];
+    assign raw_pitch_u_max  = reg_bank[active_mode][18];
+    assign raw_pitch_i_min  = reg_bank[active_mode][19];
+    assign raw_pitch_i_max  = reg_bank[active_mode][20];
+
+    assign pitch_u_max = raw_pitch_u_max;
+    assign pitch_u_min = (raw_pitch_u_min <= raw_pitch_u_max) ? raw_pitch_u_min : raw_pitch_u_max;
+    assign pitch_i_max = raw_pitch_i_max;
+    assign pitch_i_min = (raw_pitch_i_min <= raw_pitch_i_max) ? raw_pitch_i_min : raw_pitch_i_max;
 
     // Yaw Active Channel
-    assign yaw_kp       = reg_bank[active_mode][21];
-    assign yaw_ki_eff   = reg_bank[active_mode][22];
-    assign yaw_kd_eff   = reg_bank[active_mode][23];
-    assign yaw_alpha    = reg_bank[active_mode][24];
-    assign yaw_u_min    = reg_bank[active_mode][25];
-    assign yaw_u_max    = reg_bank[active_mode][26];
-    assign yaw_i_min    = reg_bank[active_mode][27];
-    assign yaw_i_max    = reg_bank[active_mode][28];
+    logic signed [DATA_W-1:0] raw_yaw_u_min, raw_yaw_u_max, raw_yaw_i_min, raw_yaw_i_max;
+    assign yaw_kp         = reg_bank[active_mode][21];
+    assign yaw_ki_eff     = reg_bank[active_mode][22];
+    assign yaw_kd_eff     = reg_bank[active_mode][23];
+    assign yaw_alpha      = reg_bank[active_mode][24];
+    assign raw_yaw_u_min  = reg_bank[active_mode][25];
+    assign raw_yaw_u_max  = reg_bank[active_mode][26];
+    assign raw_yaw_i_min  = reg_bank[active_mode][27];
+    assign raw_yaw_i_max  = reg_bank[active_mode][28];
+
+    assign yaw_u_max = raw_yaw_u_max;
+    assign yaw_u_min = (raw_yaw_u_min <= raw_yaw_u_max) ? raw_yaw_u_min : raw_yaw_u_max;
+    assign yaw_i_max = raw_yaw_i_max;
+    assign yaw_i_min = (raw_yaw_i_min <= raw_yaw_i_max) ? raw_yaw_i_min : raw_yaw_i_max;
 
     // Altitude Thrust Active Channel (Mode-specific parameter bank routing)
     assign thrust_kp     = reg_bank[active_mode][29];
