@@ -1,0 +1,54 @@
+name: CI Regression & Verification
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  lint-and-verification:
+    name: Verilator RTL Verification & Plant Co-Simulation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies (Verilator, GCC, Make)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y verilator make gcc g++
+
+      - name: Display tool versions
+        run: |
+          verilator --version
+          g++ --version
+          python3 --version
+
+      - name: Run Verilator Lint Checks
+        run: |
+          make lint
+
+      - name: Run Full Multi-Variant Test Suite (32-bit & 16-bit)
+        run: |
+          make test-all
+
+      - name: Verify Closed-Loop Plant Simulation Metrics
+        run: |
+          PYTHONPATH=models python3 models/flight_plant_sim.py --test-metrics
+
+      - name: Build and Verify RTL-to-Plant Co-Simulation Harness
+        run: |
+          make cosim-lib
+          PYTHONPATH=models python3 models/flight_plant_cosim.py --verify-harness
+
+      - name: Run Full 4-DOF Closed-Loop Plant Co-Simulation
+        run: |
+          PYTHONPATH=models python3 models/flight_plant_cosim.py

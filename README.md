@@ -298,11 +298,12 @@ make test-16bit
 # 4. Run 16-bit time-shared datapath testbench
 make test-shared
 
-# 5. Run formal bounded model checking proofs
-python3 tb/formal/pid_formal_bmc.py
+# 5. Run formal bounded model checking proofs (SymbiYosys)
+sby -f tb/formal/pid_formal.sby
 
 # 6. Run 4-DOF Quadcopter plant co-simulation
-python3 tb/plant/quadcopter_plant_sim.py
+make cosim-lib
+PYTHONPATH=models python3 models/flight_plant_cosim.py
 ```
 
 ### Running Cadence ASIC Synthesis & PnR
