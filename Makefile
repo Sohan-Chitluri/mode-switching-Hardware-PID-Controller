@@ -62,7 +62,7 @@ RTL_SOC_SRCS   := \
 	$(RTL_DIR)/safety/pid_mixer.sv \
 	$(RTL_DIR)/pid_soc_top.sv
 
-.PHONY: all help clean lint test-unit test-top test-mixer test-soc test-stress test-formal gen-vectors sim-plant regression
+.PHONY: all help clean lint test-unit test-top test-mixer test-soc test-stress test-fixed-point test-mixer-edge test-safety-edge test-edge-all test-formal gen-vectors sim-plant regression
 
 all: lint test-unit
 
@@ -134,6 +134,46 @@ test-stress: $(OUTPUT_DIR)
 		$(TB_DIR)/top/pid_mode_stress_tb.sv \
 		-o $(ABS_OUTPUT)/Vpid_mode_stress_tb
 	$(ABS_OUTPUT)/Vpid_mode_stress_tb
+
+test-fixed-point: $(OUTPUT_DIR)
+	@echo "=== [TEST-FIXED-POINT] Running pid_fixed_point_tb boundary and consumer testbench ==="
+	$(VERILATOR) $(VERILATOR_SIM_FLAGS) \
+		--top-module pid_fixed_point_tb \
+		--Mdir $(ABS_OUTPUT)/obj_fp \
+		$(RTL_PKG) \
+		$(RTL_DIR)/core/pid_mult.sv \
+		$(RTL_DIR)/core/pid_deriv_filter.sv \
+		$(RTL_DIR)/core/pid_integ_unit.sv \
+		$(RTL_DIR)/core/pid_sat_unit.sv \
+		$(RTL_DIR)/modes/pid_outer_loop.sv \
+		$(RTL_DIR)/modes/pid_gain_bank.sv \
+		$(RTL_DIR)/safety/pid_tilt_comp.sv \
+		$(TB_DIR)/unit/pid_fixed_point_tb.sv \
+		-o $(ABS_OUTPUT)/Vpid_fixed_point_tb
+	$(ABS_OUTPUT)/Vpid_fixed_point_tb
+
+test-mixer-edge: $(OUTPUT_DIR)
+	@echo "=== [TEST-MIXER-EDGE] Running pid_mixer_edge_tb edge and distortion testbench ==="
+	$(VERILATOR) $(VERILATOR_SIM_FLAGS) \
+		--top-module pid_mixer_edge_tb \
+		--Mdir $(ABS_OUTPUT)/obj_mixer_edge \
+		$(RTL_PKG) $(RTL_DIR)/safety/pid_mixer.sv \
+		$(TB_DIR)/unit/pid_mixer_edge_tb.sv \
+		-o $(ABS_OUTPUT)/Vpid_mixer_edge_tb
+	$(ABS_OUTPUT)/Vpid_mixer_edge_tb
+
+test-safety-edge: $(OUTPUT_DIR)
+	@echo "=== [TEST-SAFETY-EDGE] Running pid_safety_edge_tb safety and mode transition testbench ==="
+	$(VERILATOR) $(VERILATOR_SIM_FLAGS) \
+		--top-module pid_safety_edge_tb \
+		--Mdir $(ABS_OUTPUT)/obj_safety_edge \
+		$(RTL_SOC_SRCS) \
+		$(TB_DIR)/top/pid_safety_edge_tb.sv \
+		-o $(ABS_OUTPUT)/Vpid_safety_edge_tb
+	$(ABS_OUTPUT)/Vpid_safety_edge_tb
+
+test-edge-all: test-fixed-point test-mixer-edge test-safety-edge
+	@echo "=== [EDGE-ALL] All edge-case verification testbenches passed ==="
 
 gen-vectors:
 	@echo "=== [VECTORS] Generating test vectors from bit-accurate model ==="
