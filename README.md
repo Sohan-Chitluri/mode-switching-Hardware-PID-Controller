@@ -12,7 +12,7 @@
 
 ---
 
-> ### ⚡ 1-Minute Quick Start (For Hackathon Judges & Evaluators)
+> ### Quick Start & Verification (For Evaluators)
 > To reproduce the entire verification package end-to-end (Synthesizability lint, 32-bit Q16.16 & 16-bit Q4.12 suites, boundary checks, mode transitions, safety edge-cases, and 4-DOF closed-loop flight co-simulation) with **zero proprietary EDA license dependencies**:
 > ```bash
 > # Prerequisites (Ubuntu / Debian standard packages):
@@ -26,7 +26,7 @@
 ---
 
 ## Table of Contents
-1. [Executive Summary & Problem Statement](#1-executive-summary--problem-statement)
+1. [Problem Statement & Overview](#1-problem-statement--overview)
 2. [Architectural Overview & Microarchitecture](#2-architectural-overview--microarchitecture)
 3. [Dual-Architecture Exploration (Parallel vs. Time-Shared)](#3-dual-architecture-exploration-parallel-vs-time-shared)
 4. [Fixed-Point Arithmetic & Robustness Guarantees](#4-fixed-point-arithmetic--robustness-guarantees)
@@ -39,7 +39,7 @@
 
 ---
 
-## 1. Executive Summary & Problem Statement
+## 1. Problem Statement & Overview
 
 Modern unmanned aerial vehicles (UAVs) and multirotors demand deterministic, sub-microsecond control response times and seamless transitions across diverse operational flight envelopes. Standard microprocessor firmware implementations suffer from non-deterministic interrupt latency, operating system scheduling jitter, and unbounded worst-case execution times (WCET > 125 &mu;s).
 
