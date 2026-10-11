@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 280 210" xmlns="http://www.w3.org/2000/svg">
+      <text x="140" y="16" font-family="Arial" font-size="9" font-weight="bold" fill="#1a365d" text-anchor="middle">Power Breakdown (mW)</text>
+      <!-- Axes -->
+      <line x1="50" y1="25" x2="50" y2="175" stroke="#4a5568" stroke-width="1.5"/>
+      <line x1="50" y1="175" x2="268" y2="175" stroke="#4a5568" stroke-width="1.5"/>
+
+      <!-- Y-axis labels (scale: 0 to 290mW, 130px → 1px = 2.23mW) -->
+      <text x="45" y="178" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">0</text>
+      <text x="45" y="132" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">100</text>
+      <text x="45" y="87" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">200</text>
+      <text x="45" y="42" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">290</text>
+
+      <!-- Gridlines -->
+      <line x1="50" y1="132" x2="268" y2="132" stroke="#e2e8f0" stroke-width="0.8"/>
+      <line x1="50" y1="87" x2="268" y2="87" stroke="#e2e8f0" stroke-width="0.8"/>
+
+      <!-- 16-bit Parallel stacked: P_int=49.61, P_sw=37.68, P_leak=0.034 → total 87.33mW → 87.33/290*130=39.2px -->
+      <!-- P_int = 22.3px, P_sw = 16.9px, P_leak = 0.02px -->
+      <rect x="68" y="135" width="42" height="22" fill="#3182ce" rx="2"/><!-- P_int bottom part -->
+      <rect x="68" y="152" width="42" height="17" fill="#63b3ed" rx="2"/><!-- P_sw -->
+      <rect x="68" y="169" width="42" height="6" fill="#ebf8ff" stroke="#bee3f8" rx="2"/><!-- P_leak -->
+      <!-- 39.2px total: top y = 175 - 39 = 136 -->
+      <rect x="68" y="136" width="42" height="39" fill="none" stroke="#2b6cb0" stroke-width="1"/>
+      <text x="89" y="132" font-family="Arial" font-size="6.5" fill="#2b6cb0" text-anchor="middle">87.3mW</text>
+      <text x="89" y="187" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">16b Parallel</text>
+
+      <!-- 16-bit Shared: 64.41mW → 64.41/290*130 = 28.9px; top y = 175-29=146 -->
+      <!-- P_int=37.35→16.7px, P_sw=27.04→12.1px, P_leak=0.025→0.01px -->
+      <rect x="122" y="146" width="42" height="29" fill="none" stroke="#38a169" stroke-width="1"/>
+      <rect x="122" y="146" width="42" height="17" fill="#38a169" rx="2"/>
+      <rect x="122" y="163" width="42" height="12" fill="#68d391" rx="2"/>
+      <text x="143" y="142" font-family="Arial" font-size="6.5" fill="#276749" text-anchor="middle">64.4mW</text>
+      <text x="143" y="187" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">16b Shared</text>
+
+      <!-- 32-bit: 282.37mW → 282.37/290*130 = 126.6px; top y = 175-127=48 -->
+      <rect x="176" y="48" width="42" height="127" fill="none" stroke="#d69e2e" stroke-width="1"/>
+      <rect x="176" y="48" width="42" height="90" fill="#d69e2e" rx="2"/>
+      <rect x="176" y="138" width="42" height="37" fill="#f6e05e" rx="2"/>
+      <text x="197" y="44" font-family="Arial" font-size="6.5" fill="#744210" text-anchor="middle">282.4mW</text>
+      <text x="197" y="187" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">32b Parallel</text>
+
+      <!-- −26.2% label -->
+      <text x="116" y="118" font-family="Arial" font-size="7" fill="#e53e3e" text-anchor="middle">−26.2%</text>
+      <line x1="89" y1="136" x2="106" y2="122" stroke="#e53e3e" stroke-width="0.8"/>
+      <line x1="143" y1="146" x2="126" y2="122" stroke="#e53e3e" stroke-width="0.8"/>
+
+      <!-- Legend -->
+      <rect x="52" y="196" width="8" height="5" fill="#3182ce"/>
+      <text x="63" y="201" font-family="Arial" font-size="6" fill="#4a5568">P_int</text>
+      <rect x="90" y="196" width="8" height="5" fill="#63b3ed"/>
+      <text x="101" y="201" font-family="Arial" font-size="6" fill="#4a5568">P_sw</text>
+      <rect x="128" y="196" width="8" height="5" fill="#ebf8ff" stroke="#bee3f8"/>
+      <text x="139" y="201" font-family="Arial" font-size="6" fill="#4a5568">P_leak</text>
+    </svg>

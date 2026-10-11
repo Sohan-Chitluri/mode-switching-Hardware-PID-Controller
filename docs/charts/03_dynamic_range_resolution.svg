@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 580 200" xmlns="http://www.w3.org/2000/svg" style="max-width:580px; width:100%;">
+    <text x="290" y="18" font-family="Arial" font-size="10" font-weight="bold" fill="#1a365d" text-anchor="middle">Fixed-Point Dynamic Range &amp; Resolution Comparison</text>
+
+    <!-- Number line for 16-bit range -->
+    <text x="30" y="50" font-family="Arial" font-size="8.5" font-weight="bold" fill="#2b6cb0">Q4.12 (16-bit)</text>
+    <rect x="160" y="40" width="60" height="20" rx="3" fill="#bee3f8" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="190" y="55" font-family="Arial" font-size="7.5" fill="#1a365d" text-anchor="middle">−8.0 to +8.0</text>
+    <text x="230" y="55" font-family="Arial" font-size="8" fill="#718096">← 60 pixels represents full range</text>
+
+    <!-- 32-bit range bar (scaled proportionally, capped for display) -->
+    <text x="30" y="85" font-family="Arial" font-size="8.5" font-weight="bold" fill="#d69e2e">Q16.16 (32-bit)</text>
+    <rect x="160" y="75" width="380" height="20" rx="3" fill="#fefcbf" stroke="#d69e2e" stroke-width="1.5"/>
+    <text x="350" y="90" font-family="Arial" font-size="7.5" fill="#1a365d" text-anchor="middle">−32,768 to +32,768  (65,536× wider — bar truncated for display)</text>
+
+    <!-- Resolution bars -->
+    <text x="30" y="130" font-family="Arial" font-size="8.5" font-weight="bold" fill="#1a365d">LSB Resolution (log scale)</text>
+
+    <!-- Q4.12 resolution -->
+    <rect x="160" y="120" width="180" height="22" rx="3" fill="#bee3f8" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="250" y="136" font-family="Arial" font-size="8" fill="#1a365d" text-anchor="middle">2.44 × 10⁻⁴ (0.244 mrad)</text>
+
+    <!-- Q16.16 resolution -->
+    <rect x="160" y="150" width="11" height="22" rx="3" fill="#fefcbf" stroke="#d69e2e" stroke-width="1.5"/>
+    <line x1="171" y1="161" x2="195" y2="161" stroke="#d69e2e" stroke-width="0.8" stroke-dasharray="3,2"/>
+    <text x="197" y="166" font-family="Arial" font-size="8" fill="#d69e2e">1.53 × 10⁻⁵ (16× finer)</text>
+
+    <!-- Legend -->
+    <rect x="160" y="185" width="12" height="8" fill="#bee3f8" stroke="#2b6cb0"/>
+    <text x="176" y="192" font-family="Arial" font-size="7.5" fill="#4a5568">16-bit Q4.12</text>
+    <rect x="260" y="185" width="12" height="8" fill="#fefcbf" stroke="#d69e2e"/>
+    <text x="276" y="192" font-family="Arial" font-size="7.5" fill="#4a5568">32-bit Q16.16</text>
+  </svg>

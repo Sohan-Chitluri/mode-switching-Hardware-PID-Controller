@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+      <text x="140" y="15" font-family="Arial" font-size="9" font-weight="bold" fill="#1a365d" text-anchor="middle">Throughput vs. Requirement (kHz)</text>
+      <!-- Axes -->
+      <line x1="50" y1="25" x2="50" y2="165" stroke="#4a5568" stroke-width="1.5"/>
+      <line x1="50" y1="165" x2="260" y2="165" stroke="#4a5568" stroke-width="1.5"/>
+
+      <text x="45" y="168" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">0</text>
+      <text x="45" y="125" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">12.5M</text>
+      <text x="45" y="85" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">25M</text>
+      <text x="45" y="45" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">50M</text>
+
+      <!-- Req line at 8kHz ≈ negligible on scale — draw a baseline marker -->
+      <line x1="50" y1="163" x2="260" y2="163" stroke="#e53e3e" stroke-width="1" stroke-dasharray="4,2"/>
+      <text x="262" y="163" font-family="Arial" font-size="6" fill="#e53e3e">8 kHz req</text>
+
+      <!-- 16b Parallel: 50M samples/s → 50M/50M * 140 = 140px; top=165-140=25 -->
+      <rect x="68" y="25" width="44" height="140" fill="#3182ce" rx="3"/>
+      <text x="90" y="21" font-family="Arial" font-size="6.5" fill="#2b6cb0" text-anchor="middle">50 MSps</text>
+      <text x="90" y="178" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">16b Parallel</text>
+
+      <!-- 16b Shared: 12.5M → 35px; top=165-35=130 -->
+      <rect x="122" y="130" width="44" height="35" fill="#38a169" rx="3"/>
+      <text x="144" y="126" font-family="Arial" font-size="6.5" fill="#276749" text-anchor="middle">12.5 MSps</text>
+      <text x="144" y="178" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">16b Shared</text>
+
+      <!-- 32b: 50M → same as parallel -->
+      <rect x="176" y="25" width="44" height="140" fill="#d69e2e" rx="3"/>
+      <text x="198" y="21" font-family="Arial" font-size="6.5" fill="#744210" text-anchor="middle">50 MSps</text>
+      <text x="198" y="178" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">32b Parallel</text>
+
+      <!-- 1500× annotation -->
+      <text x="144" y="108" font-family="Arial" font-size="7" fill="#e53e3e" text-anchor="middle">≥1500× above req</text>
+    </svg>

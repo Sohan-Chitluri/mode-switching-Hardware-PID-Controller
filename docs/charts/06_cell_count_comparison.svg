@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+      <text x="140" y="15" font-family="Arial" font-size="9" font-weight="bold" fill="#1a365d" text-anchor="middle">Standard Cell Count</text>
+      <!-- Axes -->
+      <line x1="50" y1="25" x2="50" y2="165" stroke="#4a5568" stroke-width="1.5"/>
+      <line x1="50" y1="165" x2="260" y2="165" stroke="#4a5568" stroke-width="1.5"/>
+
+      <text x="45" y="168" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">0</text>
+      <text x="45" y="110" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">50k</text>
+      <text x="45" y="52" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">105k</text>
+
+      <line x1="50" y1="110" x2="260" y2="110" stroke="#e2e8f0" stroke-width="0.8"/>
+
+      <!-- scale: 105k → 140px; 42112 → 56.1px; 31440→41.9px; 103523→137.8px -->
+      <!-- 16b Parallel: 42112/105000*140 = 56.1px; top = 165-56=109 -->
+      <rect x="68" y="109" width="44" height="56" fill="#3182ce" rx="3"/>
+      <text x="90" y="105" font-family="Arial" font-size="6.5" fill="#2b6cb0" text-anchor="middle">42,112</text>
+      <text x="90" y="178" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">16b Parallel</text>
+
+      <!-- 16b Shared: 31440/105000*140=41.9px; top=165-42=123 -->
+      <rect x="122" y="123" width="44" height="42" fill="#38a169" rx="3"/>
+      <text x="144" y="119" font-family="Arial" font-size="6.5" fill="#276749" text-anchor="middle">31,440</text>
+      <text x="144" y="178" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">16b Shared</text>
+
+      <!-- 32b: 103523/105000*140=138px; top=165-138=27 -->
+      <rect x="176" y="27" width="44" height="138" fill="#d69e2e" rx="3"/>
+      <text x="198" y="23" font-family="Arial" font-size="6.5" fill="#744210" text-anchor="middle">103,523</text>
+      <text x="198" y="178" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">32b Parallel</text>
+
+      <text x="106" y="95" font-family="Arial" font-size="7" fill="#e53e3e" text-anchor="middle">−25.3%</text>
+      <line x1="90" y1="109" x2="103" y2="99" stroke="#e53e3e" stroke-width="0.8"/>
+      <line x1="144" y1="123" x2="113" y2="99" stroke="#e53e3e" stroke-width="0.8"/>
+    </svg>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg" style="max-width:680px; width:100%;">
+    <defs>
+      <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#4a5568"/>
+      </marker>
+    </defs>
+    <!-- Title -->
+    <text x="340" y="22" font-family="Arial" font-size="11" font-weight="bold" fill="#1a365d" text-anchor="middle">PID Cascaded Control Architecture — Signal Flow</text>
+
+    <!-- Outer box label -->
+    <rect x="10" y="35" width="660" height="190" rx="8" fill="none" stroke="#bee3f8" stroke-width="1.5" stroke-dasharray="6,3"/>
+    <text x="20" y="50" font-family="Arial" font-size="8" fill="#2b6cb0" font-style="italic">Outer Loop (Stabilize / Alt-Hold mode only)</text>
+
+    <!-- Pilot Input -->
+    <rect x="18" y="70" width="70" height="36" rx="4" fill="#ebf8ff" stroke="#2b6cb0" stroke-width="1.2"/>
+    <text x="53" y="84" font-family="Arial" font-size="7.5" fill="#1a365d" text-anchor="middle" font-weight="bold">Pilot</text>
+    <text x="53" y="97" font-family="Arial" font-size="7.5" fill="#1a365d" text-anchor="middle">Setpoint</text>
+
+    <!-- Arrow -->
+    <line x1="88" y1="88" x2="108" y2="88" stroke="#4a5568" stroke-width="1.2" marker-end="url(#arrowhead)"/>
+
+    <!-- Sum circle outer -->
+    <circle cx="122" cy="88" r="14" fill="#fff" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="122" y="93" font-family="Arial" font-size="13" fill="#2b6cb0" text-anchor="middle">Σ</text>
+    <text x="113" y="80" font-family="Arial" font-size="8" fill="#38a169">+</text>
+    <text x="117" y="97" font-family="Arial" font-size="8" fill="#e53e3e">−</text>
+
+    <!-- IMU angle feedback -->
+    <text x="76" y="125" font-family="Arial" font-size="7" fill="#718096" text-anchor="middle">IMU φ,θ</text>
+    <line x1="76" y1="118" x2="76" y2="108" stroke="#718096" stroke-width="1" stroke-dasharray="3,2"/>
+    <line x1="76" y1="108" x2="108" y2="108" stroke="#718096" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arrowhead)"/>
+
+    <!-- Arrow to Attitude P -->
+    <line x1="136" y1="88" x2="155" y2="88" stroke="#4a5568" stroke-width="1.2" marker-end="url(#arrowhead)"/>
+
+    <!-- Attitude P block -->
+    <rect x="155" y="70" width="68" height="36" rx="4" fill="#fefcbf" stroke="#d69e2e" stroke-width="1.2"/>
+    <text x="189" y="84" font-family="Arial" font-size="7.5" fill="#1a365d" text-anchor="middle" font-weight="bold">Outer P</text>
+    <text x="189" y="97" font-family="Arial" font-size="7" fill="#1a365d" text-anchor="middle">Kp_att · e_φ</text>
+
+    <!-- Arrow -->
+    <line x1="223" y1="88" x2="244" y2="88" stroke="#4a5568" stroke-width="1.2" marker-end="url(#arrowhead)"/>
+
+    <!-- Inner rate sum circle -->
+    <circle cx="258" cy="88" r="14" fill="#fff" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="258" y="93" font-family="Arial" font-size="13" fill="#2b6cb0" text-anchor="middle">Σ</text>
+    <text x="249" y="80" font-family="Arial" font-size="8" fill="#38a169">+</text>
+    <text x="252" y="97" font-family="Arial" font-size="8" fill="#e53e3e">−</text>
+
+    <!-- Gyro feedback -->
+    <text x="210" y="145" font-family="Arial" font-size="7" fill="#718096" text-anchor="middle">Gyro Rate p,q,r</text>
+    <line x1="210" y1="138" x2="210" y2="108" stroke="#718096" stroke-width="1" stroke-dasharray="3,2"/>
+    <line x1="210" y1="108" x2="244" y2="108" stroke="#718096" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arrowhead)"/>
+
+    <!-- Arrow to P -->
+    <line x1="272" y1="88" x2="290" y2="88" stroke="#4a5568" stroke-width="1.2" marker-end="url(#arrowhead)"/>
+
+    <!-- P block -->
+    <rect x="290" y="58" width="52" height="28" rx="4" fill="#c6f6d5" stroke="#38a169" stroke-width="1.2"/>
+    <text x="316" y="73" font-family="Arial" font-size="8" fill="#1a365d" text-anchor="middle" font-weight="bold">P Term</text>
+    <text x="316" y="83" font-family="Arial" font-size="7" fill="#1a365d" text-anchor="middle">Kp · e[n]</text>
+
+    <!-- I block -->
+    <rect x="290" y="92" width="52" height="28" rx="4" fill="#bee3f8" stroke="#2b6cb0" stroke-width="1.2"/>
+    <text x="316" y="107" font-family="Arial" font-size="8" fill="#1a365d" text-anchor="middle" font-weight="bold">I Term</text>
+    <text x="316" y="117" font-family="Arial" font-size="7" fill="#1a365d" text-anchor="middle">+Anti-Windup</text>
+
+    <!-- D block -->
+    <rect x="290" y="126" width="52" height="28" rx="4" fill="#fed7e2" stroke="#e53e3e" stroke-width="1.2"/>
+    <text x="316" y="141" font-family="Arial" font-size="8" fill="#1a365d" text-anchor="middle" font-weight="bold">D Term</text>
+    <text x="316" y="151" font-family="Arial" font-size="7" fill="#1a365d" text-anchor="middle">−Kd·Δy·α</text>
+
+    <!-- From sum to P -->
+    <line x1="272" y1="88" x2="272" y2="72" stroke="#4a5568" stroke-width="1" stroke-dasharray="2,1"/>
+    <line x1="272" y1="72" x2="290" y2="72" stroke="#4a5568" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <!-- From sum to I -->
+    <line x1="272" y1="106" x2="290" y2="106" stroke="#4a5568" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <!-- From sum to D -->
+    <line x1="272" y1="88" x2="272" y2="140" stroke="#4a5568" stroke-width="1" stroke-dasharray="2,1"/>
+    <line x1="272" y1="140" x2="290" y2="140" stroke="#4a5568" stroke-width="1" marker-end="url(#arrowhead)"/>
+
+    <!-- Sum to saturation -->
+    <line x1="342" y1="72" x2="368" y2="88" stroke="#4a5568" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <line x1="342" y1="106" x2="368" y2="98" stroke="#4a5568" stroke-width="1" marker-end="url(#arrowhead)"/>
+    <line x1="342" y1="140" x2="368" y2="106" stroke="#4a5568" stroke-width="1" marker-end="url(#arrowhead)"/>
+
+    <!-- Sum P+I+D circle -->
+    <circle cx="382" cy="98" r="14" fill="#fff" stroke="#9f7aea" stroke-width="1.5"/>
+    <text x="382" y="103" font-family="Arial" font-size="13" fill="#9f7aea" text-anchor="middle">Σ</text>
+
+    <line x1="396" y1="98" x2="414" y2="98" stroke="#4a5568" stroke-width="1.2" marker-end="url(#arrowhead)"/>
+
+    <!-- Saturation block -->
+    <rect x="414" y="78" width="60" height="40" rx="4" fill="#faf5ff" stroke="#9f7aea" stroke-width="1.2"/>
+    <text x="444" y="94" font-family="Arial" font-size="8" fill="#1a365d" text-anchor="middle" font-weight="bold">Saturation</text>
+    <text x="444" y="106" font-family="Arial" font-size="7" fill="#1a365d" text-anchor="middle">U_min..U_max</text>
+
+    <line x1="474" y1="98" x2="492" y2="98" stroke="#4a5568" stroke-width="1.2" marker-end="url(#arrowhead)"/>
+
+    <!-- Mixer block -->
+    <rect x="492" y="66" width="72" height="64" rx="4" fill="#fff5f5" stroke="#fc8181" stroke-width="1.2"/>
+    <text x="528" y="84" font-family="Arial" font-size="8" fill="#1a365d" text-anchor="middle" font-weight="bold">Quad-X</text>
+    <text x="528" y="96" font-family="Arial" font-size="8" fill="#1a365d" text-anchor="middle">Motor Mixer</text>
+    <text x="528" y="108" font-family="Arial" font-size="7" fill="#718096" text-anchor="middle">M1..M4</text>
+    <text x="528" y="120" font-family="Arial" font-size="7" fill="#718096" text-anchor="middle">PWM Out</text>
+
+    <line x1="564" y1="98" x2="582" y2="98" stroke="#4a5568" stroke-width="1.2" marker-end="url(#arrowhead)"/>
+
+    <!-- Plant block -->
+    <rect x="582" y="76" width="72" height="44" rx="4" fill="#ebfbee" stroke="#48bb78" stroke-width="1.2"/>
+    <text x="618" y="92" font-family="Arial" font-size="8" fill="#1a365d" text-anchor="middle" font-weight="bold">Quadcopter</text>
+    <text x="618" y="104" font-family="Arial" font-size="8" fill="#1a365d" text-anchor="middle">Dynamics</text>
+    <text x="618" y="115" font-family="Arial" font-size="7" fill="#718096" text-anchor="middle">(Plant)</text>
+
+    <!-- Anti-windup feedback label -->
+    <text x="316" y="170" font-family="Arial" font-size="7" fill="#2b6cb0" text-anchor="middle" font-style="italic">← Bumpless reseed on mode switch</text>
+    <line x1="366" y1="165" x2="342" y2="165" stroke="#2b6cb0" stroke-width="0.8" stroke-dasharray="3,2" marker-end="url(#arrowhead)"/>
+    <line x1="366" y1="116" x2="366" y2="165" stroke="#2b6cb0" stroke-width="0.8" stroke-dasharray="3,2"/>
+
+    <!-- Watchdog block -->
+    <rect x="414" y="170" width="80" height="32" rx="4" fill="#fffbeb" stroke="#d69e2e" stroke-width="1.2"/>
+    <text x="454" y="183" font-family="Arial" font-size="7.5" fill="#1a365d" text-anchor="middle" font-weight="bold">HW Watchdog</text>
+    <text x="454" y="196" font-family="Arial" font-size="7" fill="#e53e3e" text-anchor="middle">→ Failsafe if stale</text>
+
+    <!-- Legend -->
+    <rect x="14" y="192" width="8" height="8" fill="#c6f6d5" stroke="#38a169" stroke-width="1"/>
+    <text x="26" y="200" font-family="Arial" font-size="7" fill="#4a5568">P-Term</text>
+    <rect x="65" y="192" width="8" height="8" fill="#bee3f8" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="77" y="200" font-family="Arial" font-size="7" fill="#4a5568">I-Term (Anti-Windup)</text>
+    <rect x="165" y="192" width="8" height="8" fill="#fed7e2" stroke="#e53e3e" stroke-width="1"/>
+    <text x="177" y="200" font-family="Arial" font-size="7" fill="#4a5568">D-Term (LPF on measurement)</text>
+    <rect x="310" y="192" width="8" height="8" fill="#faf5ff" stroke="#9f7aea" stroke-width="1"/>
+    <text x="322" y="200" font-family="Arial" font-size="7" fill="#4a5568">Saturation</text>
+    <rect x="380" y="192" width="8" height="8" fill="#fff5f5" stroke="#fc8181" stroke-width="1"/>
+    <text x="392" y="200" font-family="Arial" font-size="7" fill="#4a5568">Motor Mixer</text>
+  </svg>

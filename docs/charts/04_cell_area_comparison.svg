@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 280 210" xmlns="http://www.w3.org/2000/svg">
+      <text x="140" y="16" font-family="Arial" font-size="9" font-weight="bold" fill="#1a365d" text-anchor="middle">Standard Cell Area (μm²)</text>
+      <!-- Axes -->
+      <line x1="50" y1="25" x2="50" y2="175" stroke="#4a5568" stroke-width="1.5"/>
+      <line x1="50" y1="175" x2="268" y2="175" stroke="#4a5568" stroke-width="1.5"/>
+
+      <!-- Y-axis labels -->
+      <text x="45" y="178" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">0</text>
+      <text x="45" y="135" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">800k</text>
+      <text x="45" y="90" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">1.6M</text>
+      <text x="45" y="45" font-family="Arial" font-size="7" fill="#718096" text-anchor="end">2.5M</text>
+
+      <!-- Gridlines -->
+      <line x1="50" y1="135" x2="268" y2="135" stroke="#e2e8f0" stroke-width="0.8"/>
+      <line x1="50" y1="90" x2="268" y2="90" stroke="#e2e8f0" stroke-width="0.8"/>
+      <line x1="50" y1="45" x2="268" y2="45" stroke="#e2e8f0" stroke-width="0.8"/>
+
+      <!-- Bar: 16-bit Parallel: 923,395 → height = 923395/2509612*130 ≈ 47.8 px from top, bar = 47.8 -->
+      <!-- Scale: 2,600,000 = 130px, so 1px = 20,000 -->
+      <!-- 923,395 → 46.2 px height; starts at 175-46=129 -->
+      <rect x="70" y="128" width="44" height="47" fill="#3182ce" rx="3"/>
+      <text x="92" y="124" font-family="Arial" font-size="6.5" fill="#2b6cb0" text-anchor="middle">923k</text>
+      <text x="92" y="187" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">16b Parallel</text>
+
+      <!-- Bar: 16-bit Shared: 713,452 → 35.7 px; starts at 175-36=139 -->
+      <rect x="126" y="139" width="44" height="36" fill="#38a169" rx="3"/>
+      <text x="148" y="135" font-family="Arial" font-size="6.5" fill="#276749" text-anchor="middle">713k</text>
+      <text x="148" y="187" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">16b Shared</text>
+
+      <!-- Bar: 32-bit: 2,509,612 → 125.5 px; starts at 175-126=49 -->
+      <rect x="182" y="49" width="44" height="126" fill="#d69e2e" rx="3"/>
+      <text x="204" y="45" font-family="Arial" font-size="6.5" fill="#744210" text-anchor="middle">2,510k</text>
+      <text x="204" y="187" font-family="Arial" font-size="6.5" fill="#4a5568" text-anchor="middle">32b Parallel</text>
+
+      <!-- Savings annotation -->
+      <text x="110" y="110" font-family="Arial" font-size="7" fill="#e53e3e" text-anchor="middle">−22.7%</text>
+      <line x1="92" y1="128" x2="108" y2="115" stroke="#e53e3e" stroke-width="0.8"/>
+      <line x1="148" y1="139" x2="118" y2="115" stroke="#e53e3e" stroke-width="0.8"/>
+
+      <!-- Y-axis unit label -->
+      <text x="28" y="105" font-family="Arial" font-size="7" fill="#4a5568" transform="rotate(-90,28,105)" text-anchor="middle">Area (μm²)</text>
+    </svg>

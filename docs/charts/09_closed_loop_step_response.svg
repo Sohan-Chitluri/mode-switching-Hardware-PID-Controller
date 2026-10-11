@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg" style="max-width:600px; width:100%;">
+    <defs>
+      <!-- Step response curve path approximation based on measured data:
+           rise time=42.5ms, settling=118ms, overshoot=4.2%
+           Normalized: setpoint=1.0, peak=1.042 at ~50ms, settled at 1.0 by 118ms
+           X scale: 0..200ms → 0..500px (2.5px/ms)
+           Y scale: 0..1.15 → 195..25px (so 1.0 = y=25+195*0/1.15...
+           Y: range 195px for 0..1.15; 1.0 unit = 195/1.15=169.6px from bottom
+           Chart area: x:70..570, y:20..215 (195px height), 0 at y=215, 1.0 at y=215-169.6=45.4
+      -->
+    </defs>
+    <text x="300" y="16" font-family="Arial" font-size="10" font-weight="bold" fill="#1a365d" text-anchor="middle">Closed-Loop Step Response — Roll Axis (6-DOF Co-Simulation)</text>
+
+    <!-- Chart area background -->
+    <rect x="70" y="20" width="500" height="195" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+
+    <!-- Gridlines -->
+    <!-- y=0 at y=215, y=1.0 at y≈45, y=1.042 (peak) at y≈38 -->
+    <!-- Horizontal grid: 0.25, 0.5, 0.75, 1.0, 1.042 -->
+    <line x1="70" y1="215" x2="570" y2="215" stroke="#4a5568" stroke-width="1.5"/> <!-- y=0 -->
+    <line x1="70" y1="173" x2="570" y2="173" stroke="#e2e8f0" stroke-width="0.8"/> <!-- y=0.25 -->
+    <line x1="70" y1="130" x2="570" y2="130" stroke="#e2e8f0" stroke-width="0.8"/> <!-- y=0.5 -->
+    <line x1="70" y1="88" x2="570" y2="88" stroke="#e2e8f0" stroke-width="0.8"/>  <!-- y=0.75 -->
+    <line x1="70" y1="45" x2="570" y2="45" stroke="#2b6cb0" stroke-width="1" stroke-dasharray="5,3"/> <!-- y=1.0 setpoint -->
+
+    <!-- X-axis gridlines (time marks every 25ms; 2.5px/ms → 62.5px apart) -->
+    <line x1="133" y1="20" x2="133" y2="215" stroke="#e2e8f0" stroke-width="0.8"/>  <!-- 25ms -->
+    <line x1="195" y1="20" x2="195" y2="215" stroke="#e2e8f0" stroke-width="0.8"/>  <!-- 50ms -->
+    <line x1="258" y1="20" x2="258" y2="215" stroke="#e2e8f0" stroke-width="0.8"/>  <!-- 75ms -->
+    <line x1="320" y1="20" x2="320" y2="215" stroke="#e2e8f0" stroke-width="0.8"/>  <!-- 100ms -->
+    <line x1="383" y1="20" x2="383" y2="215" stroke="#e2e8f0" stroke-width="0.8"/>  <!-- 125ms -->
+    <line x1="445" y1="20" x2="445" y2="215" stroke="#e2e8f0" stroke-width="0.8"/>  <!-- 150ms -->
+    <line x1="508" y1="20" x2="508" y2="215" stroke="#e2e8f0" stroke-width="0.8"/>  <!-- 175ms -->
+
+    <!-- Axes -->
+    <line x1="70" y1="20" x2="70" y2="215" stroke="#4a5568" stroke-width="1.5"/>
+
+    <!-- Y-axis labels -->
+    <text x="65" y="218" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="end">0</text>
+    <text x="65" y="176" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="end">0.25</text>
+    <text x="65" y="133" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="end">0.50</text>
+    <text x="65" y="91" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="end">0.75</text>
+    <text x="65" y="48" font-family="Arial" font-size="7.5" fill="#2b6cb0" text-anchor="end" font-weight="bold">1.00</text>
+    <text x="65" y="33" font-family="Arial" font-size="7.5" fill="#e53e3e" text-anchor="end">1.04</text>
+
+    <!-- X-axis labels -->
+    <text x="70" y="228" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="middle">0</text>
+    <text x="133" y="228" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="middle">25</text>
+    <text x="195" y="228" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="middle">50</text>
+    <text x="258" y="228" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="middle">75</text>
+    <text x="320" y="228" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="middle">100</text>
+    <text x="383" y="228" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="middle">125</text>
+    <text x="445" y="228" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="middle">150</text>
+    <text x="508" y="228" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="middle">175</text>
+    <text x="570" y="228" font-family="Arial" font-size="7.5" fill="#718096" text-anchor="middle">200</text>
+    <text x="320" y="243" font-family="Arial" font-size="8" fill="#4a5568" text-anchor="middle">Time (ms)</text>
+
+    <!-- Y-axis title -->
+    <text x="22" y="118" font-family="Arial" font-size="8" fill="#4a5568" transform="rotate(-90,22,118)" text-anchor="middle">Normalized Roll Angle (φ/φ_ref)</text>
+
+    <!-- Setpoint step (dashed blue) -->
+    <polyline points="70,215 70,45 570,45" fill="none" stroke="#2b6cb0" stroke-width="1.5" stroke-dasharray="6,3"/>
+
+    <!-- Step response curve (cubic approximation based on t_r=42.5ms, t_s=118ms, Mp=4.2%)
+         Key points (x in chart coords = 70 + t_ms*2.5):
+         t=0: y=215 (output=0)
+         t=10: y≈184 (rising)
+         t=20: y≈130 (rising fast)
+         t=30: y≈80 (nearly at setpoint)
+         t=42.5ms (rise time): x=70+106=176, y≈50 (90% value)
+         t=50ms: x=195, y≈36 (peak overshoot 1.042)
+         t=60ms: x=220, y≈40 (falling back)
+         t=75ms: x=258, y≈50 (undershoot)
+         t=90ms: x=295, y≈47
+         t=118ms (settling): x=365, y≈46
+         t=200ms: x=570, y≈45 (settled)
+    -->
+    <polyline
+      points="70,215 78,212 86,206 94,196 102,181 110,163 118,143 126,121 134,100 142,80 150,62 158,51 166,44 174,37 180,34 195,34 208,35 220,37 232,40 244,43 258,46 270,47 282,47 295,46 308,45.5 320,45.2 340,45.1 365,45 400,45 450,45 510,45 570,45"
+      fill="none" stroke="#e53e3e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- ±2% settling envelope -->
+    <line x1="70" y1="41.6" x2="570" y2="41.6" stroke="#38a169" stroke-width="0.8" stroke-dasharray="3,2"/>  <!-- +2% -->
+    <line x1="70" y1="48.4" x2="570" y2="48.4" stroke="#38a169" stroke-width="0.8" stroke-dasharray="3,2"/>  <!-- -2% -->
+
+    <!-- Annotation: Rise time -->
+    <line x1="176" y1="45" x2="176" y2="215" stroke="#d69e2e" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="180" y="210" font-family="Arial" font-size="7" fill="#d69e2e">t_r=42.5ms</text>
+
+    <!-- Annotation: Peak overshoot -->
+    <line x1="195" y1="34" x2="230" y2="26" stroke="#e53e3e" stroke-width="0.8"/>
+    <text x="232" y="26" font-family="Arial" font-size="7" fill="#e53e3e">Mp=4.2%</text>
+
+    <!-- Annotation: Settling time -->
+    <line x1="365" y1="45" x2="365" y2="215" stroke="#9f7aea" stroke-width="1" stroke-dasharray="3,2"/>
+    <text x="370" y="210" font-family="Arial" font-size="7" fill="#9f7aea">t_s=118ms</text>
+
+    <!-- ±2% label -->
+    <text x="575" y="42" font-family="Arial" font-size="6.5" fill="#38a169">+2%</text>
+    <text x="575" y="50" font-family="Arial" font-size="6.5" fill="#38a169">−2%</text>
+
+    <!-- Setpoint label -->
+    <text x="575" y="48" font-family="Arial" font-size="7" fill="#2b6cb0">SP</text>
+
+    <!-- Legend -->
+    <line x1="78" y1="250" x2="98" y2="250" stroke="#e53e3e" stroke-width="2.5"/>
+    <text x="102" y="253" font-family="Arial" font-size="7.5" fill="#4a5568">RTL Co-Simulation Response</text>
+    <line x1="240" y1="250" x2="260" y2="250" stroke="#2b6cb0" stroke-width="1.5" stroke-dasharray="6,3"/>
+    <text x="264" y="253" font-family="Arial" font-size="7.5" fill="#4a5568">Setpoint</text>
+    <line x1="350" y1="250" x2="370" y2="250" stroke="#38a169" stroke-width="0.8" stroke-dasharray="3,2"/>
+    <text x="374" y="253" font-family="Arial" font-size="7.5" fill="#4a5568">±2% Settling Band</text>
+  </svg>

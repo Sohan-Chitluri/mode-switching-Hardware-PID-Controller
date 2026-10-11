@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 560 170" xmlns="http://www.w3.org/2000/svg" style="max-width:560px; width:100%;">
+    <text x="280" y="16" font-family="Arial" font-size="9.5" font-weight="bold" fill="#1a365d" text-anchor="middle">Place &amp; Route Runtime: Before vs. After Flow Optimizations</text>
+
+    <!-- Axes -->
+    <line x1="160" y1="25" x2="160" y2="145" stroke="#4a5568" stroke-width="1.5"/>
+    <line x1="160" y1="145" x2="540" y2="145" stroke="#4a5568" stroke-width="1.5"/>
+
+    <!-- Y-axis label -->
+    <text x="80" y="90" font-family="Arial" font-size="8" fill="#4a5568" text-anchor="middle">Optimization</text>
+    <text x="80" y="102" font-family="Arial" font-size="8" fill="#4a5568" text-anchor="middle">Challenge</text>
+
+    <!-- X-axis scale: 0..70min; 380px wide; 1px=0.544min -->
+    <text x="160" y="157" font-family="Arial" font-size="7" fill="#718096" text-anchor="middle">0</text>
+    <text x="268" y="157" font-family="Arial" font-size="7" fill="#718096" text-anchor="middle">10 min</text>
+    <text x="376" y="157" font-family="Arial" font-size="7" fill="#718096" text-anchor="middle">20 min</text>
+    <text x="484" y="157" font-family="Arial" font-size="7" fill="#718096" text-anchor="middle">30 min</text>
+
+    <!-- Gridlines -->
+    <line x1="268" y1="25" x2="268" y2="145" stroke="#e2e8f0" stroke-width="0.8"/>
+    <line x1="376" y1="25" x2="376" y2="145" stroke="#e2e8f0" stroke-width="0.8"/>
+    <line x1="484" y1="25" x2="484" y2="145" stroke="#e2e8f0" stroke-width="0.8"/>
+
+    <!-- Row 1: GigaOpt stall — Before: 60min (capped), After: 3min -->
+    <text x="155" y="43" font-family="Arial" font-size="7.5" fill="#2d3748" text-anchor="end">Ch1: GigaOpt (Before)</text>
+    <!-- 60 min → capped at full width with "60+" label -->
+    <rect x="160" y="32" width="375" height="14" rx="2" fill="#fc8181"/>
+    <text x="540" y="43" font-family="Arial" font-size="7" fill="#e53e3e" text-anchor="start"> &gt;59 min</text>
+
+    <text x="155" y="60" font-family="Arial" font-size="7.5" fill="#2d3748" text-anchor="end">Ch1: GigaOpt (After)</text>
+    <!-- 3 min → 32.4px -->
+    <rect x="160" y="49" width="32" height="14" rx="2" fill="#68d391"/>
+    <text x="197" y="60" font-family="Arial" font-size="7" fill="#276749">&lt;3 min</text>
+
+    <!-- Row 2: NanoRoute 32b — Before: hung, After: 2min for 16b -->
+    <text x="155" y="83" font-family="Arial" font-size="7.5" fill="#2d3748" text-anchor="end">Ch2: Routing 32b (Before)</text>
+    <rect x="160" y="70" width="375" height="14" rx="2" fill="#fc8181"/>
+    <text x="540" y="81" font-family="Arial" font-size="7" fill="#e53e3e" text-anchor="start"> Hung</text>
+
+    <text x="155" y="100" font-family="Arial" font-size="7.5" fill="#2d3748" text-anchor="end">Ch2: Routing 16b (After)</text>
+    <!-- 2 min → 21.6px -->
+    <rect x="160" y="87" width="22" height="14" rx="2" fill="#68d391"/>
+    <text x="187" y="98" font-family="Arial" font-size="7" fill="#276749">&lt;2 min</text>
+
+    <!-- Row 3: Overall P&amp;R runtime 16b -->
+    <text x="155" y="120" font-family="Arial" font-size="7.5" fill="#2d3748" text-anchor="end">16b Total P&amp;R Runtime</text>
+    <!-- ~15 min → 15*10.8=162px -->
+    <rect x="160" y="108" width="162" height="14" rx="2" fill="#63b3ed"/>
+    <text x="328" y="119" font-family="Arial" font-size="7" fill="#2b6cb0">~15 min (both variants)</text>
+
+    <text x="155" y="140" font-family="Arial" font-size="7.5" fill="#2d3748" text-anchor="end">32b Total P&amp;R Runtime</text>
+    <!-- ~35 min → 378px (capped at ~375) -->
+    <rect x="160" y="127" width="300" height="14" rx="2" fill="#d69e2e"/>
+    <text x="465" y="138" font-family="Arial" font-size="7" fill="#744210">~28 min (after util fix)</text>
+  </svg>
