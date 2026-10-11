@@ -69,7 +69,7 @@ Design decisions are cataloged into three distinct operational categories:
 ### PROV-03: Primary Clock (50 MHz) & Update Rate (4 kHz)
 - **Provisional Choice:** Primary system clock $f_{clk} = 50.0\text{ MHz}$ ($T_{clk} = 20.0\text{ ns}$); sensor update strobe $f_{sample} = 4.0\text{ kHz}$ ($T_{sample} = 250\ \mu\text{s} = 12,500$ clock cycles).
 - **Downstream Tasks:** `SPEC-01`, `SPEC-04`, `SAFE-01`, `HANDOFF-02`.
-- **Rationale:** 50 MHz is conservative and easily closes timing across any standard cell library while providing 12,500 clock cycles per sample—more than enough for the 6-cycle pipeline latency.
+- **Rationale:** 50 MHz is conservative and easily closes timing across any standard cell library while providing 12,500 clock cycles per sample—more than enough for the 1-cycle core pipeline latency.
 - **Impact if Changed:** Modifying $f_{clk}$ scales the watchdog timeout counter threshold (`cfg_timeout_cycles`).
 
 ### PROV-04: Fully Parallel Multi-Axis Datapath Topology

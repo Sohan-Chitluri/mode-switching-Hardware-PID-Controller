@@ -138,8 +138,8 @@ The physical coordinate system and rotor geometry were derived from first princi
 ### 5.2 Derivation of Mixer Signs
 1. **Collective Thrust ($T$):** All rotors spin faster to generate upward lift:
    $$\Delta M_1 = +T, \quad \Delta M_2 = +T, \quad \Delta M_3 = +T, \quad \Delta M_4 = +T$$
-2. **Roll Torque ($R$):** Positive roll denotes right wing down (clockwise about $+X$). To roll right, left motors ($M_1, M_4$) must decrease thrust, and right motors ($M_2, M_3$) must increase thrust:
-   $$\Delta M_1 = -R, \quad \Delta M_2 = +R, \quad \Delta M_3 = +R, \quad \Delta M_4 = -R$$
+2. **Roll Torque ($R$):** Positive roll denotes right wing down (clockwise about $+X$). To command positive roll, left motors ($M_1, M_4$) must increase thrust, and right motors ($M_2, M_3$) must decrease thrust:
+   $$\Delta M_1 = +R, \quad \Delta M_2 = -R, \quad \Delta M_3 = -R, \quad \Delta M_4 = +R$$
 3. **Pitch Torque ($P$):** Positive pitch denotes nose up (counter-clockwise about $+Y$). To pitch up, front motors ($M_3, M_4$) must increase thrust, and rear motors ($M_1, M_2$) must decrease thrust:
    $$\Delta M_1 = -P, \quad \Delta M_2 = -P, \quad \Delta M_3 = +P, \quad \Delta M_4 = +P$$
 4. **Yaw Torque ($Y$):** Positive yaw denotes nose right (clockwise about $+Z$). By Newton's third law, CW spinning rotors impart a CCW aerodynamic reaction torque on the airframe, and CCW rotors impart a CW reaction torque. To yaw CW (+Z), CCW rotors ($M_2, M_4$) must spin faster, and CW rotors ($M_1, M_3$) must spin slower:
@@ -147,10 +147,10 @@ The physical coordinate system and rotor geometry were derived from first princi
 
 **Synthesized Mixer Equations:**
 $$\begin{aligned}
-M_1 &= T - R - P - Y \\
-M_2 &= T + R - P + Y \\
-M_3 &= T + R + P - Y \\
-M_4 &= T - R + P + Y
+M_1 &= T + R - P - Y \\
+M_2 &= T - R - P + Y \\
+M_3 &= T - R + P - Y \\
+M_4 &= T + R + P + Y
 \end{aligned}$$
 This derived mapping **matches `rtl/safety/pid_mixer.sv` bit-for-bit**.
 

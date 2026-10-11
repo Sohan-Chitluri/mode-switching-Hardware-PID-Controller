@@ -355,27 +355,13 @@ This guarantees mathematical continuity ($\Delta U = 0$) across the transition b
 - **Reset (`rst_n`):** Synchronous active-low system reset. Upon reset assertion, all pipeline stages, integrators, filter states, and fault registers are deterministically cleared to zero within 1 clock cycle.
 - **Clock Domain Crossing (CDC):** The controller operates strictly as a single-clock synchronous design. Sensor SPI/I2C receivers and telemetry transmitters are expected to synchronize signals into `clk` prior to presenting `sample_valid`.
 
-### 8.2. Pipeline Timing & Latency Contract ($L = 6$ Cycles)
-When a fresh sensor vector arrives with `sample_valid = 1`, the controller processes the sample through a 6-stage feedforward pipeline:
+### 8.2. Pipeline Timing & Latency Contract
+When a fresh sensor vector arrives with `sample_valid = 1`, the controller processes the sample through a deterministic synchronous pipeline:
 
-```mermaid
-gantt
-    title Cycle-by-Cycle Pipeline Latency Contract (6 Cycles)
-    dateFormat X
-    axisFormat Cycle %X
-    section Pipeline Stages
-    Stage 0 : Input Registering & Sanitization : 0, 1
-    Stage 1 : Outer Loop Error & Mode Gain Latch : 1, 2
-    Stage 2 : Multiplier Stage (P, I_delta, D_delta) : 2, 3
-    Stage 3 : Accumulation & Derivative IIR Filter : 3, 4
-    Stage 4 : 48-bit Summation & Tilt Compensation : 4, 5
-    Stage 5 : Output Saturation & Failsafe Mux Register : 5, 6
-```
-
-- **Cycle 0 ($T_0$):** `sample_valid` strobe asserted. Sensors, setpoints, and mode commands evaluate combinationally through the gain bank, outer loop, 4 parallel PID axis cores (P, I, D terms and saturation), tilt compensation, and failsafe multiplexer.
-- **Cycle 1 ($T_1$):** At `posedge clk`, `pid_output_stage` registers the active actuator commands (`u_roll`, `u_pitch`, `u_yaw`, `u_thrust`), asserts `output_valid`, and updates integrator and filter state registers.
-
-**Guaranteed Latency:** Exactly **1 clock cycle (20.0 ns at 50 MHz)** from `sample_valid` to `output_valid`.
+- **Core Controller Datapath (`pid_top`):** Exactly **1 clock cycle (20.0 ns at 50 MHz)** from `sample_valid` assertion to registered `output_valid` and updated actuator commands (`u_roll`, `u_pitch`, `u_yaw`, `u_thrust`). Sensors, setpoints, and mode commands evaluate combinationally across the active gain bank, outer loop, 4 parallel PID axis cores (P, I, D terms and saturation), tilt compensation, and failsafe multiplexer, and are latched at the subsequent `posedge clk` in `pid_output_stage`.
+- **Integrated Controller + Quad-X Mixer (`pid_top` + `pid_mixer`):** Exactly **2 clock cycles (40.0 ns at 50 MHz)** from `sample_valid` assertion to `motor_valid` assertion with registered motor outputs (`motor_1..4`), as `pid_mixer` adds one synchronous output register stage.
+- **Emergency Kill Assertion Latency:** Exactly **3 clock cycles (60.0 ns at 50 MHz)** from asynchronous active-low pin assertion (`!failsafe_ext_n`) to clamped core outputs (2-stage flip-flop CDC synchronizer + 1-cycle output stage registration). In `pid_soc_top`, motor outputs update in **4 clock cycles (80.0 ns)** due to mixer output stage registration.
+- **MMIO SoC Wrapper Transaction Latency (`pid_soc_top`):** **4 clock cycles (80.0 ns)** from host MMIO write triggering `sample_valid` to motor command readback over the MMIO bus.
 
 ---
 
