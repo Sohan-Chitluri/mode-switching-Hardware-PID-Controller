@@ -70,7 +70,7 @@
 | `handoff/PHASE1_COSIM_REPORT.md` | Phase 1 closed-loop co-sim & dynamic plant tuning report | `e3d0a5925bb47f99b63799f4ed089eaaa13226bb63239440bd0c0206e1f93b91` |
 | `handoff/PHASE2_REMEDIATION_REPORT.md` | Phase 2 robustness, safety remediation, and thrust routing report | `e5652b7be6985d1a8cadecb66f95db1c2085c2b7f109dff090d760e6707a94f6` |
 | `handoff/PHASE3_REMEDIATION_REPORT.md` | Phase 3 mode transition, safety stress, and SoC integration report | `84058992db674849dcfb7ce03d557f910e94df938e1b68db73321f5373ccb60c` |
-| `handoff/PHASE4_SIGNOFF_AUDIT.md` | Phase 4 independent sign-off audit & physical implementation readiness report | `a37a622cf85bd6d167201066a6a6ceba9621e837872d8661d34b5deab063ebd4` |
+| `handoff/PHASE4_SIGNOFF_AUDIT.md` | Phase 4 independent sign-off audit & physical implementation readiness report | `91c28139cca0dc39fa72a19fa3c4f8f5361c4fa8302f7972c2ac448842caa5f4` |
 
 ---
 
