@@ -53,7 +53,7 @@ module pid_top_shared #(
     input  logic [1:0]               mode_cmd,        // 00=Acro, 01=Stabilize, 10=AltHold, 11=Failsafe
     input  logic                     rearm_cmd,       // Emergency fault reset / re-arm
     input  logic                     failsafe_ext_n,  // Active-low external emergency kill
-    input  logic                     cfg_failsafe_hold_last = 1'b0, // 0: safe output, 1: hold last on non-critical
+    input  logic                     cfg_failsafe_hold_last, // 0: safe output, 1: hold last on non-critical
     input  logic signed [DATA_W-1:0] rc_sp_roll,     // Setpoint (Rate or Angle depending on mode)
     input  logic signed [DATA_W-1:0] rc_sp_pitch,
     input  logic signed [DATA_W-1:0] rc_sp_yaw,
