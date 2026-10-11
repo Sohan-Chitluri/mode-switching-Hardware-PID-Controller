@@ -12,6 +12,19 @@
 
 ---
 
+> ### ⚡ 1-Minute Quick Start (For Hackathon Judges & Evaluators)
+> To reproduce the entire verification package end-to-end (Synthesizability lint, 32-bit Q16.16 & 16-bit Q4.12 suites, boundary checks, mode transitions, safety edge-cases, and 4-DOF closed-loop flight co-simulation) with **zero proprietary EDA license dependencies**:
+> ```bash
+> # Prerequisites (Ubuntu / Debian standard packages):
+> sudo apt-get update && sudo apt-get install -y verilator make gcc g++ python3
+> 
+> # Execute 1-command master verification suite:
+> ./verify_all.sh
+> ```
+> *Output: All 6 stages execute in < 60 seconds and report `100% BIT-EXACT PASS`.*
+
+---
+
 ## Table of Contents
 1. [Executive Summary & Problem Statement](#1-executive-summary--problem-statement)
 2. [Architectural Overview & Microarchitecture](#2-architectural-overview--microarchitecture)
@@ -286,22 +299,25 @@ PID/
 ### Quick Start Commands
 
 ```bash
-# 1. Run all RTL tests (both 32-bit and 16-bit variants)
+# 1. Run 1-command master verification (recommended for evaluators)
+./verify_all.sh
+
+# 2. Run all RTL tests via Makefile (both 32-bit and 16-bit variants)
 make test-all
 
-# 2. Run the 10-stage comprehensive regression suite
+# 3. Run the 10-stage comprehensive regression suite
 bash scripts/run_regression.sh
 
-# 3. Run 16-bit parallel testbench
+# 4. Run 16-bit parallel testbench
 make test-16bit
 
-# 4. Run 16-bit time-shared datapath testbench
+# 5. Run 16-bit time-shared datapath testbench
 make test-shared
 
-# 5. Run formal bounded model checking proofs (SymbiYosys)
+# 6. Run formal bounded model checking proofs (SymbiYosys)
 sby -f tb/formal/pid_formal.sby
 
-# 6. Run 4-DOF Quadcopter plant co-simulation
+# 7. Run 4-DOF Quadcopter plant co-simulation
 make cosim-lib
 PYTHONPATH=models python3 models/flight_plant_cosim.py
 ```
