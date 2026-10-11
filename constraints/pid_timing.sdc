@@ -45,6 +45,7 @@ set sync_inputs [get_ports {
     cfg_we
     cfg_addr[*]
     cfg_wdata[*]
+    cfg_failsafe_hold_last
 }]
 
 set_input_delay -clock clk -max 4.000 $sync_inputs
