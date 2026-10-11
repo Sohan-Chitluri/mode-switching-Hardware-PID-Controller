@@ -21,14 +21,29 @@ module pid_mult #(
     output logic signed [DATA_W-1:0] p
 );
 
-    // Full 64-bit signed product (Q32.32)
+    // Full-precision signed product (Q32.32 for DATA_W=32, FRACT_W=16)
     logic signed [2*DATA_W-1:0] prod64;
 
     assign prod64 = a * b;
 
-    // Rescale by arithmetic right-shift by FRACT_W
-    // Take lower 32 bits of the shifted result (Q32.16 -> Q16.16)
-    assign p = prod64[FRACT_W +: DATA_W];
+    // Signed overflow detection on discarded upper bits [2*DATA_W-1 : DATA_W-1+FRACT_W]
+    // A signed product in Q(DATA_W).(FRACT_W) format fits in DATA_W bits if and only if
+    // all upper bits from the product sign bit down to the result sign bit are identical.
+    logic pos_ovf;
+    logic neg_ovf;
+
+    assign pos_ovf = !prod64[2*DATA_W-1] && (prod64[2*DATA_W-1 : DATA_W-1+FRACT_W] != '0);
+    assign neg_ovf =  prod64[2*DATA_W-1] && (~prod64[2*DATA_W-1 : DATA_W-1+FRACT_W] != '0);
+
+    always_comb begin
+        if (pos_ovf) begin
+            p = {1'b0, {(DATA_W-1){1'b1}}}; // Saturated MAX_POS (32'sh7FFF_FFFF)
+        end else if (neg_ovf) begin
+            p = {1'b1, {(DATA_W-1){1'b0}}}; // Saturated MIN_NEG (32'sh8000_0000)
+        end else begin
+            p = prod64[FRACT_W +: DATA_W];  // In-range bit-exact
+        end
+    end
 
 endmodule : pid_mult
 

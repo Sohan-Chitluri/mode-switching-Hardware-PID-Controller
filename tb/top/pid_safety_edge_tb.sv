@@ -106,6 +106,15 @@ module pid_safety_edge_tb;
         bus_wdata = 32'd0;
     endtask
 
+    task automatic mmio_read(input [8:0] addr, output [31:0] data);
+        bus_we    = 1'b0;
+        bus_addr  = addr;
+        @(posedge clk);
+        #1;
+        data      = bus_rdata;
+        bus_addr  = 9'd0;
+    endtask
+
     // Step flight sample with optional rearm and alt_valid
     task automatic step_flight_sample(
         input logic rearm = 1'b0,
@@ -314,72 +323,128 @@ module pid_safety_edge_tb;
         end
 
         // ---------------------------------------------------------------------
-        // TEST 5: Simultaneous Multi-Fault Priority Latching
+        // TEST 5: Comprehensive Fault Latching, Persistence & Status Readback
         // ---------------------------------------------------------------------
-        $display("\n>>> [TEST 5] Simultaneous Multi-Fault Priority Latching");
+        $display("\n>>> [TEST 5] Comprehensive Fault Latching, Persistence & Status Readback");
         begin
-            int cyc_count;
-            cyc_count = 0;
+            logic [31:0] status_val;
+
+            // -----------------------------------------------------------------
+            // 5A: Individual Emergency Kill Latching & MMIO Readback
+            // -----------------------------------------------------------------
             total_tests++;
-            // Concurrently trigger:
-            // 1. External Emergency Kill (failsafe_ext_n = 0)
-            // 2. Watchdog Stale Sensor Timeout (stop sending samples for TEST_TIMEOUT_CYC cycles)
             failsafe_ext_n = 1'b0;
-            // Wait for watchdog alarm to assert while kill is active
-            while (!watchdog_alarm) begin
-                @(posedge clk);
-                cyc_count++;
+            repeat (2) @(posedge clk); #1;
+            mmio_read(9'h02, status_val);
+
+            if (active_mode == MODE_FAILSAFE && fault_code == FAULT_EXT_FAILSAFE &&
+                status_val[5:2] == FAULT_EXT_FAILSAFE) begin
+                $display("  [PASS] [5A] Individual kill latched: FaultCode=%0h, MMIO Status[5:2]=%0h",
+                         fault_code, status_val[5:2]);
+                passed_tests++;
+            end else begin
+                $display("  [FAIL] [5A] Individual kill failed: FaultCode=%0h, Status=%08h",
+                         fault_code, status_val);
+                failed_tests++;
             end
-            // 1 additional cycle for pid_mode_mgr to register fault into fault_r
-            @(posedge clk);
-            #1;
+
+            // Clear 5A fault: allow 2-stage synchronizer to settle, then rearm
+            failsafe_ext_n = 1'b1;
+            repeat (3) @(posedge clk); #1;
+            step_flight_sample(.rearm(1'b1));
+
+            // -----------------------------------------------------------------
+            // 5B: Individual Watchdog Timeout Latching & MMIO Readback
+            // -----------------------------------------------------------------
+            total_tests++;
+            failsafe_ext_n = 1'b1;
+            while (!watchdog_alarm) @(posedge clk);
+            @(posedge clk); #1;
+            mmio_read(9'h02, status_val);
+
+            if (active_mode == MODE_FAILSAFE && fault_code == FAULT_WATCHDOG_STALE &&
+                status_val[5:2] == FAULT_WATCHDOG_STALE) begin
+                $display("  [PASS] [5B] Individual watchdog latched: FaultCode=%0h, MMIO Status[5:2]=%0h",
+                         fault_code, status_val[5:2]);
+                passed_tests++;
+            end else begin
+                $display("  [FAIL] [5B] Individual watchdog failed: FaultCode=%0h, Status=%08h",
+                         fault_code, status_val);
+                failed_tests++;
+            end
+
+            // Clear 5B fault: feed sample to clear watchdog alarm, then rearm
+            step_flight_sample();
+            step_flight_sample(.rearm(1'b1));
+
+            // -----------------------------------------------------------------
+            // 5C: Simultaneous Multi-Fault Latching (Kill + Watchdog)
+            // -----------------------------------------------------------------
+            total_tests++;
+            // Assert kill switch first
+            failsafe_ext_n = 1'b0;
+            // Wait for watchdog timeout to occur concurrently while kill is asserted
+            while (!watchdog_alarm) @(posedge clk);
+            @(posedge clk); #1;
+            mmio_read(9'h02, status_val);
 
             $display("  Simultaneous Fault: Mode=%0d, Kill=%b, WatchdogAlarm=%b, FaultCode=%h",
                      active_mode, failsafe_ext_n, watchdog_alarm, fault_code);
 
-            // Invariant: Controller MUST lock in Failsafe immediately
-            // Note on diagnostic register: Due to sequential non-blocking assignment ordering
-            // in pid_mode_mgr.sv (lines 55-58), FAULT_EXT_FAILSAFE (2) overrides concurrent FAULT_WATCHDOG_STALE (1)
-            // in fault_r while kill pin is held low.
-            if (active_mode == MODE_FAILSAFE && watchdog_alarm && ((fault_code & FAULT_EXT_FAILSAFE) != 4'd0)) begin
-                $display("  [VULN PROBE] Confirmed: Active kill pin suppresses concurrent watchdog latching in fault_r until kill releases (fault_code=%h).", fault_code);
+            if (active_mode == MODE_FAILSAFE && watchdog_alarm &&
+                fault_code == (FAULT_EXT_FAILSAFE | FAULT_WATCHDOG_STALE) &&
+                status_val[5:2] == (FAULT_EXT_FAILSAFE | FAULT_WATCHDOG_STALE)) begin
+                $display("  [PASS] [5C] Simultaneous fault deterministically latched: Both bits 0 and 1 set (fault_code=%0h, MMIO status=%0h).",
+                         fault_code, status_val[5:2]);
                 passed_tests++;
             end else begin
-                $display("  [FAIL] Failsafe mode or kill fault not asserted: FaultCode=%h", fault_code);
+                $display("  [FAIL] [5C] Simultaneous latching failed: FaultCode=%0h, Status=%08h",
+                         fault_code, status_val);
                 failed_tests++;
             end
 
-            // Release kill switch but keep watchdog stale; watchdog fault must now latch into fault_code
+            // -----------------------------------------------------------------
+            // 5D: Fault Persistence & Partial Recovery Rejection
+            // -----------------------------------------------------------------
             total_tests++;
+            // Release kill switch; sticky watchdog and kill faults must both persist
             failsafe_ext_n = 1'b1;
             repeat (3) @(posedge clk); #1;
-
-            if (active_mode == MODE_FAILSAFE &&
-                ((fault_code & FAULT_EXT_FAILSAFE) != 4'd0) &&
-                ((fault_code & FAULT_WATCHDOG_STALE) != 4'd0)) begin
-                $display("  [PASS] Released kill switch: Both faults now concurrently latched (fault_code=%h).", fault_code);
-                passed_tests++;
-            end else begin
-                $display("  [FAIL] Watchdog fault not latched after kill release: FaultCode=%h", fault_code);
-                failed_tests++;
-            end
-
-            // Attempt re-arm without fresh sample; must fail
-            total_tests++;
-            mmio_write(9'h00, 32'h0000_0006); // rearm=1, sample_valid=0
+            // Attempt re-arm without fresh valid sensor sample; must reject
+            mmio_write(9'h00, 32'h0000_0006); // rearm=1, alt_valid=1, sample_valid=0
             @(posedge clk); #1;
 
-            if (active_mode == MODE_FAILSAFE && ((fault_code & FAULT_WATCHDOG_STALE) != 4'd0)) begin
-                $display("  [PASS] Partial recovery safely rejected: Watchdog fault holds system in Failsafe.");
+            if (active_mode == MODE_FAILSAFE &&
+                fault_code == (FAULT_EXT_FAILSAFE | FAULT_WATCHDOG_STALE)) begin
+                $display("  [PASS] [5D] Sticky fault persisted and partial recovery safely rejected (fault_code=%0h).",
+                         fault_code);
                 passed_tests++;
             end else begin
-                $display("  [FAIL] Unsafe exit from failsafe with active watchdog! Mode=%0d", active_mode);
+                $display("  [FAIL] [5D] Sticky fault corrupted: FaultCode=%0h, Mode=%0d",
+                         fault_code, active_mode);
                 failed_tests++;
             end
 
-            // Full recovery: provide fresh sample and re-arm
+            // -----------------------------------------------------------------
+            // 5E: Legitimate Full Recovery and Clearing
+            // -----------------------------------------------------------------
+            total_tests++;
+            // Restore sensor stream to clear watchdog alarm
+            step_flight_sample();
+            mmio_write(9'h01, 32'd1); // Request Stabilize
             step_flight_sample(.rearm(1'b1));
-            $display("  Full recovery completed: Active Mode=%0d, FaultCode=%h", active_mode, fault_code);
+            mmio_read(9'h02, status_val);
+
+            if (active_mode == MODE_STABILIZE && fault_code == FAULT_NONE &&
+                status_val[5:2] == FAULT_NONE) begin
+                $display("  [PASS] [5E] Legitimate re-arm cleared all sticky faults: Mode=%0d, FaultCode=%0h.",
+                         active_mode, fault_code);
+                passed_tests++;
+            end else begin
+                $display("  [FAIL] [5E] Full recovery failed: Mode=%0d, FaultCode=%0h, Status=%08h",
+                         active_mode, fault_code, status_val);
+                failed_tests++;
+            end
         end
 
         // =====================================================================

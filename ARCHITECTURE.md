@@ -275,17 +275,18 @@ flowchart LR
 - **Gain Representation:** Q16.16 format for $K_p, K_i, K_d$.
 - **Actuator Limits:** Normalized control effort where $1.0 = 65,536$ counts. Full-scale range is typically $[0, +1.0]$ for motor throttle and $[-1.0, +1.0]$ for rotational torques.
 
-### 6.2. Intermediate Widths & Guard Bits
-1. **Multiplication:**
-   - Operand $A$ (32-bit Q16.16) $\times$ Operand $B$ (32-bit Q16.16) yields a **64-bit product** in Q32.32 format.
-   - Truncation/Shift: Right-shifted by 16 fractional bits to produce a **48-bit intermediate value** in Q32.16 format.
+### 6.2. Intermediate Widths, Overflow Protection & Arithmetic Contracts
+1. **Multiplication (`pid_mult.sv`):**
+   - Operand $A$ (32-bit signed Q16.16) $\times$ Operand $B$ (32-bit signed Q16.16) yields a **64-bit full-precision signed product** in Q32.32 format.
+   - **Full-Precision Signed Overflow Detection:** Before slicing bits `[47:16]` (Q32.16 $\rightarrow$ Q16.16), the upper 17 discarded bits `prod64[63:47]` are examined. If positive (`prod64[63] == 0`) and any upper bit is non-zero, the product exceeded the representable maximum and is clamped strictly to `MAX_POS` (`32'sh7FFF_FFFF`, $+32,767.99998$). If negative (`prod64[63] == 1`) and any upper bit is zero, the product is clamped strictly to `MIN_NEG` (`32'sh8000_0000`, $-32,768.0$).
+   - In-range products remain 100% bit-exact with `prod64[47:16]`.
 2. **Accumulation & Summation:**
    - The parallel summation $U_{raw} = P + I + D$ is evaluated in a **48-bit accumulator**.
    - **Guard Headroom:** The 48-bit accumulator provides 16 additional integer guard bits above the standard 32-bit format. This mathematically guarantees that intermediate accumulation can never overflow or wrap around, even if $P, I,$ and $D$ all peak simultaneously at their maximum bounds.
 3. **Rounding:**
    - To eliminate DC truncation bias (which causes steady-state drift in integrators), intermediate results undergo **convergent round-to-nearest-even**:
      $$\text{Round}(X) = \lfloor (X + 2^{F-1} + \text{LSB}(X_{int})) \gg F \rfloor$$
-4. **Saturation Logic:**
+4. **Saturation Logic (`pid_sat_unit.sv`):**
    - Before outputting to the 32-bit registers, values are passed through explicit saturating clampers:
      $$X_{sat} = \begin{cases} U_{max}, & \text{if } X > U_{max} \\ U_{min}, & \text{if } X < U_{min} \\ X, & \text{otherwise} \end{cases}$$
    - **Overflow Safety Rule:** Wrap-around arithmetic is strictly forbidden in synthesizable RTL.
@@ -299,6 +300,8 @@ $$y_f[n] = y_f[n-1] + \alpha \cdot (y[n] - y_f[n-1])$$
 $$D[n] = -K_d \cdot \frac{y_f[n] - y_f[n-1]}{T_s}$$
 where $\alpha \in [0, 1.0)$ is represented in Q16.16 format.
 
+- **Saturating Negation:** In two's complement 32-bit arithmetic, the most-negative value $-(-32768.0)$ wraps around to $-32768.0$ (`32'sh8000_0000`). To prevent control reversal on extreme negative rate spikes, `pid_deriv_filter.sv` implements saturating negation: if `d_mult_out == MIN_NEG`, $D[n]$ clamps strictly to `MAX_POS` (`32'sh7FFF_FFFF`).
+
 ### 6.4. Integrator Unit & Anti-Windup Protection
 Integrator accumulation follows:
 $$I[n] = I[n-1] + K_i \cdot e[n] \cdot T_s$$
@@ -307,6 +310,17 @@ Accumulation into $I[n]$ is conditionally frozen (`integ_freeze = 1`) if:
 1. Actuator output is saturated high ($U_{raw} \ge U_{max}$) **AND** error is positive ($e[n] > 0$).
 2. Actuator output is saturated low ($U_{raw} \le U_{min}$) **AND** error is negative ($e[n] < 0$).
 Additionally, the state register $I[n]$ is clamped independently to $[I_{min}, I_{max}]$.
+
+### 6.5. Software Host Trust Boundary & Gain Bank Configuration Contract
+1. **Trusted Host Model for Tuning Gains:**
+   - The hardware flight controller assumes the host flight stack (e.g., PX4, Betaflight, ArduPilot, ground station) validates control gains ($K_p, K_i, K_d, \alpha$) before writing them over the MMIO configuration bus.
+   - Hardware does not impose arbitrary upper or lower limits on gain registers, preserving full tuning flexibility across vehicles with disparate power-to-weight ratios and moments of inertia.
+   - Defense-in-depth: Even if host software programs an out-of-range gain or noisy setpoint, hardware saturating multipliers (`pid_mult.sv`), 48-bit guarded accumulators, and output clampers guarantee that arithmetic wraparound and control reversal are mathematically impossible.
+2. **Hardware Protection of Saturation Limits:**
+   - Saturation limits ($u_{min}, u_{max}, i_{min}, i_{max}$) written over MMIO are hardware-validated against inverted bounds: if software programs $u_{min} > u_{max}$, the hardware automatically clamps $u_{min}$ to $u_{max}$ to ensure valid actuator boundaries.
+3. **Gain-Bank Mode Isolation:**
+   - Each flight mode (Acro, Stabilize, AltHold, Failsafe) owns a dedicated 32-word gain bank. Configuration writes to one mode bank have zero effect on other mode banks.
+   - Unmapped or out-of-range configuration addresses (`cfg_addr >= 160`) ignore writes and return `32'd0` on readback.
 
 ---
 

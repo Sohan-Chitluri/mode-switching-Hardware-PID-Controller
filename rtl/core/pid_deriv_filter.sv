@@ -79,7 +79,9 @@ module pid_deriv_filter #(
     );
 
     // D-term is negative derivative: - (Kd_eff * delta_yf)
-    assign d_term = -d_mult_out;
+    // Saturated negation: In two's complement, -MIN_NEG (-32768.0) overflows to MIN_NEG.
+    // Clamp MIN_NEG to MAX_POS (+32767.99998) to prevent sign inversion.
+    assign d_term = (d_mult_out == MIN_NEG) ? MAX_POS : -d_mult_out;
     assign filter_state = yf_reg;
 
     // Sequential Filter State Update

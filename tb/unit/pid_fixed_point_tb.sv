@@ -292,8 +292,8 @@ module pid_fixed_point_tb;
 
         // 2. Negation: X * -1.0
         check_mult("Negation MAX_POS * -1.0", MAX_POS, -FIX_ONE, -MAX_POS, 1);
-        // Vulnerability: MIN_NEG (-32768.0) * -1.0 overflows to MIN_NEG because +32768.0 cannot be represented in Q16.16!
-        check_mult("Asymmetric Boundary MIN_NEG * -1.0 (overflow to MIN_NEG)", MIN_NEG, -FIX_ONE, MIN_NEG, 1);
+        // Saturating boundary: MIN_NEG (-32768.0) * -1.0 clamps to MAX_POS (+32767.99998)
+        check_mult("Saturating Boundary MIN_NEG * -1.0 -> MAX_POS", MIN_NEG, -FIX_ONE, MAX_POS, 1);
 
         // 3. Zero property
         check_mult("Zero MAX_POS * 0", MAX_POS, FIX_ZERO, FIX_ZERO, 1);
@@ -381,14 +381,26 @@ module pid_fixed_point_tb;
         // Operating at 500.0 leaves a margin of 32767.99998 / 500.0 = 65.5x (36.3 dB margin)!
         $display("  [ANALYSIS] Operational Headroom: Max operational term 500.0 vs 32767.99998 limit = 36.3 dB margin.");
 
-        // Case D: Vulnerability Threshold - Integer Wraparound
-        // If an erroneous gain or unbounded setpoint causes |a * b| >= 32768.0 (2^31 counts):
-        // 1024.0 (0x0400_0000) * 32.0 (0x0020_0000) = 32768.0 -> overflows to -32768.0 (0x8000_0000)!
-        check_mult("Overflow Inversion (1024.0 * 32.0 = +32768.0 -> wrapped to -32768.0)",
-                   32'sh0400_0000, 32'sh0020_0000, 32'sh8000_0000, 0);
+        // Case D: Full-precision Signed Product Overflow & Clamping Verification
+        // Clamps positive overflow strictly to MAX_POS (32'sh7FFF_FFFF = +32767.99998)
+        check_mult("Positive Overflow Saturation (+1024.0 * +32.0)",
+                   32'sh0400_0000, 32'sh0020_0000, MAX_POS, 1);
+        check_mult("Negative Overflow Saturation (-1024.0 * +32.0)",
+                   -32'sh0400_0000, 32'sh0020_0000, MIN_NEG, 1);
+        check_mult("Positive Overflow Saturation (-1024.0 * -32.0)",
+                   -32'sh0400_0000, -32'sh0020_0000, MAX_POS, 1);
+        check_mult("Full-Scale Positive Over-Range (MAX_POS * MAX_POS)",
+                   MAX_POS, MAX_POS, MAX_POS, 1);
+        check_mult("Full-Scale Negative Over-Range (MIN_NEG * MAX_POS)",
+                   MIN_NEG, MAX_POS, MIN_NEG, 1);
+        check_mult("Full-Scale Negative Square (MIN_NEG * MIN_NEG)",
+                   MIN_NEG, MIN_NEG, MAX_POS, 1);
 
-        // Full-scale multiplier wrap: MAX_POS * MAX_POS
-        check_mult("MAX_POS * MAX_POS wrap probe", MAX_POS, MAX_POS, 32'sh0000_0000, 0);
+        // Exact boundaries just within representable range
+        check_mult("Exact In-Range Boundary (+32767.99998 * 1.0)",
+                   MAX_POS, FIX_ONE, MAX_POS, 1);
+        check_mult("Exact In-Range Boundary (-32768.0 * 1.0)",
+                   MIN_NEG, FIX_ONE, MIN_NEG, 1);
 
         // ---------------------------------------------------------------------
         // SECTION 5: Guarded 48-Bit Summation & Anti-Windup Clamping
@@ -461,32 +473,79 @@ module pid_fixed_point_tb;
         // ---------------------------------------------------------------------
         $display("\n>>> [SECTION 7] Consumer Module Arithmetic Contracts & Vulnerabilities");
 
-        // 7A: pid_deriv_filter Negation Asymmetry Edge Case (-MIN_NEG)
+        // 7A: pid_deriv_filter Saturating Negation & Dynamic Range
         begin
             total_tests++;
             $display(">>> [7A] Derivative Filter Negation Boundary (-MIN_NEG)");
-            // If delta_yf == MIN_NEG (-32768.0) and kd_eff == 1.0:
-            // d_mult_out = MIN_NEG.
-            // RTL calculates: assign d_term = -d_mult_out.
-            // In two's complement, -(-32768.0) overflows to -32768.0!
             deriv_alpha  = FIX_ONE;          // Immediate pass-through
             deriv_kd     = FIX_ONE;          // Kd = 1.0
             deriv_reseed = 0;
-            deriv_meas   = MIN_NEG;          // Step by -32768.0
-            sample_valid = 1;
-            #1;
 
-            $display("  deriv_meas=%08h, d_term=%08h (%0.2f)",
-                     deriv_meas, deriv_d_term, real'(deriv_d_term)/65536.0);
-            if (deriv_d_term == MIN_NEG) begin
-                $display("  [VULN PROBE] Confirmed: -(-32768.0) = -32768.0 in pid_deriv_filter (two's complement negation asymmetry).");
+            // 1. MIN_NEG (-32768.0) saturates cleanly to MAX_POS (+32767.99998)
+            deriv_meas   = MIN_NEG;
+            sample_valid = 1; #1;
+            if (deriv_d_term == MAX_POS) begin
+                $display("  [PASS] Saturating Negation: -(MIN_NEG) correctly clamped to MAX_POS (%08h vs %08h).",
+                         deriv_d_term, MAX_POS);
                 passed_tests++;
             end else begin
-                $display("  [FAIL] Unexpected d_term value: Got %08h", deriv_d_term);
+                $display("  [FAIL] Saturating Negation failed: Got %08h, Expected MAX_POS (%08h)",
+                         deriv_d_term, MAX_POS);
                 failed_tests++;
             end
-            @(posedge clk); #1;
-            sample_valid = 0;
+            @(posedge clk); #1; sample_valid = 0;
+
+            // 2. Normal range: MAX_POS -> -MAX_POS
+            total_tests++;
+            deriv_reseed = 1; deriv_meas = 0; sample_valid = 1; @(posedge clk); #1; deriv_reseed = 0;
+            deriv_meas = MAX_POS; #1;
+            if (deriv_d_term == -MAX_POS) begin
+                $display("  [PASS] Normal Negation: -(MAX_POS) = -MAX_POS (%08h).", deriv_d_term);
+                passed_tests++;
+            end else begin
+                $display("  [FAIL] Normal Negation failed for MAX_POS: Got %08h (exp %08h)", deriv_d_term, -MAX_POS);
+                failed_tests++;
+            end
+            @(posedge clk); #1; sample_valid = 0;
+
+            // 3. Zero: 0.0 -> 0.0
+            total_tests++;
+            deriv_reseed = 1; deriv_meas = 0; sample_valid = 1; @(posedge clk); #1; deriv_reseed = 0;
+            deriv_meas = FIX_ZERO; #1;
+            if (deriv_d_term == FIX_ZERO) begin
+                $display("  [PASS] Zero Invariance: -(0.0) = 0.0 (%08h).", deriv_d_term);
+                passed_tests++;
+            end else begin
+                $display("  [FAIL] Zero Invariance failed: Got %08h", deriv_d_term);
+                failed_tests++;
+            end
+            @(posedge clk); #1; sample_valid = 0;
+
+            // 4. Nominal Scale: +1.0 -> -1.0
+            total_tests++;
+            deriv_reseed = 1; deriv_meas = 0; sample_valid = 1; @(posedge clk); #1; deriv_reseed = 0;
+            deriv_meas = FIX_ONE; #1;
+            if (deriv_d_term == -FIX_ONE) begin
+                $display("  [PASS] Nominal Scale: -(+1.0) = -1.0 (%08h).", deriv_d_term);
+                passed_tests++;
+            end else begin
+                $display("  [FAIL] Nominal Scale failed: Got %08h", deriv_d_term);
+                failed_tests++;
+            end
+            @(posedge clk); #1; sample_valid = 0;
+
+            // 5. Nominal Scale: -1.0 -> +1.0
+            total_tests++;
+            deriv_reseed = 1; deriv_meas = 0; sample_valid = 1; @(posedge clk); #1; deriv_reseed = 0;
+            deriv_meas = -FIX_ONE; #1;
+            if (deriv_d_term == FIX_ONE) begin
+                $display("  [PASS] Nominal Scale: -(-1.0) = +1.0 (%08h).", deriv_d_term);
+                passed_tests++;
+            end else begin
+                $display("  [FAIL] Nominal Scale failed: Got %08h", deriv_d_term);
+                failed_tests++;
+            end
+            @(posedge clk); #1; sample_valid = 0;
         end
 
         // 7B: pid_outer_loop Attitude Angle Extrema & Multiplier Dynamic Range
@@ -590,12 +649,68 @@ module pid_fixed_point_tb;
                 failed_tests++;
             end
 
-            // Restore safe gain Kp = 0.15 (0x0000_2666)
+            // Inverted saturation bounds: u_min (+1.0) > u_max (+0.5)
+            // Hardware clamper logic in pid_gain_bank ensures roll_u_min <= roll_u_max
+            total_tests++;
             bank_we    = 1'b1;
-            bank_addr  = 8'd5;
-            bank_wdata = 32'sh0000_2666;
+            bank_addr  = 8'd9;  // roll_u_min
+            bank_wdata = 32'sh0001_0000; // +1.0
+            @(posedge clk); #1;
+            bank_addr  = 8'd10; // roll_u_max
+            bank_wdata = 32'sh0000_8000; // +0.5
             @(posedge clk); #1;
             bank_we    = 1'b0;
+            #1;
+
+            if (bank_roll_u_min == 32'sh0000_8000 && bank_roll_u_max == 32'sh0000_8000) begin
+                $display("  [PASS] Inverted Saturation Bounds Clamped: u_min automatically clamped to u_max (+0.50).");
+                passed_tests++;
+            end else begin
+                $display("  [FAIL] Inverted saturation bounds not clamped: u_min=%08h, u_max=%08h",
+                         bank_roll_u_min, bank_roll_u_max);
+                failed_tests++;
+            end
+            // Restore normal bounds
+            bank_we = 1'b1; bank_addr = 8'd9; bank_wdata = -32'sh0001_0000; @(posedge clk); #1;
+            bank_addr = 8'd10; bank_wdata = 32'sh0001_0000; @(posedge clk); #1; bank_we = 1'b0;
+
+            // Invalid / Unmapped MMIO Addresses
+            total_tests++;
+            bank_we    = 1'b1;
+            bank_addr  = 8'd200; // Beyond mapped range (max 160)
+            bank_wdata = 32'hDEAD_BEEF;
+            @(posedge clk); #1;
+            bank_we    = 1'b0;
+            #1;
+            if (bank_rdata == 32'd0) begin
+                $display("  [PASS] Unmapped Address Rejection: Reading addr 200 returned 0 (write ignored).");
+                passed_tests++;
+            end else begin
+                $display("  [FAIL] Unmapped address accepted: Read %08h", bank_rdata);
+                failed_tests++;
+            end
+
+            // Mode Bank Isolation: Modifying Bank 0 does NOT affect Banks 1, 2, or 3
+            total_tests++;
+            bank_we    = 1'b1;
+            bank_addr  = 8'd5; // Bank 0 roll_kp
+            bank_wdata = 32'sh0005_0000; // 5.0
+            @(posedge clk); #1;
+            bank_we    = 1'b0;
+            // Switch mode to Stabilize (Bank 1)
+            bank_mode  = MODE_STABILIZE;
+            #1;
+            // Bank 1 roll_kp default is 2.0 (0x0002_0000)
+            if (bank_roll_kp == 32'sh0002_0000) begin
+                $display("  [PASS] Mode Bank Isolation: Bank 0 write isolated, Bank 1 roll_kp unaffected (0x0002_0000).");
+                passed_tests++;
+            end else begin
+                $display("  [FAIL] Mode Bank Isolation violated: Bank 1 roll_kp = %08h (expected 00020000)", bank_roll_kp);
+                failed_tests++;
+            end
+            // Restore safe gain in Bank 0
+            bank_mode = MODE_ACRO;
+            bank_we   = 1'b1; bank_addr = 8'd5; bank_wdata = 32'sh0000_2666; @(posedge clk); #1; bank_we = 1'b0;
         end
 
         // ---------------------------------------------------------------------
@@ -609,8 +724,8 @@ module pid_fixed_point_tb;
             automatic int match_count = 0;
             automatic int mismatch_count = 0;
 
+            // 8A: 100 trials within normal operational non-overflow range (|val| <= 180.0)
             for (int k = 0; k < 100; k++) begin
-                // Generate operands within operational non-overflow range (|val| <= 180.0)
                 rand_a = $signed($urandom_range(0, 32'h00B4_0000)) - 32'sh005A_0000;
                 rand_b = $signed($urandom_range(0, 32'h0032_0000)) - 32'sh0019_0000;
 
@@ -618,7 +733,6 @@ module pid_fixed_point_tb;
                 mult_b = rand_b;
                 #1;
 
-                // Independent Reference calculation
                 ref_prod64 = $signed(rand_a) * $signed(rand_b);
                 ref_p      = ref_prod64[47:16];
 
@@ -640,6 +754,53 @@ module pid_fixed_point_tb;
             end else begin
                 $display("  [FAIL] %0d mismatches detected!", mismatch_count);
                 failed_tests++;
+            end
+
+            // 8B: 100 trials across full 32-bit signed range (including extreme overflows)
+            begin
+                automatic int full_match_count = 0;
+                automatic int full_mismatch_count = 0;
+                logic signed [31:0] full_rand_a, full_rand_b;
+                logic signed [31:0] exp_sat_p;
+                logic signed [63:0] full_prod64;
+                logic signed [63:0] full_shifted;
+
+                for (int m = 0; m < 100; m++) begin
+                    full_rand_a = $signed($urandom());
+                    full_rand_b = $signed($urandom());
+
+                    mult_a = full_rand_a;
+                    mult_b = full_rand_b;
+                    #1;
+
+                    full_prod64 = $signed(full_rand_a) * $signed(full_rand_b);
+                    full_shifted = full_prod64 >>> 16;
+                    if (full_shifted > 64'sh0000_0000_7FFF_FFFF)
+                        exp_sat_p = MAX_POS;
+                    else if (full_shifted < -64'sh0000_0000_8000_0000)
+                        exp_sat_p = MIN_NEG;
+                    else
+                        exp_sat_p = full_shifted[31:0];
+
+                    if (mult_p === exp_sat_p) begin
+                        full_match_count++;
+                    end else begin
+                        full_mismatch_count++;
+                        $display("  [FULL SAT MISMATCH] a=%08h, b=%08h -> RTL=%08h, EXP=%08h",
+                                 full_rand_a, full_rand_b, mult_p, exp_sat_p);
+                    end
+                end
+
+                total_tests++;
+                $display("  Randomized Full-Range Overflow Checks: %0d / 100 matches against saturating reference model.",
+                         full_match_count);
+                if (full_mismatch_count == 0) begin
+                    $display("  [PASS] 100%% saturating overflow agreement with reference model across full 32-bit domain.");
+                    passed_tests++;
+                end else begin
+                    $display("  [FAIL] %0d full-range mismatches detected!", full_mismatch_count);
+                    failed_tests++;
+                end
             end
         end
 

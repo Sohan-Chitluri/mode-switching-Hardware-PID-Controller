@@ -52,10 +52,8 @@ module pid_mode_mgr (
             if (rearm_cmd && sample_valid && !watchdog_alarm && failsafe_ext_n) begin
                 fault_r <= FAULT_NONE; // Clear sticky fault on re-arm
             end else begin
-                if (watchdog_alarm)
-                    fault_r <= fault_r | FAULT_WATCHDOG_STALE;
-                if (!failsafe_ext_n)
-                    fault_r <= fault_r | FAULT_EXT_FAILSAFE;
+                fault_r <= fault_r | (watchdog_alarm ? FAULT_WATCHDOG_STALE : 4'd0)
+                                   | (!failsafe_ext_n ? FAULT_EXT_FAILSAFE : 4'd0);
             end
         end
     end
