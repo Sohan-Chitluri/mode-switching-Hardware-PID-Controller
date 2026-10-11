@@ -1,0 +1,4 @@
+GENUS_SYNTHESIS_SUCCESS: pid_top_shared
+Timestamp: Sun Oct 11 11:39:30 IST 2026
+Netlist: /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_shared_synth.v
+SDC: /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_shared_synth.sdc

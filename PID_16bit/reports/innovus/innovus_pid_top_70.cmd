@@ -1,0 +1,65 @@
+#######################################################
+#                                                     
+#  Innovus Command Logging File                     
+#  Created on Sun Oct 11 14:56:20 2026                
+#                                                     
+#######################################################
+
+#@(#)CDS: Innovus v21.15-s110_1 (64bit) 09/23/2022 13:08 (Linux 3.10.0-693.el7.x86_64)
+#@(#)CDS: NanoRoute 21.15-s110_1 NR220912-2004/21_15-UB (database version 18.20.592) {superthreading v2.17}
+#@(#)CDS: AAE 21.15-s039 (64bit) 09/23/2022 (Linux 3.10.0-693.el7.x86_64)
+#@(#)CDS: CTE 21.15-s038_1 () Sep 20 2022 11:42:13 ( )
+#@(#)CDS: SYNTECH 21.15-s012_1 () Sep  5 2022 10:25:51 ( )
+#@(#)CDS: CPE v21.15-s076
+#@(#)CDS: IQuantus/TQuantus 21.1.1-s867 (64bit) Sun Jun 26 22:12:54 PDT 2022 (Linux 3.10.0-693.el7.x86_64)
+
+set_global _enable_mmmc_by_default_flow      $CTE::mmmc_default
+suppressMessage ENCEXT-2799
+set init_verilog /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_synth.v
+set init_top_cell pid_top
+set init_pwr_net VDD
+set init_gnd_net VSS
+set init_lef_file {}
+set init_mmmc_file /home/vlsi/Desktop/FORGE/PID_16bit/scripts/pid_mmmc.tcl
+setMultiCpuUsage -localCpu 8
+setDesignMode -process 180
+init_design
+set_false_path -to [get_ports saturated_flag] 
+setAnalysisMode -analysisType onChipVariation -cppr both
+floorPlan -site tsm3site -r 1.0 0.7 20 20 20 20
+editPin -pin {clk rst_n sample_valid sample_ready {imu_p[15]} {imu_p[14]} {imu_p[13]} {imu_p[12]} {imu_p[11]} {imu_p[10]} {imu_p[9]} {imu_p[8]} {imu_p[7]} {imu_p[6]} {imu_p[5]} {imu_p[4]} {imu_p[3]} {imu_p[2]} {imu_p[1]} {imu_p[0]} {imu_q[15]} {imu_q[14]} {imu_q[13]} {imu_q[12]} {imu_q[11]} {imu_q[10]} {imu_q[9]} {imu_q[8]} {imu_q[7]} {imu_q[6]} {imu_q[5]} {imu_q[4]} {imu_q[3]} {imu_q[2]} {imu_q[1]} {imu_q[0]} {imu_r[15]} {imu_r[14]} {imu_r[13]} {imu_r[12]} {imu_r[11]} {imu_r[10]} {imu_r[9]} {imu_r[8]} {imu_r[7]} {imu_r[6]} {imu_r[5]} {imu_r[4]} {imu_r[3]} {imu_r[2]} {imu_r[1]} {imu_r[0]} {imu_phi[15]} {imu_phi[14]} {imu_phi[13]} {imu_phi[12]} {imu_phi[11]} {imu_phi[10]} {imu_phi[9]} {imu_phi[8]} {imu_phi[7]} {imu_phi[6]} {imu_phi[5]} {imu_phi[4]} {imu_phi[3]} {imu_phi[2]} {imu_phi[1]} {imu_phi[0]} {imu_theta[15]} {imu_theta[14]} {imu_theta[13]} {imu_theta[12]} {imu_theta[11]} {imu_theta[10]} {imu_theta[9]}} -side Top -spreadType SIDE -layer Metal3 -snap TRACK
+editPin -pin {{imu_theta[8]} {imu_theta[7]} {imu_theta[6]} {imu_theta[5]} {imu_theta[4]} {imu_theta[3]} {imu_theta[2]} {imu_theta[1]} {imu_theta[0]} {alt_z[15]} {alt_z[14]} {alt_z[13]} {alt_z[12]} {alt_z[11]} {alt_z[10]} {alt_z[9]} {alt_z[8]} {alt_z[7]} {alt_z[6]} {alt_z[5]} {alt_z[4]} {alt_z[3]} {alt_z[2]} {alt_z[1]} {alt_z[0]} {alt_vz[15]} {alt_vz[14]} {alt_vz[13]} {alt_vz[12]} {alt_vz[11]} {alt_vz[10]} {alt_vz[9]} {alt_vz[8]} {alt_vz[7]} {alt_vz[6]} {alt_vz[5]} {alt_vz[4]} {alt_vz[3]} {alt_vz[2]} {alt_vz[1]} {alt_vz[0]} alt_valid {mode_cmd[1]} {mode_cmd[0]} rearm_cmd failsafe_ext_n cfg_failsafe_hold_last {rc_sp_roll[15]} {rc_sp_roll[14]} {rc_sp_roll[13]} {rc_sp_roll[12]} {rc_sp_roll[11]} {rc_sp_roll[10]} {rc_sp_roll[9]} {rc_sp_roll[8]} {rc_sp_roll[7]} {rc_sp_roll[6]} {rc_sp_roll[5]} {rc_sp_roll[4]} {rc_sp_roll[3]} {rc_sp_roll[2]} {rc_sp_roll[1]} {rc_sp_roll[0]} {rc_sp_pitch[15]} {rc_sp_pitch[14]} {rc_sp_pitch[13]} {rc_sp_pitch[12]} {rc_sp_pitch[11]} {rc_sp_pitch[10]} {rc_sp_pitch[9]} {rc_sp_pitch[8]} {rc_sp_pitch[7]} {rc_sp_pitch[6]} {rc_sp_pitch[5]} {rc_sp_pitch[4]}} -side Bottom -spreadType SIDE -layer Metal3 -snap TRACK
+editPin -pin {{rc_sp_pitch[3]} {rc_sp_pitch[2]} {rc_sp_pitch[1]} {rc_sp_pitch[0]} {rc_sp_yaw[15]} {rc_sp_yaw[14]} {rc_sp_yaw[13]} {rc_sp_yaw[12]} {rc_sp_yaw[11]} {rc_sp_yaw[10]} {rc_sp_yaw[9]} {rc_sp_yaw[8]} {rc_sp_yaw[7]} {rc_sp_yaw[6]} {rc_sp_yaw[5]} {rc_sp_yaw[4]} {rc_sp_yaw[3]} {rc_sp_yaw[2]} {rc_sp_yaw[1]} {rc_sp_yaw[0]} {rc_sp_thrust[15]} {rc_sp_thrust[14]} {rc_sp_thrust[13]} {rc_sp_thrust[12]} {rc_sp_thrust[11]} {rc_sp_thrust[10]} {rc_sp_thrust[9]} {rc_sp_thrust[8]} {rc_sp_thrust[7]} {rc_sp_thrust[6]} {rc_sp_thrust[5]} {rc_sp_thrust[4]} {rc_sp_thrust[3]} {rc_sp_thrust[2]} {rc_sp_thrust[1]} {rc_sp_thrust[0]} cfg_we {cfg_addr[7]} {cfg_addr[6]} {cfg_addr[5]} {cfg_addr[4]} {cfg_addr[3]} {cfg_addr[2]} {cfg_addr[1]} {cfg_addr[0]} {cfg_wdata[15]} {cfg_wdata[14]} {cfg_wdata[13]} {cfg_wdata[12]} {cfg_wdata[11]} {cfg_wdata[10]} {cfg_wdata[9]} {cfg_wdata[8]} {cfg_wdata[7]} {cfg_wdata[6]} {cfg_wdata[5]} {cfg_wdata[4]} {cfg_wdata[3]} {cfg_wdata[2]} {cfg_wdata[1]} {cfg_wdata[0]} {cfg_rdata[15]} {cfg_rdata[14]} {cfg_rdata[13]} {cfg_rdata[12]} {cfg_rdata[11]} {cfg_rdata[10]} {cfg_rdata[9]} {cfg_rdata[8]} {cfg_rdata[7]} {cfg_rdata[6]} {cfg_rdata[5]} {cfg_rdata[4]} {cfg_rdata[3]} {cfg_rdata[2]}} -side Left -spreadType SIDE -layer Metal4 -snap TRACK
+editPin -pin {{cfg_rdata[1]} {cfg_rdata[0]} output_valid {u_roll[15]} {u_roll[14]} {u_roll[13]} {u_roll[12]} {u_roll[11]} {u_roll[10]} {u_roll[9]} {u_roll[8]} {u_roll[7]} {u_roll[6]} {u_roll[5]} {u_roll[4]} {u_roll[3]} {u_roll[2]} {u_roll[1]} {u_roll[0]} {u_pitch[15]} {u_pitch[14]} {u_pitch[13]} {u_pitch[12]} {u_pitch[11]} {u_pitch[10]} {u_pitch[9]} {u_pitch[8]} {u_pitch[7]} {u_pitch[6]} {u_pitch[5]} {u_pitch[4]} {u_pitch[3]} {u_pitch[2]} {u_pitch[1]} {u_pitch[0]} {u_yaw[15]} {u_yaw[14]} {u_yaw[13]} {u_yaw[12]} {u_yaw[11]} {u_yaw[10]} {u_yaw[9]} {u_yaw[8]} {u_yaw[7]} {u_yaw[6]} {u_yaw[5]} {u_yaw[4]} {u_yaw[3]} {u_yaw[2]} {u_yaw[1]} {u_yaw[0]} {u_thrust[15]} {u_thrust[14]} {u_thrust[13]} {u_thrust[12]} {u_thrust[11]} {u_thrust[10]} {u_thrust[9]} {u_thrust[8]} {u_thrust[7]} {u_thrust[6]} {u_thrust[5]} {u_thrust[4]} {u_thrust[3]} {u_thrust[2]} {u_thrust[1]} {u_thrust[0]} {active_mode[1]} {active_mode[0]} {fault_code[3]} {fault_code[2]} {fault_code[1]} {fault_code[0]} watchdog_alarm saturated_flag} -side Right -spreadType SIDE -layer Metal4 -snap TRACK
+globalNetConnect VDD -type pgpin -pin VDD -inst *
+globalNetConnect VSS -type pgpin -pin VSS -inst *
+globalNetConnect VDD -type tiehi
+globalNetConnect VSS -type tielo
+addRing -type core_rings -nets {VDD VSS} -width 4.0 -spacing 2.0 -layer {top Metal6 bottom Metal6 left Metal5 right Metal5}
+sroute -connect { corePin } -layerChangeRange {Metal1 Metal6}
+setPlaceMode -timingDriven true -congEffort medium -place_global_uniform_density true
+place_opt_design
+saveDesign /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_placed_70.enc
+create_ccopt_clock_tree_spec
+set_ccopt_property target_max_trans 1.0ns
+ccopt_design
+optDesign -postCTS
+setNanoRouteMode -routeWithTimingDriven true -routeWithSiDriven false -envNumberProcessor 8 -drouteUseMultiCutViaEffort high -drouteEndIteration 15
+routeDesign
+setDelayCalMode -siAware false
+optDesign -postRoute
+optDesign -postRoute -hold
+addFiller -cell {FILL64 FILL32 FILL16 FILL8 FILL4 FILL2 FILL1} -prefix FILL
+verifyConnectivity -type all
+report_timing > [file join $REPORT_DIR "${DESIGN_NAME}_timing_post_route.rpt"]
+report_power > /home/vlsi/Desktop/FORGE/PID_16bit/reports/innovus/pid_top_power_post_route.rpt
+report_area > /home/vlsi/Desktop/FORGE/PID_16bit/reports/innovus/pid_top_area_post_route.rpt
+setAnalysisMode -checkType hold
+report_timing -max_paths 20 > [file join $REPORT_DIR "${DESIGN_NAME}_timing_hold.rpt"]
+setAnalysisMode -checkType setup
+report_timing -max_paths 20 > [file join $REPORT_DIR "${DESIGN_NAME}_timing_setup.rpt"]
+streamOut /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.gds
+defOut -floorplan -netlist -routing /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.def
+saveNetlist /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_pnr.v
+saveDesign /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_routed_70.enc
+saveDesign /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.enc

@@ -1,0 +1,16 @@
+ncelab(64): 15.20-s086: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
+ncelab: *W,DLWNEW: Intermediate file verilog_package worklib.pid_pkg:verilog_package (VST)
+	is newer than expected by module worklib.pid_axis_core:module (VST)
+		actual:   Sun Oct 11 15:14:18 2026
+		expected: Sun Oct 11 15:14:06 2026.
+ncelab: *W,DSEMEL: This SystemVerilog design will be simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
+ncvlog_cg: *W,DLWNEW: Intermediate file verilog_package worklib.pid_pkg:verilog_package (VST)
+	is newer than expected by compilation_unit worklib.\$unit_0x7603309d :compilation_unit (VST)
+		actual:   Sun Oct 11 15:14:18 2026
+		expected: Sun Oct 11 15:14:06 2026.
+ncvlog_cg: *W,DLWNEW: Intermediate file verilog_package worklib.pid_pkg:verilog_package (VST)
+	is newer than expected by module worklib.pid_axis_core:module (VST)
+		actual:   Sun Oct 11 15:14:18 2026
+		expected: Sun Oct 11 15:14:06 2026.
+ncelab: Memory Usage - 49.9M program + 33.4M data = 83.3M total (Peak 88.1M)
+ncelab: CPU Usage - 0.0s system + 0.0s user = 0.0s total (0.3s, 12.8% cpu)

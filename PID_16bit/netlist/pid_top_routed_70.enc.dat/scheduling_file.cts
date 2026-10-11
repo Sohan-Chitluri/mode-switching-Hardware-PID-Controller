@@ -1,0 +1,8 @@
+MacroModel pin fs_sync_q2_reg/CK  300.00ps 300.00ps 300.00ps 300.00ps 0pf view_setup
+MacroModel pin u_mode_mgr_state_r_reg[1]/CK  300.00ps 300.00ps 300.00ps 300.00ps 0pf view_setup
+MacroModel pin u_mode_mgr_fault_r_reg[0]/CK  300.00ps 300.00ps 300.00ps 300.00ps 0pf view_setup
+MacroModel pin u_mode_mgr_fault_r_reg[1]/CK  300.00ps 300.00ps 300.00ps 300.00ps 0pf view_setup
+MacroModel pin u_mode_mgr_state_r_reg[0]/CK  300.00ps 300.00ps 300.00ps 300.00ps 0pf view_setup
+MacroModel pin u_watchdog_alarm_r_reg/CK  300.00ps 300.00ps 300.00ps 300.00ps 0pf view_setup
+MacroModel pin u_core_thrust_u_deriv_yf_reg_reg[1]/CK  300.00ps 300.00ps 300.00ps 300.00ps 0pf view_setup
+MacroModel pin u_core_thrust_u_deriv_yf_reg_reg[0]/CK  41.80ps 41.80ps 41.80ps 41.80ps 0pf view_setup

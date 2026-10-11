@@ -1,0 +1,31 @@
+hal(64): 15.20-s086: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
+hal: Options:   -cdslib /home/vlsi/Desktop/FORGE/PID_16bit/sim/cds.lib -logfile hal.log /home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv.
+hal: Workspace: /home/vlsi/Desktop/FORGE/PID_16bit/sim.
+hal: Date: Sun Oct 11 15:28:16 IST 2026.
+
+hal: Running on design source files.....
+
+  ==========================================================================
+Compiling design 
+
+
+`include "pid_pkg.sv"
+                    |
+ncvlog: *E,COFILX (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,13|20): cannot open include file 'pid_pkg.sv'.
+`include "pid_axis_core.sv"
+                          |
+ncvlog: *E,COFILX (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,14|26): cannot open include file 'pid_axis_core.sv'.
+irun: *E,VLGERR: An error occurred during parsing.  Review the log file for errors with the code *E and fix those identified problems to proceed.  Exiting with code (status 1).
+
+Analysis summary :
+
+ Errors   : (3)
+  COFILX (2)      VLGERR (1)     
+
+Analysis failed.
+
+ ==========================================================================
+
+To analyze results, run following command :
+    ncbrowse -64bit -cdslib /home/vlsi/Desktop/FORGE/PID_16bit/sim/cds.lib -sortby severity -sortby category -sortby tag hal.log
+

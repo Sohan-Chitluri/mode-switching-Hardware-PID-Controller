@@ -1,0 +1,31 @@
+#######################################################
+#                                                     
+#  Innovus Command Logging File                     
+#  Created on Sun Oct 11 12:58:21 2026                
+#                                                     
+#######################################################
+
+#@(#)CDS: Innovus v21.15-s110_1 (64bit) 09/23/2022 13:08 (Linux 3.10.0-693.el7.x86_64)
+#@(#)CDS: NanoRoute 21.15-s110_1 NR220912-2004/21_15-UB (database version 18.20.592) {superthreading v2.17}
+#@(#)CDS: AAE 21.15-s039 (64bit) 09/23/2022 (Linux 3.10.0-693.el7.x86_64)
+#@(#)CDS: CTE 21.15-s038_1 () Sep 20 2022 11:42:13 ( )
+#@(#)CDS: SYNTECH 21.15-s012_1 () Sep  5 2022 10:25:51 ( )
+#@(#)CDS: CPE v21.15-s076
+#@(#)CDS: IQuantus/TQuantus 21.1.1-s867 (64bit) Sun Jun 26 22:12:54 PDT 2022 (Linux 3.10.0-693.el7.x86_64)
+
+set_global _enable_mmmc_by_default_flow      $CTE::mmmc_default
+suppressMessage ENCEXT-2799
+getVersion
+getVersion
+getVersion
+set init_verilog /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_shared_synth.v
+set init_top_cell pid_top_shared
+set init_pwr_net VDD
+set init_gnd_net VSS
+set init_lef_file /home/install/FOUNDRY/digital/180nm/dig/lef/all.lef
+set init_mmmc_file /home/vlsi/Desktop/FORGE/PID_16bit/scripts/pid_mmmc.tcl
+setMultiCpuUsage -localCpu 8
+setDesignMode -process 180
+init_design
+floorPlan -site tsm3site -r 1.0 0.70 20 20 20 20
+editPin -pin {clk rst_n sample_valid sample_ready {imu_p[15]} {imu_p[14]} {imu_p[13]} {imu_p[12]} {imu_p[11]} {imu_p[10]} {imu_p[9]} {imu_p[8]} {imu_p[7]} {imu_p[6]} {imu_p[5]} {imu_p[4]} {imu_p[3]} {imu_p[2]} {imu_p[1]} {imu_p[0]} {imu_q[15]} {imu_q[14]} {imu_q[13]} {imu_q[12]} {imu_q[11]} {imu_q[10]} {imu_q[9]} {imu_q[8]} {imu_q[7]} {imu_q[6]} {imu_q[5]} {imu_q[4]} {imu_q[3]} {imu_q[2]} {imu_q[1]} {imu_q[0]} {imu_r[15]} {imu_r[14]} {imu_r[13]} {imu_r[12]} {imu_r[11]} {imu_r[10]} {imu_r[9]} {imu_r[8]} {imu_r[7]} {imu_r[6]} {imu_r[5]} {imu_r[4]} {imu_r[3]} {imu_r[2]} {imu_r[1]} {imu_r[0]} {imu_phi[15]} {imu_phi[14]} {imu_phi[13]} {imu_phi[12]} {imu_phi[11]} {imu_phi[10]} {imu_phi[9]} {imu_phi[8]} {imu_phi[7]} {imu_phi[6]} {imu_phi[5]} {imu_phi[4]} {imu_phi[3]} {imu_phi[2]} {imu_phi[1]} {imu_phi[0]} {imu_theta[15]} {imu_theta[14]} {imu_theta[13]} {imu_theta[12]} {imu_theta[11]} {imu_theta[10]} {imu_theta[9]}} -side Top -spreadType EDGE -layer Metal3 -snap TRACK

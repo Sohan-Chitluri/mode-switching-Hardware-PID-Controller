@@ -1,0 +1,713 @@
+
+Cadence Innovus(TM) Implementation System.
+Copyright 2021 Cadence Design Systems, Inc. All rights reserved worldwide.
+
+Version:	v21.15-s110_1, built Fri Sep 23 13:08:12 PDT 2022
+Options:	-batch -no_gui -files /home/vlsi/Desktop/FORGE/PID_16bit/scripts/test_placement.tcl -log reports/innovus/test_place.log 
+Date:		Sun Oct 11 12:58:41 2026
+Host:		ic312.vit.ac.in (x86_64 w/Linux 4.18.0-425.19.2.el8_7.x86_64) (12cores*20cpus*12th Gen Intel(R) Core(TM) i7-12700 25600KB)
+OS:		Red Hat Enterprise Linux release 8.7 (Ootpa)
+
+License:
+		[12:58:41.328618] Configured Lic search path (21.01-s002): 5281@14.139.1.126:1717@14.139.1.126
+
+		invs	Innovus Implementation System	21.1	checkout succeeded
+		8 CPU jobs allowed with the current license(s). Use setMultiCpuUsage to set your required CPU count.
+Change the soft stacksize limit to 0.2%RAM (63 mbytes). Set global soft_stack_size_limit to change the value.
+
+**INFO:  MMMC transition support version v31-84 
+
+<CMD> set_global _enable_mmmc_by_default_flow      $CTE::mmmc_default
+<CMD> suppressMessage ENCEXT-2799
+<CMD> getVersion
+<CMD> getVersion
+<CMD> getVersion
+[INFO] Loading PVS 22.20 fill procedures
+**WARN: Tk package not loaded. The PVS fill DRC monitor is disabled.
+Sourcing file "/home/vlsi/Desktop/FORGE/PID_16bit/scripts/test_placement.tcl" ...
+<CMD> set init_verilog /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_shared_synth.v
+<CMD> set init_top_cell pid_top_shared
+<CMD> set init_pwr_net VDD
+<CMD> set init_gnd_net VSS
+<CMD> set init_lef_file /home/install/FOUNDRY/digital/180nm/dig/lef/all.lef
+<CMD> set init_mmmc_file /home/vlsi/Desktop/FORGE/PID_16bit/scripts/pid_mmmc.tcl
+<CMD> setMultiCpuUsage -localCpu 8
+<CMD> setDesignMode -process 180
+##  Process: 180           (User Set)               
+##     Node: (not set)                           
+
+##  Check design process and node:  
+##  Design tech node is not set.
+
+Applying the recommended capacitance filtering threshold values for 180nm process node: total_c_th=5, relative_c_th=0.03 and coupling_c_th=3.
+	These values will be used by all post-route extraction engines, including TQuantus, IQuantus and Quantus QRC extraction.
+	For postRoute effortLevel low extraction, the coupling_c_th value will be used only when the -capFilterMode parameter of the setExtractRCMode command is set to relAndCoup or relOrCoup. Default value of -capFilterMode parameter in postRoute extraction effortLevel low is relOnly.
+	The accuracy mode for postRoute effortLevel low extraction will be set to 'standard'.
+	Default value for EffortLevel(-effortLevel option of the setExtractRCMode) in postRoute extraction mode is 'low'.
+<CMD> init_design
+#% Begin Load MMMC data ... (date=10/11 12:58:52, mem=918.2M)
+#% End Load MMMC data ... (date=10/11 12:58:52, total cpu=0:00:00.0, real=0:00:00.0, peak res=919.3M, current mem=919.3M)
+rc_typ
+
+Loading LEF file /home/install/FOUNDRY/digital/180nm/dig/lef/all.lef ...
+Set DBUPerIGU to M2 pitch 1320.
+**WARN: (IMPLF-200):	Pin 'A' in macro 'ANTENNA' has no ANTENNAGATEAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-200' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[0]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[10]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[11]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[12]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[13]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[14]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[15]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[1]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[2]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[3]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[4]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[5]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[6]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[7]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[8]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[9]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[0]' in macro 'ram_256x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[10]' in macro 'ram_256x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[11]' in macro 'ram_256x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (IMPLF-201):	Pin 'Q[12]' in macro 'ram_256x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-201' for more detail.
+**WARN: (EMS-27):	Message (IMPLF-201) has exceeded the current message display limit of 20.
+To increase the message display limit, refer to the product command reference manual.
+**WARN: (IMPLF-200):	Pin 'PAD' in macro 'PDB04DGZ' has no ANTENNAGATEAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-200' for more detail.
+**WARN: (IMPLF-200):	Pin 'OEN' in macro 'PDB04DGZ' has no ANTENNAGATEAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-200' for more detail.
+**WARN: (IMPLF-200):	Pin 'I' in macro 'PDB04DGZ' has no ANTENNAGATEAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+Type 'man IMPLF-200' for more detail.
+
+##  Check design process and node:  
+##  Design tech node is not set.
+
+Loading view definition file from /home/vlsi/Desktop/FORGE/PID_16bit/scripts/pid_mmmc.tcl
+Starting library reading in 'Multi-threaded flow' (with '8' threads)
+Reading slow_libs timing library /home/install/FOUNDRY/digital/180nm/dig/lib/slow.lib.
+**WARN: (TECHLIB-302):	No function defined for cell 'HOLDX1'. The cell will only be used for analysis. (File /home/install/FOUNDRY/digital/180nm/dig/lib/slow.lib)
+Read 462 cells in library tsmc18.
+Library reading multithread flow ended.
+Starting library reading in 'Multi-threaded flow' (with '8' threads)
+Reading fast_libs timing library /home/install/FOUNDRY/digital/180nm/dig/lib/fast.lib.
+**WARN: (TECHLIB-302):	No function defined for cell 'HOLDX1'. The cell will only be used for analysis. (File /home/install/FOUNDRY/digital/180nm/dig/lib/fast.lib)
+Read 470 cells in library tsmc18.
+Library reading multithread flow ended.
+*** End library_loading (cpu=0.01min, real=0.02min, mem=198.5M, fe_cpu=0.17min, fe_real=0.20min, fe_mem=1161.8M) ***
+#% Begin Load netlist data ... (date=10/11 12:58:53, mem=953.6M)
+*** Begin netlist parsing (mem=1161.8M) ***
+**WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR3X4' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR3X4' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR3X2' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR3X2' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR2XL' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR2XL' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR2X4' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR2X4' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR2X2' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR2X2' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR2X1' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR2X1' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VSS' of cell 'XNOR3X4' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VDD' of cell 'XNOR3X4' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VSS' of cell 'XNOR3X2' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VDD' of cell 'XNOR3X2' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VSS' of cell 'XNOR2XL' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VDD' of cell 'XNOR2XL' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VSS' of cell 'XNOR2X4' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (IMPVL-159):	Pin 'VDD' of cell 'XNOR2X4' is defined in LEF but not in the timing library.
+Type 'man IMPVL-159' for more detail.
+**WARN: (EMS-27):	Message (IMPVL-159) has exceeded the current message display limit of 20.
+To increase the message display limit, refer to the product command reference manual.
+Created 470 new cells from 2 timing libraries.
+Reading netlist ...
+Backslashed names will retain backslash and a trailing blank character.
+Reading verilog netlist '/home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_shared_synth.v'
+
+*** Memory Usage v#1 (Current mem = 1161.805M, initial mem = 491.863M) ***
+*** End netlist parsing (cpu=0:00:00.1, real=0:00:00.0, mem=1161.8M) ***
+#% End Load netlist data ... (date=10/11 12:58:53, total cpu=0:00:00.1, real=0:00:00.0, peak res=973.9M, current mem=973.9M)
+Set top cell to pid_top_shared.
+Hooked 932 DB cells to tlib cells.
+** Removed 8 unused lib cells.
+Starting recursive module instantiation check.
+No recursion found.
+Building hierarchical netlist for Cell pid_top_shared ...
+*** Netlist is unique.
+** info: there are 951 modules.
+** info: there are 25002 stdCell insts.
+
+*** Memory Usage v#1 (Current mem = 1196.719M, initial mem = 491.863M) ***
+**WARN: (IMPFP-3961):	The techSite 'corner' has no related standard cells in the LEF/OA library. The calculations for this site type cannot be made unless standard cell models of this type exist in the LEF/OA library. Ignore this warning if the SITE is not used by the library. Alternatively, remove the SITE definition for the LEF/OA library to avoid this message.
+Type 'man IMPFP-3961' for more detail.
+**WARN: (IMPFP-3961):	The techSite 'pad' has no related standard cells in the LEF/OA library. The calculations for this site type cannot be made unless standard cell models of this type exist in the LEF/OA library. Ignore this warning if the SITE is not used by the library. Alternatively, remove the SITE definition for the LEF/OA library to avoid this message.
+Type 'man IMPFP-3961' for more detail.
+Horizontal Layer M1 offset = 560 (derived)
+Vertical Layer M2 offset = 660 (derived)
+Start create_tracks
+Generated pitch 0.99 in Metal6 is different from 1.32 defined in technology file in preferred direction.
+Generated pitch 0.56 in Metal5 is different from 1.12 defined in technology file in preferred direction.
+Extraction setup Started 
+Initializing multi-corner RC extraction with 1 active RC Corners ...
+Reading Capacitance Table File /home/install/FOUNDRY/digital/180nm/dig/captable/t018s6mlv.capTbl ...
+Cap table was created using Encounter 10.10-s002_1.
+Process name: t018s6mm.
+Importing multi-corner RC tables ... 
+Summary of Active RC-Corners : 
+ 
+ Analysis View: view_setup
+    RC-Corner Name        : rc_typ
+    RC-Corner Index       : 0
+    RC-Corner Temperature : 25 Celsius
+    RC-Corner Cap Table   : '/home/install/FOUNDRY/digital/180nm/dig/captable/t018s6mlv.capTbl'
+    RC-Corner PreRoute Res Factor         : 1
+    RC-Corner PreRoute Cap Factor         : 1
+    RC-Corner PostRoute Res Factor        : 1 {1 1 1}
+    RC-Corner PostRoute Cap Factor        : 1 {1 1 1}
+    RC-Corner PostRoute XCap Factor       : 1 {1 1 1}
+    RC-Corner PreRoute Clock Res Factor   : 1	[Derived from postRoute_res (effortLevel low)]
+    RC-Corner PreRoute Clock Cap Factor   : 1	[Derived from postRoute_cap (effortLevel low)]
+    RC-Corner PostRoute Clock Cap Factor  : 1 {1 1 1} 	[Derived from postRoute_cap (effortLevel low)]
+    RC-Corner PostRoute Clock Res Factor  : 1 {1 1 1} 	[Derived from postRoute_res (effortLevel low)]
+    RC-Corner PostRoute Clock coupling capacitance Factor : 1 {1 1 1} 
+ 
+ Analysis View: view_hold
+    RC-Corner Name        : rc_typ
+    RC-Corner Index       : 0
+    RC-Corner Temperature : 25 Celsius
+    RC-Corner Cap Table   : '/home/install/FOUNDRY/digital/180nm/dig/captable/t018s6mlv.capTbl'
+    RC-Corner PreRoute Res Factor         : 1
+    RC-Corner PreRoute Cap Factor         : 1
+    RC-Corner PostRoute Res Factor        : 1 {1 1 1}
+    RC-Corner PostRoute Cap Factor        : 1 {1 1 1}
+    RC-Corner PostRoute XCap Factor       : 1 {1 1 1}
+    RC-Corner PreRoute Clock Res Factor   : 1	[Derived from postRoute_res (effortLevel low)]
+    RC-Corner PreRoute Clock Cap Factor   : 1	[Derived from postRoute_cap (effortLevel low)]
+    RC-Corner PostRoute Clock Cap Factor  : 1 {1 1 1} 	[Derived from postRoute_cap (effortLevel low)]
+    RC-Corner PostRoute Clock Res Factor  : 1 {1 1 1} 	[Derived from postRoute_res (effortLevel low)]
+    RC-Corner PostRoute Clock coupling capacitance Factor : 1 {1 1 1} 
+Updating RC grid for preRoute extraction ...
+Initializing multi-corner capacitance tables ... 
+Initializing multi-corner resistance tables ...
+*Info: initialize multi-corner CTS.
+Reading timing constraints file '/home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_shared_synth.sdc' ...
+Current (total cpu=0:00:10.5, real=0:00:12.0, peak res=1274.2M, current mem=1274.2M)
+**WARN: (TCLCMD-1461):	Skipped unsupported command: set_units (File /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_shared_synth.sdc, Line 9).
+
+**WARN: (TCLCMD-1461):	Skipped unsupported command: set_units (File /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_shared_synth.sdc, Line 10).
+
+pid_top_shared
+INFO (CTE): Reading of timing constraints file /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_shared_synth.sdc completed, with 2 WARNING
+Ending "Constraint file reading stats" (total cpu=0:00:00.0, real=0:00:00.0, peak res=1317.5M, current mem=1317.5M)
+Current (total cpu=0:00:10.5, real=0:00:12.0, peak res=1317.5M, current mem=1317.5M)
+Total number of combinational cells: 266
+Total number of sequential cells: 178
+Total number of tristate cells: 18
+Total number of level shifter cells: 0
+Total number of power gating cells: 0
+Total number of isolation cells: 0
+Total number of power switch cells: 0
+Total number of pulse generator cells: 0
+Total number of always on buffers: 0
+Total number of retention cells: 0
+List of usable buffers: BUFX2 BUFX1 BUFX12 BUFX16 BUFX20 BUFX3 BUFX4 BUFX8 BUFXL CLKBUFX2 CLKBUFX1 CLKBUFX12 CLKBUFX16 CLKBUFX20 CLKBUFX3 CLKBUFX4 CLKBUFX8 CLKBUFXL
+Total number of usable buffers: 18
+List of unusable buffers:
+Total number of unusable buffers: 0
+List of usable inverters: CLKINVX2 CLKINVX1 CLKINVX12 CLKINVX16 CLKINVX20 CLKINVX3 CLKINVX4 CLKINVX8 CLKINVXL INVX1 INVX2 INVX12 INVX16 INVX20 INVX3 INVXL INVX4 INVX8
+Total number of usable inverters: 18
+List of unusable inverters: RFRDX2 RFRDX1 RFRDX4
+Total number of unusable inverters: 3
+List of identified usable delay cells: DLY2X1 DLY1X1 DLY4X1 DLY3X1
+Total number of identified usable delay cells: 4
+List of identified unusable delay cells:
+Total number of identified unusable delay cells: 0
+
+*** Summary of all messages that are not suppressed in this session:
+Severity  ID               Count  Summary                                  
+WARNING   IMPLF-200            4  Pin '%s' in macro '%s' has no ANTENNAGAT...
+WARNING   IMPLF-201           50  Pin '%s' in macro '%s' has no ANTENNADIF...
+WARNING   IMPFP-3961           2  The techSite '%s' has no related standar...
+WARNING   IMPVL-159          924  Pin '%s' of cell '%s' is defined in LEF ...
+WARNING   TCLCMD-1461          2  Skipped unsupported command: %s          
+WARNING   TECHLIB-302          2  No function defined for cell '%s'. The c...
+*** Message Summary: 984 warning(s), 0 error(s)
+
+<CMD> floorPlan -site tsm3site -r 1.0 0.70 20 20 20 20
+**WARN: (IMPFP-3961):	The techSite 'corner' has no related standard cells in the LEF/OA library. The calculations for this site type cannot be made unless standard cell models of this type exist in the LEF/OA library. Ignore this warning if the SITE is not used by the library. Alternatively, remove the SITE definition for the LEF/OA library to avoid this message.
+Type 'man IMPFP-3961' for more detail.
+**WARN: (IMPFP-3961):	The techSite 'pad' has no related standard cells in the LEF/OA library. The calculations for this site type cannot be made unless standard cell models of this type exist in the LEF/OA library. Ignore this warning if the SITE is not used by the library. Alternatively, remove the SITE definition for the LEF/OA library to avoid this message.
+Type 'man IMPFP-3961' for more detail.
+Horizontal Layer M1 offset = 560 (derived)
+Vertical Layer M2 offset = 660 (derived)
+Start create_tracks
+Generated pitch 0.99 in Metal6 is different from 1.32 defined in technology file in preferred direction.
+Generated pitch 0.56 in Metal5 is different from 1.12 defined in technology file in preferred direction.
+<CMD> editPin -pin {clk rst_n sample_valid sample_ready {imu_p[15]} {imu_p[14]} {imu_p[13]} {imu_p[12]} {imu_p[11]} {imu_p[10]} {imu_p[9]} {imu_p[8]} {imu_p[7]} {imu_p[6]} {imu_p[5]} {imu_p[4]} {imu_p[3]} {imu_p[2]} {imu_p[1]} {imu_p[0]} {imu_q[15]} {imu_q[14]} {imu_q[13]} {imu_q[12]} {imu_q[11]} {imu_q[10]} {imu_q[9]} {imu_q[8]} {imu_q[7]} {imu_q[6]} {imu_q[5]} {imu_q[4]} {imu_q[3]} {imu_q[2]} {imu_q[1]} {imu_q[0]} {imu_r[15]} {imu_r[14]} {imu_r[13]} {imu_r[12]} {imu_r[11]} {imu_r[10]} {imu_r[9]} {imu_r[8]} {imu_r[7]} {imu_r[6]} {imu_r[5]} {imu_r[4]} {imu_r[3]} {imu_r[2]} {imu_r[1]} {imu_r[0]} {imu_phi[15]} {imu_phi[14]} {imu_phi[13]} {imu_phi[12]} {imu_phi[11]} {imu_phi[10]} {imu_phi[9]} {imu_phi[8]} {imu_phi[7]} {imu_phi[6]} {imu_phi[5]} {imu_phi[4]} {imu_phi[3]} {imu_phi[2]} {imu_phi[1]} {imu_phi[0]} {imu_theta[15]} {imu_theta[14]} {imu_theta[13]} {imu_theta[12]} {imu_theta[11]} {imu_theta[10]} {imu_theta[9]}} -side Top -spreadType SIDE -layer Metal3 -snap TRACK
+To speed up, if you have to run multiple editPin commands then wrap all editPin commands within  'setPinAssignMode -pinEditInBatch true' (then editPin commands) and 'setPinAssignMode -pinEditInBatch false'
+Successfully spread [75] pins.
+editPin : finished (cpu = 0:00:00.1 real = 0:00:00.0, mem = 1548.1M).
+<CMD> editPin -pin {{imu_theta[8]} {imu_theta[7]} {imu_theta[6]} {imu_theta[5]} {imu_theta[4]} {imu_theta[3]} {imu_theta[2]} {imu_theta[1]} {imu_theta[0]} {alt_z[15]} {alt_z[14]} {alt_z[13]} {alt_z[12]} {alt_z[11]} {alt_z[10]} {alt_z[9]} {alt_z[8]} {alt_z[7]} {alt_z[6]} {alt_z[5]} {alt_z[4]} {alt_z[3]} {alt_z[2]} {alt_z[1]} {alt_z[0]} {alt_vz[15]} {alt_vz[14]} {alt_vz[13]} {alt_vz[12]} {alt_vz[11]} {alt_vz[10]} {alt_vz[9]} {alt_vz[8]} {alt_vz[7]} {alt_vz[6]} {alt_vz[5]} {alt_vz[4]} {alt_vz[3]} {alt_vz[2]} {alt_vz[1]} {alt_vz[0]} alt_valid {mode_cmd[1]} {mode_cmd[0]} rearm_cmd failsafe_ext_n cfg_failsafe_hold_last {rc_sp_roll[15]} {rc_sp_roll[14]} {rc_sp_roll[13]} {rc_sp_roll[12]} {rc_sp_roll[11]} {rc_sp_roll[10]} {rc_sp_roll[9]} {rc_sp_roll[8]} {rc_sp_roll[7]} {rc_sp_roll[6]} {rc_sp_roll[5]} {rc_sp_roll[4]} {rc_sp_roll[3]} {rc_sp_roll[2]} {rc_sp_roll[1]} {rc_sp_roll[0]} {rc_sp_pitch[15]} {rc_sp_pitch[14]} {rc_sp_pitch[13]} {rc_sp_pitch[12]} {rc_sp_pitch[11]} {rc_sp_pitch[10]} {rc_sp_pitch[9]} {rc_sp_pitch[8]} {rc_sp_pitch[7]} {rc_sp_pitch[6]} {rc_sp_pitch[5]} {rc_sp_pitch[4]}} -side Bottom -spreadType SIDE -layer Metal3 -snap TRACK
+To speed up, if you have to run multiple editPin commands then wrap all editPin commands within  'setPinAssignMode -pinEditInBatch true' (then editPin commands) and 'setPinAssignMode -pinEditInBatch false'
+Successfully spread [75] pins.
+editPin : finished (cpu = 0:00:00.0 real = 0:00:00.0, mem = 1549.1M).
+<CMD> editPin -pin {{rc_sp_pitch[3]} {rc_sp_pitch[2]} {rc_sp_pitch[1]} {rc_sp_pitch[0]} {rc_sp_yaw[15]} {rc_sp_yaw[14]} {rc_sp_yaw[13]} {rc_sp_yaw[12]} {rc_sp_yaw[11]} {rc_sp_yaw[10]} {rc_sp_yaw[9]} {rc_sp_yaw[8]} {rc_sp_yaw[7]} {rc_sp_yaw[6]} {rc_sp_yaw[5]} {rc_sp_yaw[4]} {rc_sp_yaw[3]} {rc_sp_yaw[2]} {rc_sp_yaw[1]} {rc_sp_yaw[0]} {rc_sp_thrust[15]} {rc_sp_thrust[14]} {rc_sp_thrust[13]} {rc_sp_thrust[12]} {rc_sp_thrust[11]} {rc_sp_thrust[10]} {rc_sp_thrust[9]} {rc_sp_thrust[8]} {rc_sp_thrust[7]} {rc_sp_thrust[6]} {rc_sp_thrust[5]} {rc_sp_thrust[4]} {rc_sp_thrust[3]} {rc_sp_thrust[2]} {rc_sp_thrust[1]} {rc_sp_thrust[0]} cfg_we {cfg_addr[7]} {cfg_addr[6]} {cfg_addr[5]} {cfg_addr[4]} {cfg_addr[3]} {cfg_addr[2]} {cfg_addr[1]} {cfg_addr[0]} {cfg_wdata[15]} {cfg_wdata[14]} {cfg_wdata[13]} {cfg_wdata[12]} {cfg_wdata[11]} {cfg_wdata[10]} {cfg_wdata[9]} {cfg_wdata[8]} {cfg_wdata[7]} {cfg_wdata[6]} {cfg_wdata[5]} {cfg_wdata[4]} {cfg_wdata[3]} {cfg_wdata[2]} {cfg_wdata[1]} {cfg_wdata[0]} {cfg_rdata[15]} {cfg_rdata[14]} {cfg_rdata[13]} {cfg_rdata[12]} {cfg_rdata[11]} {cfg_rdata[10]} {cfg_rdata[9]} {cfg_rdata[8]} {cfg_rdata[7]} {cfg_rdata[6]} {cfg_rdata[5]} {cfg_rdata[4]} {cfg_rdata[3]} {cfg_rdata[2]}} -side Left -spreadType SIDE -layer Metal4 -snap TRACK
+To speed up, if you have to run multiple editPin commands then wrap all editPin commands within  'setPinAssignMode -pinEditInBatch true' (then editPin commands) and 'setPinAssignMode -pinEditInBatch false'
+Successfully spread [75] pins.
+editPin : finished (cpu = 0:00:00.0 real = 0:00:00.0, mem = 1549.1M).
+<CMD> editPin -pin {{cfg_rdata[1]} {cfg_rdata[0]} output_valid {u_roll[15]} {u_roll[14]} {u_roll[13]} {u_roll[12]} {u_roll[11]} {u_roll[10]} {u_roll[9]} {u_roll[8]} {u_roll[7]} {u_roll[6]} {u_roll[5]} {u_roll[4]} {u_roll[3]} {u_roll[2]} {u_roll[1]} {u_roll[0]} {u_pitch[15]} {u_pitch[14]} {u_pitch[13]} {u_pitch[12]} {u_pitch[11]} {u_pitch[10]} {u_pitch[9]} {u_pitch[8]} {u_pitch[7]} {u_pitch[6]} {u_pitch[5]} {u_pitch[4]} {u_pitch[3]} {u_pitch[2]} {u_pitch[1]} {u_pitch[0]} {u_yaw[15]} {u_yaw[14]} {u_yaw[13]} {u_yaw[12]} {u_yaw[11]} {u_yaw[10]} {u_yaw[9]} {u_yaw[8]} {u_yaw[7]} {u_yaw[6]} {u_yaw[5]} {u_yaw[4]} {u_yaw[3]} {u_yaw[2]} {u_yaw[1]} {u_yaw[0]} {u_thrust[15]} {u_thrust[14]} {u_thrust[13]} {u_thrust[12]} {u_thrust[11]} {u_thrust[10]} {u_thrust[9]} {u_thrust[8]} {u_thrust[7]} {u_thrust[6]} {u_thrust[5]} {u_thrust[4]} {u_thrust[3]} {u_thrust[2]} {u_thrust[1]} {u_thrust[0]} {active_mode[1]} {active_mode[0]} {fault_code[3]} {fault_code[2]} {fault_code[1]} {fault_code[0]} watchdog_alarm saturated_flag} -side Right -spreadType SIDE -layer Metal4 -snap TRACK
+To speed up, if you have to run multiple editPin commands then wrap all editPin commands within  'setPinAssignMode -pinEditInBatch true' (then editPin commands) and 'setPinAssignMode -pinEditInBatch false'
+Successfully spread [75] pins.
+editPin : finished (cpu = 0:00:00.0 real = 0:00:00.0, mem = 1550.1M).
+<CMD> globalNetConnect VDD -type pgpin -pin VDD -inst *
+<CMD> globalNetConnect VSS -type pgpin -pin VSS -inst *
+<CMD> globalNetConnect VDD -type tiehi
+<CMD> globalNetConnect VSS -type tielo
+<CMD> addRing -type core_rings -nets {VDD VSS} -width 4.0 -spacing 2.0 -layer {top Metal6 bottom Metal6 left Metal5 right Metal5}
+#% Begin addRing (date=10/11 12:58:53, mem=1341.4M)
+
+
+viaInitial starts at Sun Oct 11 12:58:53 2026
+**WARN: (IMPPP-557):	A single-layer VIARULE GENERATE for turn-vias is obsolete and is being ignored. Remove this statement from the technology file: VIARULE TURNM1 GENERATE.
+Type 'man IMPPP-557' for more detail.
+**WARN: (IMPPP-557):	A single-layer VIARULE GENERATE for turn-vias is obsolete and is being ignored. Remove this statement from the technology file: VIARULE TURNM2 GENERATE.
+Type 'man IMPPP-557' for more detail.
+**WARN: (IMPPP-557):	A single-layer VIARULE GENERATE for turn-vias is obsolete and is being ignored. Remove this statement from the technology file: VIARULE TURNM3 GENERATE.
+Type 'man IMPPP-557' for more detail.
+**WARN: (IMPPP-557):	A single-layer VIARULE GENERATE for turn-vias is obsolete and is being ignored. Remove this statement from the technology file: VIARULE TURNM4 GENERATE.
+Type 'man IMPPP-557' for more detail.
+**WARN: (IMPPP-557):	A single-layer VIARULE GENERATE for turn-vias is obsolete and is being ignored. Remove this statement from the technology file: VIARULE TURNM5 GENERATE.
+Type 'man IMPPP-557' for more detail.
+**WARN: (IMPPP-557):	A single-layer VIARULE GENERATE for turn-vias is obsolete and is being ignored. Remove this statement from the technology file: VIARULE TURNM6 GENERATE.
+Type 'man IMPPP-557' for more detail.
+viaInitial ends at Sun Oct 11 12:58:53 2026
+Loading cell geometries (cpu: 0:00:00.0, real: 0:00:00.0, peak mem: 1548.1M)
+Ring generation is complete.
+vias are now being generated.
+addRing created 8 wires.
+ViaGen created 8 vias, deleted 0 via to avoid violation.
++--------+----------------+----------------+
+|  Layer |     Created    |     Deleted    |
++--------+----------------+----------------+
+| Metal5 |        4       |       NA       |
+|  Via56 |        8       |        0       |
+| Metal6 |        4       |       NA       |
++--------+----------------+----------------+
+#% End addRing (date=10/11 12:58:53, total cpu=0:00:00.0, real=0:00:00.0, peak res=1345.2M, current mem=1345.2M)
+<CMD> sroute -connect { corePin } -layerChangeRange { Metal1 Metal6 }
+#% Begin sroute (date=10/11 12:58:53, mem=1345.2M)
+*** Begin SPECIAL ROUTE on Sun Oct 11 12:58:53 2026 ***
+SPECIAL ROUTE ran on directory: /home/vlsi/Desktop/FORGE/PID_16bit
+SPECIAL ROUTE ran on machine: ic312.vit.ac.in (Linux 4.18.0-425.19.2.el8_7.x86_64 x86_64 2.10Ghz)
+
+Begin option processing ...
+srouteConnectPowerBump set to false
+routeSpecial set to true
+srouteBottomLayerLimit set to 1
+srouteConnectBlockPin set to false
+srouteConnectConverterPin set to false
+srouteConnectPadPin set to false
+srouteConnectStripe set to false
+srouteFollowCorePinEnd set to 3
+srouteFollowPadPin set to false
+srouteJogControl set to "preferWithChanges differentLayer"
+sroutePadPinAllPorts set to true
+sroutePreserveExistingRoutes set to true
+srouteRoutePowerBarPortOnBothDir set to true
+srouteTopLayerLimit set to 6
+End option processing: cpu: 0:00:00, real: 0:00:00, peak: 2865.00 megs.
+
+Reading DB technology information...
+Finished reading DB technology information.
+Reading floorplan and netlist information...
+Finished reading floorplan and netlist information.
+Read in 12 layers, 6 routing layers, 1 overlap layer
+Read in 471 macros, 117 used
+Read in 115 components
+  115 core components: 115 unplaced, 0 placed, 0 fixed
+Read in 300 physical pins
+  300 physical pins: 0 unplaced, 300 placed, 0 fixed
+Read in 299 nets
+Read in 2 special nets, 2 routed
+Read in 530 terminals
+Begin power routing ...
+CPU time for VDD FollowPin 0 seconds
+CPU time for VSS FollowPin 0 seconds
+  Number of Core ports routed: 358
+  Number of Followpin connections: 179
+End power routing: cpu: 0:00:00, real: 0:00:00, peak: 2875.00 megs.
+
+
+
+ Begin updating DB with routing results ...
+ Updating DB with 300 io pins ...
+ Updating DB with 0 via definition ...Extracting standard cell pins and blockage ...... 
+Pin and blockage extraction finished
+
+sroute created 537 wires.
+ViaGen created 1432 vias, deleted 0 via to avoid violation.
++--------+----------------+----------------+
+|  Layer |     Created    |     Deleted    |
++--------+----------------+----------------+
+| Metal1 |       537      |       NA       |
+|  Via12 |       358      |        0       |
+|  Via23 |       358      |        0       |
+|  Via34 |       358      |        0       |
+|  Via45 |       358      |        0       |
++--------+----------------+----------------+
+#% End sroute (date=10/11 12:58:53, total cpu=0:00:00.1, real=0:00:00.0, peak res=1366.0M, current mem=1356.3M)
+<CMD> setPlaceMode -timingDriven true -congEffort medium -place_global_uniform_density true
+<CMD> place_design
+*** placeDesign #1 [begin] : totSession cpu/real = 0:00:10.9/0:00:10.2 (1.1), mem = 1555.4M
+Extracting standard cell pins and blockage ...... 
+Pin and blockage extraction finished
+*** Starting placeDesign default flow ***
+*** Start deleteBufferTree ***
+Multithreaded Timing Analysis is initialized with 8 threads
+
+Info: Detect buffers to remove automatically.
+Analyzing netlist ...
+Updating netlist
+
+*summary: 47 instances (buffers/inverters) removed
+*** Finish deleteBufferTree (0:00:00.6) ***
+**INFO: Enable pre-place timing setting for timing analysis
+Set Using Default Delay Limit as 101.
+**WARN: (IMPDC-1629):	The default delay limit was set to 101. This is less than the default of 1000 and may result in inaccurate delay calculation for nets with a fanout higher than the setting.  If needed, the default delay limit may be adjusted by running the command 'set delaycal_use_default_delay_limit'.
+Set Default Net Delay as 0 ps.
+Set Default Net Load as 0 pF. 
+Set Default Input Pin Transition as 1 ps.
+**INFO: Analyzing IO path groups for slack adjustment
+Effort level <high> specified for reg2reg_tmp.735282 path_group
+AAE_INFO: opIsDesignInPostRouteState() is 0
+AAE DB initialization (MEM=1728.62 CPU=0:00:00.0 REAL=0:00:00.0) 
+#################################################################################
+# Design Stage: PreRoute
+# Design Name: pid_top_shared
+# Design Mode: 180nm
+# Analysis Mode: MMMC Non-OCV 
+# Parasitics Mode: No SPEF/RCDB 
+# Signoff Settings: SI Off 
+#################################################################################
+Calculate delays in BcWc mode...
+Start delay calculation (fullDC) (8 T). (MEM=1752.15)
+Total number of fetched objects 26756
+End delay calculation. (MEM=2343.77 CPU=0:00:01.1 REAL=0:00:01.0)
+End delay calculation (fullDC). (MEM=2343.77 CPU=0:00:01.5 REAL=0:00:01.0)
+**INFO: Disable pre-place timing setting for timing analysis
+Set Using Default Delay Limit as 1000.
+Set Default Net Delay as 1000 ps.
+Set Default Input Pin Transition as 0.1 ps.
+Set Default Net Load as 0.5 pF. 
+**INFO: Pre-place timing setting for timing analysis already disabled
+Deleted 0 physical inst  (cell - / prefix -).
+INFO: #ExclusiveGroups=0
+INFO: There are no Exclusive Groups.
+*** Starting "NanoPlace(TM) placement v#6 (mem=2270.2M)" ...
+*** Build Buffered Sizing Timing Model
+(cpu=0:00:00.9 mem=2334.2M) ***
+*** Build Virtual Sizing Timing Model
+(cpu=0:00:00.9 mem=2334.2M) ***
+No user-set net weight.
+Net fanout histogram:
+2		: 16210 (61.2%) nets
+3		: 4445 (16.8%) nets
+4     -	14	: 5029 (19.0%) nets
+15    -	39	: 717 (2.7%) nets
+40    -	79	: 42 (0.2%) nets
+80    -	159	: 31 (0.1%) nets
+160   -	319	: 8 (0.0%) nets
+320   -	639	: 5 (0.0%) nets
+640   -	1279	: 1 (0.0%) nets
+1280  -	2559	: 0 (0.0%) nets
+2560  -	5119	: 1 (0.0%) nets
+5120+		: 0 (0.0%) nets
+**WARN: (IMPSP-196):	User sets both -place_global_uniform_density and -place_global_initial_padding_level options. Overriding -place_global_initial_padding_level to 5.
+Options: timingDriven clkGateAware ignoreScan pinGuide congEffort=medium gpeffort=medium 
+Scan chains were not defined.
+#std cell=24963 (0 fixed + 24963 movable) #buf cell=0 #inv cell=4163 #block=0 (0 floating + 0 preplaced)
+#ioInst=0 #net=26489 #term=99364 #term/net=3.75, #fixedIo=0, #floatIo=0, #fixedPin=0, #floatPin=297
+stdCell: 24963 single + 0 double + 0 multi
+Total standard cell length = 112.6244 (mm), area = 0.5676 (mm^2)
+Estimated cell power/ground rail width = 0.945 um
+Average module density = 0.699.
+Density for the design = 0.699.
+       = stdcell_area 170643 sites (567627 um^2) / alloc_area 244038 sites (811768 um^2).
+Pin Density = 0.4072.
+            = total # of pins 99364 / total area 244038.
+Enabling multi-CPU acceleration with 8 CPU(s) for placement
+=== lastAutoLevel = 9 
+Clock gating cells determined by native netlist tracing.
+Iteration  1: Total net bbox = 4.062e+05 (2.08e+05 1.98e+05)
+              Est.  stn bbox = 4.571e+05 (2.36e+05 2.21e+05)
+              cpu = 0:00:00.2 real = 0:00:01.0 mem = 2418.0M
+Iteration  2: Total net bbox = 4.062e+05 (2.08e+05 1.98e+05)
+              Est.  stn bbox = 4.571e+05 (2.36e+05 2.21e+05)
+              cpu = 0:00:00.0 real = 0:00:00.0 mem = 2419.0M
+Iteration  3: Total net bbox = 4.318e+05 (2.26e+05 2.06e+05)
+              Est.  stn bbox = 5.294e+05 (2.79e+05 2.50e+05)
+              cpu = 0:00:02.6 real = 0:00:00.0 mem = 2686.2M
+Active setup views:
+    view_setup
+Iteration  4: Total net bbox = 1.251e+06 (6.27e+05 6.24e+05)
+              Est.  stn bbox = 1.555e+06 (7.85e+05 7.70e+05)
+              cpu = 0:00:04.5 real = 0:00:01.0 mem = 2686.3M
+Iteration  5: Total net bbox = 1.186e+06 (6.16e+05 5.71e+05)
+              Est.  stn bbox = 1.503e+06 (7.88e+05 7.15e+05)
+              cpu = 0:00:04.4 real = 0:00:01.0 mem = 2686.5M
+Iteration  6: Total net bbox = 1.258e+06 (6.46e+05 6.12e+05)
+              Est.  stn bbox = 1.607e+06 (8.33e+05 7.74e+05)
+              cpu = 0:00:05.8 real = 0:00:01.0 mem = 2826.1M
+Iteration  7: Total net bbox = 1.288e+06 (6.74e+05 6.14e+05)
+              Est.  stn bbox = 1.640e+06 (8.63e+05 7.77e+05)
+              cpu = 0:00:00.3 real = 0:00:00.0 mem = 2638.7M
+Iteration  8: Total net bbox = 1.288e+06 (6.74e+05 6.14e+05)
+              Est.  stn bbox = 1.640e+06 (8.63e+05 7.77e+05)
+              cpu = 0:00:04.6 real = 0:00:02.0 mem = 2606.7M
+Iteration  9: Total net bbox = 1.329e+06 (6.80e+05 6.49e+05)
+              Est.  stn bbox = 1.702e+06 (8.76e+05 8.26e+05)
+              cpu = 0:00:07.3 real = 0:00:01.0 mem = 2638.7M
+Iteration 10: Total net bbox = 1.332e+06 (6.82e+05 6.50e+05)
+              Est.  stn bbox = 1.704e+06 (8.77e+05 8.27e+05)
+              cpu = 0:00:04.6 real = 0:00:03.0 mem = 2606.7M
+Iteration 11: Total net bbox = 1.336e+06 (6.85e+05 6.51e+05)
+              Est.  stn bbox = 1.710e+06 (8.81e+05 8.29e+05)
+              cpu = 0:00:07.1 real = 0:00:01.0 mem = 2638.7M
+Iteration 12: Total net bbox = 1.340e+06 (6.87e+05 6.53e+05)
+              Est.  stn bbox = 1.715e+06 (8.83e+05 8.31e+05)
+              cpu = 0:00:04.7 real = 0:00:02.0 mem = 2606.7M
+Iteration 13: Total net bbox = 1.376e+06 (7.03e+05 6.73e+05)
+              Est.  stn bbox = 1.743e+06 (8.96e+05 8.48e+05)
+              cpu = 0:00:14.8 real = 0:00:03.0 mem = 2638.7M
+Iteration 14: Total net bbox = 1.376e+06 (7.03e+05 6.73e+05)
+              Est.  stn bbox = 1.743e+06 (8.96e+05 8.48e+05)
+              cpu = 0:00:00.0 real = 0:00:00.0 mem = 2638.7M
+*** cost = 1.376e+06 (7.03e+05 6.73e+05) (cpu for global=0:01:02) real=0:00:17.0***
+Placement multithread real runtime: 0:00:17.0 with 8 threads.
+Info: 0 clock gating cells identified, 0 (on average) moved 0/7
+Solver runtime cpu: 0:00:44.6 real: 0:00:07.2
+Core Placement runtime cpu: 0:00:46.6 real: 0:00:10.0
+**WARN: (IMPSP-9025):	No scan chain specified/traced.
+Type 'man IMPSP-9025' for more detail.
+*** Starting refinePlace (0:01:20 mem=2638.7M) ***
+Total net bbox length = 1.376e+06 (7.027e+05 6.732e+05) (ext = 9.758e+04)
+Move report: Detail placement moves 24963 insts, mean move: 1.86 um, max move: 48.05 um 
+	Max move on inst (g279221): (313.10, 554.37) --> (300.30, 519.12)
+	Runtime: CPU: 0:00:01.6 REAL: 0:00:01.0 MEM: 2638.7MB
+Summary Report:
+Instances move: 24963 (out of 24963 movable)
+Instances flipped: 0
+Mean displacement: 1.86 um
+Max displacement: 48.05 um (Instance: g279221) (313.1, 554.372) -> (300.3, 519.12)
+	Length: 5 sites, height: 1 rows, site name: tsm3site, cell type: AOI22X1
+Total net bbox length = 1.331e+06 (6.594e+05 6.721e+05) (ext = 9.796e+04)
+Runtime: CPU: 0:00:01.6 REAL: 0:00:01.0 MEM: 2638.7MB
+*** Finished refinePlace (0:01:21 mem=2638.7M) ***
+*** End of Placement (cpu=0:01:06, real=0:00:20.0, mem=2558.7M) ***
+default core: bins with density > 0.750 = 13.74 % ( 47 / 342 )
+Density distribution unevenness ratio = 3.160%
+*** Free Virtual Timing Model ...(mem=2558.7M)
+**INFO: Enable pre-place timing setting for timing analysis
+Set Using Default Delay Limit as 101.
+**WARN: (IMPDC-1629):	The default delay limit was set to 101. This is less than the default of 1000 and may result in inaccurate delay calculation for nets with a fanout higher than the setting.  If needed, the default delay limit may be adjusted by running the command 'set delaycal_use_default_delay_limit'.
+Set Default Net Delay as 0 ps.
+Set Default Net Load as 0 pF. 
+**INFO: Analyzing IO path groups for slack adjustment
+Effort level <high> specified for reg2reg_tmp.735282 path_group
+AAE_INFO: opIsDesignInPostRouteState() is 0
+#################################################################################
+# Design Stage: PreRoute
+# Design Name: pid_top_shared
+# Design Mode: 180nm
+# Analysis Mode: MMMC Non-OCV 
+# Parasitics Mode: No SPEF/RCDB 
+# Signoff Settings: SI Off 
+#################################################################################
+Calculate delays in BcWc mode...
+Start delay calculation (fullDC) (8 T). (MEM=2558.7)
+Total number of fetched objects 26756
+End delay calculation. (MEM=2870.11 CPU=0:00:01.0 REAL=0:00:01.0)
+End delay calculation (fullDC). (MEM=2870.11 CPU=0:00:01.3 REAL=0:00:01.0)
+**INFO: Disable pre-place timing setting for timing analysis
+Set Using Default Delay Limit as 1000.
+Set Default Net Delay as 1000 ps.
+Set Default Net Load as 0.5 pF. 
+Info: Disable timing driven in postCTS congRepair.
+
+Starting congRepair ...
+[NR-eGR] Track table information for default rule: 
+[NR-eGR] Metal1 has single uniform track structure
+[NR-eGR] Metal2 has single uniform track structure
+[NR-eGR] Metal3 has single uniform track structure
+[NR-eGR] Metal4 has single uniform track structure
+[NR-eGR] Metal5 has single uniform track structure
+[NR-eGR] Metal6 has single uniform track structure
+[NR-eGR] Read 2530 PG shapes
+[NR-eGR] Read 0 clock shapes
+[NR-eGR] Read 0 other shapes
+[NR-eGR] #Routing Blockages  : 0
+[NR-eGR] #Instance Blockages : 0
+[NR-eGR] #PG Blockages       : 2530
+[NR-eGR] #Halo Blockages     : 0
+[NR-eGR] #Boundary Blockages : 0
+[NR-eGR] #Clock Blockages    : 0
+[NR-eGR] #Other Blockages    : 0
+[NR-eGR] Num Prerouted Nets = 0  Num Prerouted Wires = 0
+[NR-eGR] Read 26489 nets ( ignored 0 )
+[NR-eGR] There are 1 clock nets ( 0 with NDR ).
+[NR-eGR] ============ Routing rule table ============
+[NR-eGR] Rule id: 0  Nets: 26489
+[NR-eGR] ========================================
+[NR-eGR] 
+[NR-eGR] Layer group 1: route 26489 net(s) in layer range [2, 6]
+[NR-eGR] Early Global Route overflow of layer group 1: 0.03% H + 0.03% V. EstWL: 1.590382e+06um
+[NR-eGR] Congestion Analysis By layer: (blocked Gcells are excluded) 
+[NR-eGR]                        OverCon           OverCon            
+[NR-eGR]                         #Gcell            #Gcell     %Gcell
+[NR-eGR]        Layer             (1-2)             (3-4)    OverCon
+[NR-eGR] ---------------------------------------------------------------
+[NR-eGR]  Metal1 ( 1)         0( 0.00%)         0( 0.00%)   ( 0.00%) 
+[NR-eGR]  Metal2 ( 2)       140( 0.40%)         2( 0.01%)   ( 0.41%) 
+[NR-eGR]  Metal3 ( 3)        20( 0.06%)         0( 0.00%)   ( 0.06%) 
+[NR-eGR]  Metal4 ( 4)        14( 0.04%)         2( 0.01%)   ( 0.05%) 
+[NR-eGR]  Metal5 ( 5)        24( 0.07%)         2( 0.01%)   ( 0.07%) 
+[NR-eGR]  Metal6 ( 6)         9( 0.03%)         0( 0.00%)   ( 0.03%) 
+[NR-eGR] ---------------------------------------------------------------
+[NR-eGR]        Total       207( 0.12%)         6( 0.00%)   ( 0.12%) 
+[NR-eGR] 
+[NR-eGR] Overflow after Early Global Route 0.01% H + 0.01% V
+Early Global Route congestion estimation runtime: 0.16 seconds, mem = 2892.6M
+Local HotSpot Analysis: normalized max congestion hotspot area = 0.00, normalized total congestion hotspot area = 0.00 (area is in unit of 4 std-cell row bins)
+Skipped repairing congestion.
+[NR-eGR]                 Length (um)    Vias 
+[NR-eGR] ------------------------------------
+[NR-eGR]  Metal1  (1H)             0   99067 
+[NR-eGR]  Metal2  (2V)        375113  135091 
+[NR-eGR]  Metal3  (3H)        537067   21067 
+[NR-eGR]  Metal4  (4V)        375371    6938 
+[NR-eGR]  Metal5  (5H)        259579    1419 
+[NR-eGR]  Metal6  (6V)        105298       0 
+[NR-eGR] ------------------------------------
+[NR-eGR]          Total      1652428  263582 
+[NR-eGR] --------------------------------------------------------------------------
+[NR-eGR] Total half perimeter of net bounding box: 1331493um
+[NR-eGR] Total length: 1652428um, number of vias: 263582
+[NR-eGR] --------------------------------------------------------------------------
+[NR-eGR] Total eGR-routed clock nets wire length: 34253um, number of vias: 9975
+[NR-eGR] --------------------------------------------------------------------------
+Early Global Route wiring runtime: 0.08 seconds, mem = 2521.6M
+Tdgp not successfully inited but do clear! skip clearing
+End of congRepair (cpu=0:00:00.8, real=0:00:00.0)
+*** Finishing placeDesign default flow ***
+**placeDesign ... cpu = 0: 1:14, real = 0: 0:24, mem = 2501.6M **
+Tdgp not successfully inited but do clear! skip clearing
+
+*** Summary of all messages that are not suppressed in this session:
+Severity  ID               Count  Summary                                  
+WARNING   IMPDC-1629           2  The default delay limit was set to %d. T...
+WARNING   IMPSP-196            1  User sets both -place_global_uniform_den...
+WARNING   IMPSP-9025           1  No scan chain specified/traced.          
+*** Message Summary: 4 warning(s), 0 error(s)
+
+*** placeDesign #1 [finish] : cpu/real = 0:01:13.8/0:00:24.1 (3.1), totSession cpu/real = 0:01:24.6/0:00:34.3 (2.5), mem = 2501.6M
+<CMD> addFiller -cell {FILL64 FILL32 FILL16 FILL8 FILL4 FILL2 FILL1} -prefix FILL
+*INFO: Adding fillers to top-module.
+*INFO:   Added 30 filler insts (cell FILL64 / prefix FILL).
+*INFO:   Added 34 filler insts (cell FILL32 / prefix FILL).
+*INFO:   Added 196 filler insts (cell FILL16 / prefix FILL).
+*INFO:   Added 659 filler insts (cell FILL8 / prefix FILL).
+*INFO:   Added 4032 filler insts (cell FILL4 / prefix FILL).
+*INFO:   Added 16674 filler insts (cell FILL2 / prefix FILL).
+*INFO:   Added 12503 filler insts (cell FILL1 / prefix FILL).
+*INFO: Total 34128 filler insts added - prefix FILL (CPU: 0:00:00.4).
+For 34128 new insts, <CMD> saveDesign /home/vlsi/Desktop/FORGE/PID_16bit/netlist/test_place_70.enc
+#% Begin save design ... (date=10/11 12:59:18, mem=1814.4M)
+% Begin Save ccopt configuration ... (date=10/11 12:59:18, mem=1814.4M)
+% End Save ccopt configuration ... (date=10/11 12:59:18, total cpu=0:00:00.0, real=0:00:00.0, peak res=1815.7M, current mem=1815.7M)
+% Begin Save netlist data ... (date=10/11 12:59:18, mem=1815.7M)
+Writing Binary DB to /home/vlsi/Desktop/FORGE/PID_16bit/netlist/test_place_70.enc.dat/vbin/pid_top_shared.v.bin in multi-threaded mode...
+% End Save netlist data ... (date=10/11 12:59:18, total cpu=0:00:00.0, real=0:00:00.0, peak res=1817.7M, current mem=1817.7M)
+Saving symbol-table file in separate thread ...
+Saving congestion map file in separate thread ...
+Saving congestion map file /home/vlsi/Desktop/FORGE/PID_16bit/netlist/test_place_70.enc.dat/pid_top_shared.route.congmap.gz ...
+% Begin Save AAE data ... (date=10/11 12:59:18, mem=1818.0M)
+Saving AAE Data ...
+% End Save AAE data ... (date=10/11 12:59:18, total cpu=0:00:00.0, real=0:00:00.0, peak res=1818.0M, current mem=1818.0M)
+Saving preference file /home/vlsi/Desktop/FORGE/PID_16bit/netlist/test_place_70.enc.dat/gui.pref.tcl ...
+Saving mode setting ...
+Saving global file ...
+Saving Drc markers ...
+... No Drc file written since there is no markers found.
+Saving special route data file in separate thread ...
+Saving PG file in separate thread ...
+Saving placement file in separate thread ...
+Saving route file in separate thread ...
+Saving property file in separate thread ...
+Saving PG file /home/vlsi/Desktop/FORGE/PID_16bit/netlist/test_place_70.enc.dat/pid_top_shared.pg.gz, version#2, (Created by Innovus v21.15-s110_1 on Sun Oct 11 12:59:18 2026)
+Saving property file /home/vlsi/Desktop/FORGE/PID_16bit/netlist/test_place_70.enc.dat/pid_top_shared.prop
+** Saving stdCellPlacement_binary (version# 2) ...
+*** Completed saveProperty (cpu=0:00:00.0 real=0:00:00.0 mem=2556.8M) ***
+TAT_INFO: ::saveSpecialRoute REAL = 0 : CPU = 0 : MEM = 0.
+Save Adaptive View Pruning View Names to Binary file
+*** Completed savePGFile (cpu=0:00:00.0 real=0:00:00.0 mem=2556.8M) ***
+TAT_INFO: ::savePGFile REAL = 0 : CPU = 0 : MEM = 0.
+TAT_INFO: ::savePlace REAL = 0 : CPU = 0 : MEM = 0.
+*** Completed saveRoute (cpu=0:00:00.1 real=0:00:00.0 mem=2556.8M) ***
+TAT_INFO: ::saveRoute REAL = 0 : CPU = 0 : MEM = 0.
+TAT_INFO: ::db::saveAnnotationAndProp REAL = 0 : CPU = 0 : MEM = 0.
+TAT_INFO: ::db::saveSymbolTable REAL = 0 : CPU = 0 : MEM = 0.
+TAT_INFO: ::saveCongMap REAL = 0 : CPU = 0 : MEM = 0.
+% Begin Save power constraints data ... (date=10/11 12:59:18, mem=1822.9M)
+% End Save power constraints data ... (date=10/11 12:59:18, total cpu=0:00:00.0, real=0:00:00.0, peak res=1822.9M, current mem=1822.9M)
+rc_typ
+Generated self-contained design test_place_70.enc.dat
+#% End save design ... (date=10/11 12:59:19, total cpu=0:00:00.4, real=0:00:01.0, peak res=1823.9M, current mem=1823.9M)
+*** Message Summary: 0 warning(s), 0 error(s)
+
+
+*** Memory Usage v#1 (Current mem = 2528.047M, initial mem = 491.863M) ***
+*** Message Summary: 996 warning(s), 0 error(s)
+
+--- Ending "Innovus" (totcpu=0:01:26, real=0:00:38.0, mem=2528.0M) ---

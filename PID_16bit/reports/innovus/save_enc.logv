@@ -1,0 +1,526 @@
+[10/11 11:35:44      0s] 
+[10/11 11:35:44      0s] Cadence Innovus(TM) Implementation System.
+[10/11 11:35:44      0s] Copyright 2021 Cadence Design Systems, Inc. All rights reserved worldwide.
+[10/11 11:35:44      0s] 
+[10/11 11:35:44      0s] Version:	v21.15-s110_1, built Fri Sep 23 13:08:12 PDT 2022
+[10/11 11:35:44      0s] Options:	-batch -no_gui -files scripts/save_enc_pid_top.tcl -log reports/innovus/save_enc.log 
+[10/11 11:35:44      0s] Date:		Sun Oct 11 11:35:44 2026
+[10/11 11:35:44      0s] Host:		ic312.vit.ac.in (x86_64 w/Linux 4.18.0-425.19.2.el8_7.x86_64) (12cores*20cpus*12th Gen Intel(R) Core(TM) i7-12700 25600KB)
+[10/11 11:35:44      0s] OS:		Red Hat Enterprise Linux release 8.7 (Ootpa)
+[10/11 11:35:44      0s] 
+[10/11 11:35:44      0s] License:
+[10/11 11:35:44      0s] 		[11:35:44.328594] Configured Lic search path (21.01-s002): 5281@14.139.1.126:1717@14.139.1.126
+
+[10/11 11:35:45      0s] 		invs	Innovus Implementation System	21.1	checkout succeeded
+[10/11 11:35:45      0s] 		8 CPU jobs allowed with the current license(s). Use setMultiCpuUsage to set your required CPU count.
+[10/11 11:35:52      7s] Reset Parastics called with the command setExtractRCMode -reset@(#)CDS: Innovus v21.15-s110_1 (64bit) 09/23/2022 13:08 (Linux 3.10.0-693.el7.x86_64)
+[10/11 11:35:54      8s] @(#)CDS: NanoRoute 21.15-s110_1 NR220912-2004/21_15-UB (database version 18.20.592) {superthreading v2.17}
+[10/11 11:35:54      8s] @(#)CDS: AAE 21.15-s039 (64bit) 09/23/2022 (Linux 3.10.0-693.el7.x86_64)
+[10/11 11:35:54      8s] @(#)CDS: CTE 21.15-s038_1 () Sep 20 2022 11:42:13 ( )
+[10/11 11:35:54      8s] @(#)CDS: SYNTECH 21.15-s012_1 () Sep  5 2022 10:25:51 ( )
+[10/11 11:35:54      8s] @(#)CDS: CPE v21.15-s076
+[10/11 11:35:54      8s] @(#)CDS: IQuantus/TQuantus 21.1.1-s867 (64bit) Sun Jun 26 22:12:54 PDT 2022 (Linux 3.10.0-693.el7.x86_64)
+[10/11 11:35:54      8s] @(#)CDS: OA 22.60-p076 Wed May 18 13:45:29 2022
+[10/11 11:35:54      8s] @(#)CDS: SGN 20.10-d001 (01-Jun-2020) (64 bit executable, Qt5.9.0)
+[10/11 11:35:54      8s] @(#)CDS: RCDB 11.15.0
+[10/11 11:35:54      8s] @(#)CDS: STYLUS 21.12-s013_1 (08/15/2022 08:25 PDT)
+[10/11 11:35:54      8s] @(#)CDS: SystemPlanner-21.15Rel-8720 (21.15) (2022-08-22 18:31:54+0800)
+[10/11 11:35:54      8s] Create and set the environment variable TMPDIR to /tmp/innovus_temp_570479_ic312.vit.ac.in_vlsi_vTEBjX.
+
+[10/11 11:35:54      8s] Change the soft stacksize limit to 0.2%RAM (63 mbytes). Set global soft_stack_size_limit to change the value.
+[10/11 11:35:55      9s] 
+[10/11 11:35:55      9s] **INFO:  MMMC transition support version v31-84 
+[10/11 11:35:55      9s] 
+[10/11 11:35:55      9s] <CMD> set_global _enable_mmmc_by_default_flow      $CTE::mmmc_default
+[10/11 11:35:55      9s] <CMD> suppressMessage ENCEXT-2799
+[10/11 11:35:55      9s] <CMD> getVersion
+[10/11 11:35:55      9s] <CMD> getVersion
+[10/11 11:35:55      9s] <CMD> getVersion
+[10/11 11:35:55      9s] [INFO] Loading PVS 22.20 fill procedures
+[10/11 11:35:55      9s] **WARN: Tk package not loaded. The PVS fill DRC monitor is disabled.
+[10/11 11:35:55      9s] Sourcing file "scripts/save_enc_pid_top.tcl" ...
+[10/11 11:35:55      9s] <CMD> set init_verilog /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_pnr.v
+[10/11 11:35:55      9s] <CMD> set init_top_cell pid_top
+[10/11 11:35:55      9s] <CMD> set init_pwr_net VDD
+[10/11 11:35:55      9s] <CMD> set init_gnd_net VSS
+[10/11 11:35:55      9s] <CMD> set init_lef_file /home/install/FOUNDRY/digital/180nm/dig/lef/all.lef
+[10/11 11:35:55      9s] <CMD> set init_mmmc_file /home/vlsi/Desktop/FORGE/PID_16bit/scripts/pid_mmmc.tcl
+[10/11 11:35:55      9s] <CMD> setDesignMode -process 180
+[10/11 11:35:55      9s] ##  Process: 180           (User Set)               
+[10/11 11:35:55      9s] ##     Node: (not set)                           
+[10/11 11:35:55      9s] 
+##  Check design process and node:  
+##  Design tech node is not set.
+
+[10/11 11:35:55      9s] Applying the recommended capacitance filtering threshold values for 180nm process node: total_c_th=5, relative_c_th=0.03 and coupling_c_th=3.
+[10/11 11:35:55      9s] 	These values will be used by all post-route extraction engines, including TQuantus, IQuantus and Quantus QRC extraction.
+[10/11 11:35:55      9s] 	For postRoute effortLevel low extraction, the coupling_c_th value will be used only when the -capFilterMode parameter of the setExtractRCMode command is set to relAndCoup or relOrCoup. Default value of -capFilterMode parameter in postRoute extraction effortLevel low is relOnly.
+[10/11 11:35:55      9s] 	The accuracy mode for postRoute effortLevel low extraction will be set to 'standard'.
+[10/11 11:35:55      9s] 	Default value for EffortLevel(-effortLevel option of the setExtractRCMode) in postRoute extraction mode is 'low'.
+[10/11 11:35:55      9s] <CMD> init_design
+[10/11 11:35:55      9s] #% Begin Load MMMC data ... (date=10/11 11:35:55, mem=912.5M)
+[10/11 11:35:55      9s] #% End Load MMMC data ... (date=10/11 11:35:55, total cpu=0:00:00.0, real=0:00:00.0, peak res=913.5M, current mem=913.5M)
+[10/11 11:35:55      9s] 
+[10/11 11:35:55      9s] Loading LEF file /home/install/FOUNDRY/digital/180nm/dig/lef/all.lef ...
+[10/11 11:35:55      9s] Set DBUPerIGU to M2 pitch 1320.
+[10/11 11:35:55      9s] **WARN: (IMPLF-200):	Pin 'A' in macro 'ANTENNA' has no ANTENNAGATEAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-200' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[0]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[10]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[11]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[12]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[13]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[14]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[15]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[1]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[2]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[3]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[4]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[5]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[6]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[7]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[8]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[9]' in macro 'rom_512x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[0]' in macro 'ram_256x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[10]' in macro 'ram_256x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[11]' in macro 'ram_256x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-201):	Pin 'Q[12]' in macro 'ram_256x16A' has no ANTENNADIFFAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-201' for more detail.
+[10/11 11:35:55      9s] **WARN: (EMS-27):	Message (IMPLF-201) has exceeded the current message display limit of 20.
+[10/11 11:35:55      9s] To increase the message display limit, refer to the product command reference manual.
+[10/11 11:35:55      9s] **WARN: (IMPLF-200):	Pin 'PAD' in macro 'PDB04DGZ' has no ANTENNAGATEAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-200' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-200):	Pin 'OEN' in macro 'PDB04DGZ' has no ANTENNAGATEAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-200' for more detail.
+[10/11 11:35:55      9s] **WARN: (IMPLF-200):	Pin 'I' in macro 'PDB04DGZ' has no ANTENNAGATEAREA value defined. The library data is incomplete and some process antenna rules will not be checked correctly.
+[10/11 11:35:55      9s] Type 'man IMPLF-200' for more detail.
+[10/11 11:35:55      9s] 
+##  Check design process and node:  
+##  Design tech node is not set.
+
+[10/11 11:35:55      9s] Loading view definition file from /home/vlsi/Desktop/FORGE/PID_16bit/scripts/pid_mmmc.tcl
+[10/11 11:35:55      9s] Reading slow_libs timing library '/home/install/FOUNDRY/digital/180nm/dig/lib/slow.lib' ...
+[10/11 11:35:55      9s] **WARN: (TECHLIB-302):	No function defined for cell 'HOLDX1'. The cell will only be used for analysis. (File /home/install/FOUNDRY/digital/180nm/dig/lib/slow.lib)
+[10/11 11:35:55      9s] Read 462 cells in library 'tsmc18' 
+[10/11 11:35:55      9s] Reading fast_libs timing library '/home/install/FOUNDRY/digital/180nm/dig/lib/fast.lib' ...
+[10/11 11:35:56     10s] **WARN: (TECHLIB-302):	No function defined for cell 'HOLDX1'. The cell will only be used for analysis. (File /home/install/FOUNDRY/digital/180nm/dig/lib/fast.lib)
+[10/11 11:35:56     10s] Read 470 cells in library 'tsmc18' 
+[10/11 11:35:56     10s] Ending "PreSetAnalysisView" (total cpu=0:00:00.5, real=0:00:01.0, peak res=993.5M, current mem=935.5M)
+[10/11 11:35:56     10s] *** End library_loading (cpu=0.01min, real=0.02min, mem=38.9M, fe_cpu=0.17min, fe_real=0.20min, fe_mem=1003.3M) ***
+[10/11 11:35:56     10s] #% Begin Load netlist data ... (date=10/11 11:35:56, mem=935.5M)
+[10/11 11:35:56     10s] *** Begin netlist parsing (mem=1003.3M) ***
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR3X4' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR3X4' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR3X2' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR3X2' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR2XL' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR2XL' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR2X4' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR2X4' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR2X2' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR2X2' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VSS' of cell 'XOR2X1' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VDD' of cell 'XOR2X1' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VSS' of cell 'XNOR3X4' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VDD' of cell 'XNOR3X4' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VSS' of cell 'XNOR3X2' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VDD' of cell 'XNOR3X2' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VSS' of cell 'XNOR2XL' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VDD' of cell 'XNOR2XL' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VSS' of cell 'XNOR2X4' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPVL-159):	Pin 'VDD' of cell 'XNOR2X4' is defined in LEF but not in the timing library.
+[10/11 11:35:56     10s] Type 'man IMPVL-159' for more detail.
+[10/11 11:35:56     10s] **WARN: (EMS-27):	Message (IMPVL-159) has exceeded the current message display limit of 20.
+[10/11 11:35:56     10s] To increase the message display limit, refer to the product command reference manual.
+[10/11 11:35:56     10s] Created 470 new cells from 2 timing libraries.
+[10/11 11:35:56     10s] Reading netlist ...
+[10/11 11:35:56     10s] Backslashed names will retain backslash and a trailing blank character.
+[10/11 11:35:56     10s] Reading verilog netlist '/home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_pnr.v'
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] *** Memory Usage v#1 (Current mem = 1021.281M, initial mem = 483.863M) ***
+[10/11 11:35:56     10s] *** End netlist parsing (cpu=0:00:00.2, real=0:00:00.0, mem=1021.3M) ***
+[10/11 11:35:56     10s] #% End Load netlist data ... (date=10/11 11:35:56, total cpu=0:00:00.2, real=0:00:00.0, peak res=969.9M, current mem=969.9M)
+[10/11 11:35:56     10s] Set top cell to pid_top.
+[10/11 11:35:56     10s] Hooked 932 DB cells to tlib cells.
+[10/11 11:35:56     10s] ** Removed 8 unused lib cells.
+[10/11 11:35:56     10s] Ending "BindLib:" (total cpu=0:00:00.0, real=0:00:00.0, peak res=974.6M, current mem=974.6M)
+[10/11 11:35:56     10s] Starting recursive module instantiation check.
+[10/11 11:35:56     10s] No recursion found.
+[10/11 11:35:56     10s] Building hierarchical netlist for Cell pid_top ...
+[10/11 11:35:56     10s] *** Netlist is unique.
+[10/11 11:35:56     10s] Setting Std. cell height to 10080 DBU (smallest netlist inst).
+[10/11 11:35:56     10s] ** info: there are 951 modules.
+[10/11 11:35:56     10s] ** info: there are 44542 stdCell insts.
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] *** Memory Usage v#1 (Current mem = 1088.695M, initial mem = 483.863M) ***
+[10/11 11:35:56     10s] **WARN: (IMPFP-3961):	The techSite 'corner' has no related standard cells in the LEF/OA library. The calculations for this site type cannot be made unless standard cell models of this type exist in the LEF/OA library. Ignore this warning if the SITE is not used by the library. Alternatively, remove the SITE definition for the LEF/OA library to avoid this message.
+[10/11 11:35:56     10s] Type 'man IMPFP-3961' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPFP-3961):	The techSite 'pad' has no related standard cells in the LEF/OA library. The calculations for this site type cannot be made unless standard cell models of this type exist in the LEF/OA library. Ignore this warning if the SITE is not used by the library. Alternatively, remove the SITE definition for the LEF/OA library to avoid this message.
+[10/11 11:35:56     10s] Type 'man IMPFP-3961' for more detail.
+[10/11 11:35:56     10s] Horizontal Layer M1 offset = 560 (derived)
+[10/11 11:35:56     10s] Vertical Layer M2 offset = 660 (derived)
+[10/11 11:35:56     10s] Start create_tracks
+[10/11 11:35:56     10s] Generated pitch 0.99 in Metal6 is different from 1.32 defined in technology file in preferred direction.
+[10/11 11:35:56     10s] Generated pitch 0.56 in Metal5 is different from 1.12 defined in technology file in preferred direction.
+[10/11 11:35:56     10s] Extraction setup Started 
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] Trim Metal Layers:
+[10/11 11:35:56     10s] Initializing multi-corner RC extraction with 1 active RC Corners ...
+[10/11 11:35:56     10s] Reading Capacitance Table File /home/install/FOUNDRY/digital/180nm/dig/captable/t018s6mlv.capTbl ...
+[10/11 11:35:56     10s] Cap table was created using Encounter 10.10-s002_1.
+[10/11 11:35:56     10s] Process name: t018s6mm.
+[10/11 11:35:56     10s] Importing multi-corner RC tables ... 
+[10/11 11:35:56     10s] Summary of Active RC-Corners : 
+[10/11 11:35:56     10s]  
+[10/11 11:35:56     10s]  Analysis View: view_setup
+[10/11 11:35:56     10s]     RC-Corner Name        : rc_typ
+[10/11 11:35:56     10s]     RC-Corner Index       : 0
+[10/11 11:35:56     10s]     RC-Corner Temperature : 25 Celsius
+[10/11 11:35:56     10s]     RC-Corner Cap Table   : '/home/install/FOUNDRY/digital/180nm/dig/captable/t018s6mlv.capTbl'
+[10/11 11:35:56     10s]     RC-Corner PreRoute Res Factor         : 1
+[10/11 11:35:56     10s]     RC-Corner PreRoute Cap Factor         : 1
+[10/11 11:35:56     10s]     RC-Corner PostRoute Res Factor        : 1 {1 1 1}
+[10/11 11:35:56     10s]     RC-Corner PostRoute Cap Factor        : 1 {1 1 1}
+[10/11 11:35:56     10s]     RC-Corner PostRoute XCap Factor       : 1 {1 1 1}
+[10/11 11:35:56     10s]     RC-Corner PreRoute Clock Res Factor   : 1	[Derived from postRoute_res (effortLevel low)]
+[10/11 11:35:56     10s]     RC-Corner PreRoute Clock Cap Factor   : 1	[Derived from postRoute_cap (effortLevel low)]
+[10/11 11:35:56     10s]     RC-Corner PostRoute Clock Cap Factor  : 1 {1 1 1} 	[Derived from postRoute_cap (effortLevel low)]
+[10/11 11:35:56     10s]     RC-Corner PostRoute Clock Res Factor  : 1 {1 1 1} 	[Derived from postRoute_res (effortLevel low)]
+[10/11 11:35:56     10s]     RC-Corner PostRoute Clock coupling capacitance Factor : 1 {1 1 1} 
+[10/11 11:35:56     10s]  
+[10/11 11:35:56     10s]  Analysis View: view_hold
+[10/11 11:35:56     10s]     RC-Corner Name        : rc_typ
+[10/11 11:35:56     10s]     RC-Corner Index       : 0
+[10/11 11:35:56     10s]     RC-Corner Temperature : 25 Celsius
+[10/11 11:35:56     10s]     RC-Corner Cap Table   : '/home/install/FOUNDRY/digital/180nm/dig/captable/t018s6mlv.capTbl'
+[10/11 11:35:56     10s]     RC-Corner PreRoute Res Factor         : 1
+[10/11 11:35:56     10s]     RC-Corner PreRoute Cap Factor         : 1
+[10/11 11:35:56     10s]     RC-Corner PostRoute Res Factor        : 1 {1 1 1}
+[10/11 11:35:56     10s]     RC-Corner PostRoute Cap Factor        : 1 {1 1 1}
+[10/11 11:35:56     10s]     RC-Corner PostRoute XCap Factor       : 1 {1 1 1}
+[10/11 11:35:56     10s]     RC-Corner PreRoute Clock Res Factor   : 1	[Derived from postRoute_res (effortLevel low)]
+[10/11 11:35:56     10s]     RC-Corner PreRoute Clock Cap Factor   : 1	[Derived from postRoute_cap (effortLevel low)]
+[10/11 11:35:56     10s]     RC-Corner PostRoute Clock Cap Factor  : 1 {1 1 1} 	[Derived from postRoute_cap (effortLevel low)]
+[10/11 11:35:56     10s]     RC-Corner PostRoute Clock Res Factor  : 1 {1 1 1} 	[Derived from postRoute_res (effortLevel low)]
+[10/11 11:35:56     10s]     RC-Corner PostRoute Clock coupling capacitance Factor : 1 {1 1 1} 
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] Trim Metal Layers:
+[10/11 11:35:56     10s] LayerId::1 widthSet size::4
+[10/11 11:35:56     10s] LayerId::2 widthSet size::4
+[10/11 11:35:56     10s] LayerId::3 widthSet size::4
+[10/11 11:35:56     10s] LayerId::4 widthSet size::4
+[10/11 11:35:56     10s] LayerId::5 widthSet size::4
+[10/11 11:35:56     10s] LayerId::6 widthSet size::3
+[10/11 11:35:56     10s] Updating RC grid for preRoute extraction ...
+[10/11 11:35:56     10s] eee: pegSigSF::1.070000
+[10/11 11:35:56     10s] Initializing multi-corner capacitance tables ... 
+[10/11 11:35:56     10s] Initializing multi-corner resistance tables ...
+[10/11 11:35:56     10s] eee: l::1 avDens::0.000000 usedTrk::0.000000 availTrk::0.000000 sigTrk::0.000000
+[10/11 11:35:56     10s] eee: l::2 avDens::0.000000 usedTrk::0.000000 availTrk::0.000000 sigTrk::0.000000
+[10/11 11:35:56     10s] eee: l::3 avDens::0.000000 usedTrk::0.000000 availTrk::0.000000 sigTrk::0.000000
+[10/11 11:35:56     10s] eee: l::4 avDens::0.000000 usedTrk::0.000000 availTrk::0.000000 sigTrk::0.000000
+[10/11 11:35:56     10s] eee: l::5 avDens::0.000000 usedTrk::0.000000 availTrk::0.000000 sigTrk::0.000000
+[10/11 11:35:56     10s] eee: l::6 avDens::0.000000 usedTrk::0.000000 availTrk::0.000000 sigTrk::0.000000
+[10/11 11:35:56     10s] {RT rc_typ 0 6 6 {5 0} 1}
+[10/11 11:35:56     10s] eee: LAM: n=40 LLS=2-3 HLS=3-5 rDens=0.000000 uaWl=0.000000 uaWlH=0.000000 aWlH=0.000000 lMod=0 pMax=0.850000 pMod=82 wcR=0.566400 newSi=0.000000 wHLS=1.416000 siPrev=0 viaL=0.000000
+[10/11 11:35:56     10s] *Info: initialize multi-corner CTS.
+[10/11 11:35:56     10s] Ending "SetAnalysisView" (total cpu=0:00:00.0, real=0:00:00.0, peak res=1257.9M, current mem=1018.4M)
+[10/11 11:35:56     10s] Reading timing constraints file '/home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_synth.sdc' ...
+[10/11 11:35:56     10s] Current (total cpu=0:00:10.7, real=0:00:12.0, peak res=1274.9M, current mem=1274.9M)
+[10/11 11:35:56     10s] **WARN: (TCLCMD-1461):	Skipped unsupported command: set_units (File /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_synth.sdc, Line 9).
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] **WARN: (TCLCMD-1461):	Skipped unsupported command: set_units (File /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_synth.sdc, Line 10).
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] INFO (CTE): Reading of timing constraints file /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_synth.sdc completed, with 2 WARNING
+[10/11 11:35:56     10s] Ending "Constraint file reading stats" (total cpu=0:00:00.1, real=0:00:00.0, peak res=1318.4M, current mem=1318.4M)
+[10/11 11:35:56     10s] Current (total cpu=0:00:10.8, real=0:00:12.0, peak res=1318.4M, current mem=1318.4M)
+[10/11 11:35:56     10s] Tech dependent Parameter, Build TLibAnalyzer for: cellAreaConsiderPadding
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] TimeStamp Creating Cell Server ...(0, 1, 1, 1) Begin ...
+[10/11 11:35:56     10s] Summary for sequential cells identification: 
+[10/11 11:35:56     10s]   Identified SBFF number: 116
+[10/11 11:35:56     10s]   Identified MBFF number: 0
+[10/11 11:35:56     10s]   Identified SB Latch number: 0
+[10/11 11:35:56     10s]   Identified MB Latch number: 0
+[10/11 11:35:56     10s]   Not identified SBFF number: 24
+[10/11 11:35:56     10s]   Not identified MBFF number: 0
+[10/11 11:35:56     10s]   Not identified SB Latch number: 0
+[10/11 11:35:56     10s]   Not identified MB Latch number: 0
+[10/11 11:35:56     10s]   Number of sequential cells which are not FFs: 38
+[10/11 11:35:56     10s] Total number of combinational cells: 266
+[10/11 11:35:56     10s] Total number of sequential cells: 178
+[10/11 11:35:56     10s] Total number of tristate cells: 18
+[10/11 11:35:56     10s] Total number of level shifter cells: 0
+[10/11 11:35:56     10s] Total number of power gating cells: 0
+[10/11 11:35:56     10s] Total number of isolation cells: 0
+[10/11 11:35:56     10s] Total number of power switch cells: 0
+[10/11 11:35:56     10s] Total number of pulse generator cells: 0
+[10/11 11:35:56     10s] Total number of always on buffers: 0
+[10/11 11:35:56     10s] Total number of retention cells: 0
+[10/11 11:35:56     10s] List of usable buffers: BUFX2 BUFX1 BUFX12 BUFX16 BUFX20 BUFX3 BUFX4 BUFX8 BUFXL CLKBUFX2 CLKBUFX1 CLKBUFX12 CLKBUFX16 CLKBUFX20 CLKBUFX3 CLKBUFX4 CLKBUFX8 CLKBUFXL
+[10/11 11:35:56     10s] Total number of usable buffers: 18
+[10/11 11:35:56     10s] List of unusable buffers:
+[10/11 11:35:56     10s] Total number of unusable buffers: 0
+[10/11 11:35:56     10s] List of usable inverters: CLKINVX2 CLKINVX1 CLKINVX12 CLKINVX16 CLKINVX20 CLKINVX3 CLKINVX4 CLKINVX8 CLKINVXL INVX1 INVX2 INVX12 INVX16 INVX20 INVX3 INVXL INVX4 INVX8
+[10/11 11:35:56     10s] Total number of usable inverters: 18
+[10/11 11:35:56     10s] List of unusable inverters: RFRDX2 RFRDX1 RFRDX4
+[10/11 11:35:56     10s] Total number of unusable inverters: 3
+[10/11 11:35:56     10s] List of identified usable delay cells: DLY2X1 DLY1X1 DLY4X1 DLY3X1
+[10/11 11:35:56     10s] Total number of identified usable delay cells: 4
+[10/11 11:35:56     10s] List of identified unusable delay cells:
+[10/11 11:35:56     10s] Total number of identified unusable delay cells: 0
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] TimeStamp Creating Cell Server ...(0, 1, 1, 1) End ...
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] TimeStamp Deleting Cell Server Begin ...
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] TimeStamp Deleting Cell Server End ...
+[10/11 11:35:56     10s] Ending "Cell type marking" (total cpu=0:00:00.0, real=0:00:00.0, peak res=1319.8M, current mem=1319.8M)
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] TimeStamp Creating Cell Server ...(0, 0, 0, 0) Begin ...
+[10/11 11:35:56     10s] Summary for sequential cells identification: 
+[10/11 11:35:56     10s]   Identified SBFF number: 116
+[10/11 11:35:56     10s]   Identified MBFF number: 0
+[10/11 11:35:56     10s]   Identified SB Latch number: 0
+[10/11 11:35:56     10s]   Identified MB Latch number: 0
+[10/11 11:35:56     10s]   Not identified SBFF number: 24
+[10/11 11:35:56     10s]   Not identified MBFF number: 0
+[10/11 11:35:56     10s]   Not identified SB Latch number: 0
+[10/11 11:35:56     10s]   Not identified MB Latch number: 0
+[10/11 11:35:56     10s]   Number of sequential cells which are not FFs: 38
+[10/11 11:35:56     10s]  Visiting view : view_setup
+[10/11 11:35:56     10s]    : PowerDomain = none : Weighted F : unweighted  = 52.50 (1.000) with rcCorner = 0
+[10/11 11:35:56     10s]    : PowerDomain = none : Weighted F : unweighted  = 47.30 (1.000) with rcCorner = -1
+[10/11 11:35:56     10s]  Visiting view : view_hold
+[10/11 11:35:56     10s]    : PowerDomain = none : Weighted F : unweighted  = 25.10 (1.000) with rcCorner = 0
+[10/11 11:35:56     10s]    : PowerDomain = none : Weighted F : unweighted  = 22.80 (1.000) with rcCorner = -1
+[10/11 11:35:56     10s] TLC MultiMap info (StdDelay):
+[10/11 11:35:56     10s]   : delay_fast + fast_libs + 1 + no RcCorner := 22.8ps
+[10/11 11:35:56     10s]   : delay_fast + fast_libs + 1 + rc_typ := 25.1ps
+[10/11 11:35:56     10s]   : delay_slow + slow_libs + 1 + no RcCorner := 47.3ps
+[10/11 11:35:56     10s]   : delay_slow + slow_libs + 1 + rc_typ := 52.5ps
+[10/11 11:35:56     10s]  Setting StdDelay to: 52.5ps
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] TimeStamp Creating Cell Server ...(0, 0, 0, 0) End ...
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] TimeStamp Deleting Cell Server Begin ...
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] TimeStamp Deleting Cell Server End ...
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] *** Summary of all messages that are not suppressed in this session:
+[10/11 11:35:56     10s] Severity  ID               Count  Summary                                  
+[10/11 11:35:56     10s] WARNING   IMPLF-200            4  Pin '%s' in macro '%s' has no ANTENNAGAT...
+[10/11 11:35:56     10s] WARNING   IMPLF-201           50  Pin '%s' in macro '%s' has no ANTENNADIF...
+[10/11 11:35:56     10s] WARNING   IMPFP-3961           2  The techSite '%s' has no related standar...
+[10/11 11:35:56     10s] WARNING   IMPVL-159          924  Pin '%s' of cell '%s' is defined in LEF ...
+[10/11 11:35:56     10s] WARNING   TCLCMD-1461          2  Skipped unsupported command: %s          
+[10/11 11:35:56     10s] WARNING   TECHLIB-302          2  No function defined for cell '%s'. The c...
+[10/11 11:35:56     10s] *** Message Summary: 984 warning(s), 0 error(s)
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] <CMD> defIn /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.def
+[10/11 11:35:56     10s] Reading DEF file '/home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.def', current time is Sun Oct 11 11:35:56 2026 ...
+[10/11 11:35:56     10s] --- DIVIDERCHAR '/'
+[10/11 11:35:56     10s] --- UnitsPerDBU = 1.0000
+[10/11 11:35:56     10s] **WARN: (IMPFP-3961):	The techSite 'corner' has no related standard cells in the LEF/OA library. The calculations for this site type cannot be made unless standard cell models of this type exist in the LEF/OA library. Ignore this warning if the SITE is not used by the library. Alternatively, remove the SITE definition for the LEF/OA library to avoid this message.
+[10/11 11:35:56     10s] Type 'man IMPFP-3961' for more detail.
+[10/11 11:35:56     10s] **WARN: (IMPFP-3961):	The techSite 'pad' has no related standard cells in the LEF/OA library. The calculations for this site type cannot be made unless standard cell models of this type exist in the LEF/OA library. Ignore this warning if the SITE is not used by the library. Alternatively, remove the SITE definition for the LEF/OA library to avoid this message.
+[10/11 11:35:56     10s] Type 'man IMPFP-3961' for more detail.
+[10/11 11:35:56     10s] Horizontal Layer M1 offset = 560 (derived)
+[10/11 11:35:56     10s] Vertical Layer M2 offset = 660 (derived)
+[10/11 11:35:56     10s] Start create_tracks
+[10/11 11:35:56     10s] Generated pitch 0.99 in Metal6 is different from 1.32 defined in technology file in preferred direction.
+[10/11 11:35:56     10s] Generated pitch 0.56 in Metal5 is different from 1.12 defined in technology file in preferred direction.
+[10/11 11:35:56     10s] --- DIEAREA (0 0) (2476320 2459520)
+[10/11 11:35:56     10s] defIn read 10000 lines...
+[10/11 11:35:56     10s] defIn read 20000 lines...
+[10/11 11:35:56     10s] defIn read 30000 lines...
+[10/11 11:35:56     10s] defIn read 40000 lines...
+[10/11 11:35:56     10s] defIn read 50000 lines...
+[10/11 11:35:56     10s] defIn read 60000 lines...
+[10/11 11:35:56     10s] defIn read 70000 lines...
+[10/11 11:35:56     10s] defIn read 80000 lines...
+[10/11 11:35:56     10s] **WARN: (IMPDF-247):	Net 'VDD' specified in Pin 'sample_ready' is inconsistent with netlist.
+[10/11 11:35:56     10s] defIn read 90000 lines...
+[10/11 11:35:56     10s] **WARN: (IMPDF-247):	Net 'VSS' specified in Pin 'fault_code[3]' is inconsistent with netlist.
+[10/11 11:35:56     10s] **WARN: (IMPDF-247):	Net 'VSS' specified in Pin 'fault_code[2]' is inconsistent with netlist.
+[10/11 11:35:56     10s] Extracting standard cell pins and blockage ...... 
+[10/11 11:35:56     10s] Pin and blockage extraction finished
+[10/11 11:35:56     10s] Extracting macro/IO cell pins and blockage ...... 
+[10/11 11:35:56     10s] Pin and blockage extraction finished
+[10/11 11:35:56     10s] defIn read 100000 lines...
+[10/11 11:35:56     10s] defIn read 110000 lines...
+[10/11 11:35:56     10s] defIn read 120000 lines...
+[10/11 11:35:56     10s] defIn read 130000 lines...
+[10/11 11:35:56     10s] **WARN: (IMPDF-1043):	The overlapping wire segment (1143780 811440) (1147740 811440) on layer 'Metal3' of net 'CTS_14' is being skipped.
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] 
+[10/11 11:35:56     10s] By default, defIn drops overlapping wires. To keep the wires, run defIn with the -preserveShape option.
+[10/11 11:35:56     10s] **WARN: (IMPDF-128):	Wire creation failed due to overlapping wires. To retain the overlapping wires, run defIn with the -preserveShape option.
+[10/11 11:35:56     10s] defIn read 140000 lines...
+[10/11 11:35:56     10s] defIn read 150000 lines...
+[10/11 11:35:56     11s] defIn read 160000 lines...
+[10/11 11:35:56     11s] defIn read 170000 lines...
+[10/11 11:35:56     11s] defIn read 180000 lines...
+[10/11 11:35:56     11s] defIn read 190000 lines...
+[10/11 11:35:56     11s] defIn read 200000 lines...
+[10/11 11:35:56     11s] defIn read 210000 lines...
+[10/11 11:35:57     11s] defIn read 220000 lines...
+[10/11 11:35:57     11s] defIn read 230000 lines...
+[10/11 11:35:57     11s] defIn read 240000 lines...
+[10/11 11:35:57     11s] defIn read 250000 lines...
+[10/11 11:35:57     11s] defIn read 260000 lines...
+[10/11 11:35:57     11s] defIn read 270000 lines...
+[10/11 11:35:57     11s] defIn read 280000 lines...
+[10/11 11:35:57     11s] defIn read 290000 lines...
+[10/11 11:35:57     11s] defIn read 300000 lines...
+[10/11 11:35:57     11s] defIn read 310000 lines...
+[10/11 11:35:57     11s] defIn read 320000 lines...
+[10/11 11:35:57     11s] defIn read 330000 lines...
+[10/11 11:35:57     11s] defIn read 340000 lines...
+[10/11 11:35:57     11s] defIn read 350000 lines...
+[10/11 11:35:57     11s] defIn read 360000 lines...
+[10/11 11:35:57     11s] defIn read 370000 lines...
+[10/11 11:35:57     11s] defIn read 380000 lines...
+[10/11 11:35:57     11s] defIn read 390000 lines...
+[10/11 11:35:57     11s] defIn read 400000 lines...
+[10/11 11:35:57     11s] defIn read 410000 lines...
+[10/11 11:35:57     11s] defIn read 420000 lines...
+[10/11 11:35:57     11s] defIn read 430000 lines...
+[10/11 11:35:57     11s] defIn read 440000 lines...
+[10/11 11:35:57     11s] defIn read 450000 lines...
+[10/11 11:35:57     11s] defIn read 460000 lines...
+[10/11 11:35:57     11s] defIn read 470000 lines...
+[10/11 11:35:57     11s] defIn read 480000 lines...
+[10/11 11:35:57     11s] defIn read 490000 lines...
+[10/11 11:35:57     11s] defIn read 500000 lines...
+[10/11 11:35:57     11s] defIn read 510000 lines...
+[10/11 11:35:57     11s] defIn read 520000 lines...
+[10/11 11:35:57     11s] defIn read 530000 lines...
+[10/11 11:35:57     11s] defIn read 540000 lines...
+[10/11 11:35:57     11s] defIn read 550000 lines...
+[10/11 11:35:57     11s] defIn read 560000 lines...
+[10/11 11:35:57     11s] defIn read 570000 lines...
+[10/11 11:35:57     11s] defIn read 580000 lines...
+[10/11 11:35:57     11s] defIn read 590000 lines...
+[10/11 11:35:57     11s] defIn read 600000 lines...
+[10/11 11:35:57     11s] defIn read 610000 lines...
+[10/11 11:35:57     11s] defIn read 620000 lines...
+[10/11 11:35:57     11s] defIn read 630000 lines...
+[10/11 11:35:57     11s] defIn read 640000 lines...
+[10/11 11:35:57     11s] defIn read 650000 lines...
+[10/11 11:35:57     11s] defIn read 660000 lines...
+[10/11 11:35:57     11s] defIn read 670000 lines...
+[10/11 11:35:57     11s] defIn read 680000 lines...
+[10/11 11:35:57     11s] defIn read 690000 lines...
+[10/11 11:35:57     11s] defIn read 700000 lines...
+[10/11 11:35:57     11s] defIn read 710000 lines...
+[10/11 11:35:57     11s] defIn read 720000 lines...
+[10/11 11:35:57     11s] defIn read 730000 lines...
+[10/11 11:35:57     11s] defIn read 740000 lines...
+[10/11 11:35:57     11s] defIn read 750000 lines...
+[10/11 11:35:57     11s] defIn read 760000 lines...
+[10/11 11:35:57     12s] defIn read 770000 lines...
+[10/11 11:35:57     12s] defIn read 780000 lines...
+[10/11 11:35:57     12s] defIn read 790000 lines...
+[10/11 11:35:57     12s] defIn read 800000 lines...
+[10/11 11:35:57     12s] defIn read 810000 lines...
+[10/11 11:35:58     12s] defIn read 820000 lines...
+[10/11 11:35:58     12s] defIn read 830000 lines...
+[10/11 11:35:58     12s] **WARN: (IMPDF-136):	The component pin ( PIN sample_ready ) in NETS section is connected to net 'sample_ready' in db, not 'VDD' as defined in DEF. The DEF definition is ignored. Check the connectivity of the design.
+[10/11 11:35:58     12s] **WARN: (IMPDF-136):	The component pin ( PIN fault_code[2] ) in NETS section is connected to net 'fault_code[2]' in db, not 'VSS' as defined in DEF. The DEF definition is ignored. Check the connectivity of the design.
+[10/11 11:35:58     12s] **WARN: (IMPDF-136):	The component pin ( PIN fault_code[3] ) in NETS section is connected to net 'fault_code[3]' in db, not 'VSS' as defined in DEF. The DEF definition is ignored. Check the connectivity of the design.
+[10/11 11:35:58     12s] DEF file '/home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.def' is parsed, current time is Sun Oct 11 11:35:58 2026.
+[10/11 11:35:58     12s] Updating the floorplan ...
+[10/11 11:35:58     12s] <CMD> saveDesign /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.enc
+[10/11 11:35:58     12s] #% Begin save design ... (date=10/11 11:35:58, mem=1379.5M)
+[10/11 11:35:58     12s] % Begin Save ccopt configuration ... (date=10/11 11:35:58, mem=1379.6M)
+[10/11 11:35:58     12s] % End Save ccopt configuration ... (date=10/11 11:35:58, total cpu=0:00:00.0, real=0:00:00.0, peak res=1381.0M, current mem=1381.0M)
+[10/11 11:35:58     12s] % Begin Save netlist data ... (date=10/11 11:35:58, mem=1381.0M)
+[10/11 11:35:58     12s] Writing Binary DB to /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.enc.dat/pid_top.v.bin in single-threaded mode...
+[10/11 11:35:58     12s] % End Save netlist data ... (date=10/11 11:35:58, total cpu=0:00:00.0, real=0:00:00.0, peak res=1388.6M, current mem=1384.2M)
+[10/11 11:35:58     12s] Saving symbol-table file ...
+[10/11 11:35:58     12s] Saving congestion map file /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.enc.dat/pid_top.route.congmap.gz ...
+[10/11 11:35:58     12s] % Begin Save AAE data ... (date=10/11 11:35:58, mem=1385.0M)
+[10/11 11:35:58     12s] Saving AAE Data ...
+[10/11 11:35:58     12s] % End Save AAE data ... (date=10/11 11:35:58, total cpu=0:00:00.0, real=0:00:00.0, peak res=1385.3M, current mem=1385.3M)
+[10/11 11:35:58     12s] Saving preference file /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.enc.dat/gui.pref.tcl ...
+[10/11 11:35:58     12s] Saving mode setting ...
+[10/11 11:35:58     12s] Saving global file ...
+[10/11 11:35:58     12s] % Begin Save floorplan data ... (date=10/11 11:35:58, mem=1389.7M)
+[10/11 11:35:58     12s] Saving floorplan file ...
+[10/11 11:35:58     12s] % End Save floorplan data ... (date=10/11 11:35:58, total cpu=0:00:00.0, real=0:00:00.0, peak res=1392.1M, current mem=1392.1M)
+[10/11 11:35:58     12s] Saving Drc markers ...
+[10/11 11:35:58     12s] ... No Drc file written since there is no markers found.
+[10/11 11:35:58     12s] % Begin Save placement data ... (date=10/11 11:35:58, mem=1393.0M)
+[10/11 11:35:58     12s] ** Saving stdCellPlacement_binary (version# 2) ...
+[10/11 11:35:58     12s] Save Adaptive View Pruning View Names to Binary file
+[10/11 11:35:58     12s] *** Completed savePlace (cpu=0:00:00.0 real=0:00:00.0 mem=1456.4M) ***
+[10/11 11:35:58     12s] % End Save placement data ... (date=10/11 11:35:58, total cpu=0:00:00.0, real=0:00:00.0, peak res=1393.8M, current mem=1393.8M)
+[10/11 11:35:58     12s] % Begin Save routing data ... (date=10/11 11:35:58, mem=1393.8M)
+[10/11 11:35:58     12s] Saving route file ...
+[10/11 11:35:58     12s] *** Completed saveRoute (cpu=0:00:00.1 real=0:00:00.0 mem=1453.4M) ***
+[10/11 11:35:58     12s] % End Save routing data ... (date=10/11 11:35:58, total cpu=0:00:00.1, real=0:00:00.0, peak res=1394.1M, current mem=1394.1M)
+[10/11 11:35:58     12s] Saving property file /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.enc.dat/pid_top.prop
+[10/11 11:35:58     12s] *** Completed saveProperty (cpu=0:00:00.0 real=0:00:00.0 mem=1456.4M) ***
+[10/11 11:35:58     12s] % Begin Save power constraints data ... (date=10/11 11:35:58, mem=1395.6M)
+[10/11 11:35:58     12s] % End Save power constraints data ... (date=10/11 11:35:58, total cpu=0:00:00.0, real=0:00:00.0, peak res=1395.6M, current mem=1395.6M)
+[10/11 11:35:59     12s] Generated self-contained design pid_top.enc.dat
+[10/11 11:35:59     12s] #% End save design ... (date=10/11 11:35:59, total cpu=0:00:00.5, real=0:00:01.0, peak res=1420.5M, current mem=1397.5M)
+[10/11 11:35:59     12s] *** Message Summary: 0 warning(s), 0 error(s)
+[10/11 11:35:59     12s] 
+[10/11 11:35:59     12s] 
+[10/11 11:35:59     12s] *** Memory Usage v#1 (Current mem = 1480.680M, initial mem = 483.863M) ***
+[10/11 11:35:59     12s] 
+[10/11 11:35:59     12s] *** Summary of all messages that are not suppressed in this session:
+[10/11 11:35:59     12s] Severity  ID               Count  Summary                                  
+[10/11 11:35:59     12s] WARNING   IMPDF-128            1  Wire creation failed due to overlapping ...
+[10/11 11:35:59     12s] WARNING   IMPDF-136            3  The component pin ( %s %s ) in %s sectio...
+[10/11 11:35:59     12s] WARNING   IMPDF-1043           1  The overlapping wire segment (%d %d) (%d...
+[10/11 11:35:59     12s] WARNING   IMPDF-247            3  Net '%s' specified in Pin '%s' is incons...
+[10/11 11:35:59     12s] WARNING   IMPLF-200            4  Pin '%s' in macro '%s' has no ANTENNAGAT...
+[10/11 11:35:59     12s] WARNING   IMPLF-201           50  Pin '%s' in macro '%s' has no ANTENNADIF...
+[10/11 11:35:59     12s] WARNING   IMPFP-3961           4  The techSite '%s' has no related standar...
+[10/11 11:35:59     12s] WARNING   IMPVL-159          924  Pin '%s' of cell '%s' is defined in LEF ...
+[10/11 11:35:59     12s] WARNING   TCLCMD-1461          2  Skipped unsupported command: %s          
+[10/11 11:35:59     12s] WARNING   TECHLIB-302          2  No function defined for cell '%s'. The c...
+[10/11 11:35:59     12s] *** Message Summary: 994 warning(s), 0 error(s)
+[10/11 11:35:59     12s] 
+[10/11 11:35:59     12s] --- Ending "Innovus" (totcpu=0:00:12.7, real=0:00:15.0, mem=1480.7M) ---

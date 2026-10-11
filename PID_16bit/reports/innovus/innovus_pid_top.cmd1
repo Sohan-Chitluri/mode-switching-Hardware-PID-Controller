@@ -1,0 +1,67 @@
+#######################################################
+#                                                     
+#  Innovus Command Logging File                     
+#  Created on Sun Oct 11 12:17:11 2026                
+#                                                     
+#######################################################
+
+#@(#)CDS: Innovus v21.15-s110_1 (64bit) 09/23/2022 13:08 (Linux 3.10.0-693.el7.x86_64)
+#@(#)CDS: NanoRoute 21.15-s110_1 NR220912-2004/21_15-UB (database version 18.20.592) {superthreading v2.17}
+#@(#)CDS: AAE 21.15-s039 (64bit) 09/23/2022 (Linux 3.10.0-693.el7.x86_64)
+#@(#)CDS: CTE 21.15-s038_1 () Sep 20 2022 11:42:13 ( )
+#@(#)CDS: SYNTECH 21.15-s012_1 () Sep  5 2022 10:25:51 ( )
+#@(#)CDS: CPE v21.15-s076
+#@(#)CDS: IQuantus/TQuantus 21.1.1-s867 (64bit) Sun Jun 26 22:12:54 PDT 2022 (Linux 3.10.0-693.el7.x86_64)
+
+set_global _enable_mmmc_by_default_flow      $CTE::mmmc_default
+suppressMessage ENCEXT-2799
+getVersion
+getVersion
+getVersion
+set init_verilog /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_synth.v
+set init_top_cell pid_top
+set init_pwr_net VDD
+set init_gnd_net VSS
+set init_lef_file {}
+set init_mmmc_file /home/vlsi/Desktop/FORGE/PID_16bit/scripts/pid_mmmc.tcl
+setMultiCpuUsage -localCpu 8
+setDesignMode -process 180
+init_design
+setAnalysisMode -analysisType onChipVariation -cppr both
+floorPlan -site tsm3site -r 1.0 0.52 30 30 30 30
+editPin -pin {clk rst_n sample_valid sample_ready {imu_p[15]} {imu_p[14]} {imu_p[13]} {imu_p[12]} {imu_p[11]} {imu_p[10]} {imu_p[9]} {imu_p[8]} {imu_p[7]} {imu_p[6]} {imu_p[5]} {imu_p[4]} {imu_p[3]} {imu_p[2]} {imu_p[1]} {imu_p[0]} {imu_q[15]} {imu_q[14]} {imu_q[13]} {imu_q[12]} {imu_q[11]} {imu_q[10]} {imu_q[9]} {imu_q[8]} {imu_q[7]} {imu_q[6]} {imu_q[5]} {imu_q[4]} {imu_q[3]} {imu_q[2]} {imu_q[1]} {imu_q[0]} {imu_r[15]} {imu_r[14]} {imu_r[13]} {imu_r[12]} {imu_r[11]} {imu_r[10]} {imu_r[9]} {imu_r[8]} {imu_r[7]} {imu_r[6]} {imu_r[5]} {imu_r[4]} {imu_r[3]} {imu_r[2]} {imu_r[1]} {imu_r[0]} {imu_phi[15]} {imu_phi[14]} {imu_phi[13]} {imu_phi[12]} {imu_phi[11]} {imu_phi[10]} {imu_phi[9]} {imu_phi[8]} {imu_phi[7]} {imu_phi[6]} {imu_phi[5]} {imu_phi[4]} {imu_phi[3]} {imu_phi[2]} {imu_phi[1]} {imu_phi[0]} {imu_theta[15]} {imu_theta[14]} {imu_theta[13]} {imu_theta[12]} {imu_theta[11]} {imu_theta[10]} {imu_theta[9]}} -side Top -spreadType EDGE -layer Metal3 -snap TRACK
+globalNetConnect VDD -type pgpin -pin VDD -inst *
+globalNetConnect VSS -type pgpin -pin VSS -inst *
+globalNetConnect VDD -type tiehi
+globalNetConnect VSS -type tielo
+addRing -type core_rings -nets {VDD VSS} -width 4.0 -spacing 2.0 -layer {top Metal6 bottom Metal6 left Metal5 right Metal5}
+sroute -connect { corePin } -layerChangeRange {Metal1 Metal6}
+setPlaceMode -timingDriven true -congEffort medium -place_global_uniform_density true -place_global_max_density 0.60
+place_opt_design
+create_ccopt_clock_tree_spec
+set_ccopt_property target_max_trans 1.0ns
+ccopt_design
+optDesign -postCTS
+setNanoRouteMode -routeWithTimingDriven true -routeWithSiDriven false -envNumberProcessor 8 -drouteUseMultiCutViaEffort high -drouteEndIteration 15
+routeDesign
+setDelayCalMode -siAware false
+optDesign -postRoute
+optDesign -postRoute -hold
+saveDrc /tmp/innovus_temp_623900_ic312.vit.ac.in_vlsi_zHW7Xg/vergQTmpJjzvvi/qthread_src.drc
+clearDrc
+saveDrc /tmp/innovus_temp_623900_ic312.vit.ac.in_vlsi_zHW7Xg/vergQTmpJjzvvi/qthread_2.drc
+saveDrc /tmp/innovus_temp_623900_ic312.vit.ac.in_vlsi_zHW7Xg/vergQTmpJjzvvi/qthread_3.drc
+saveDrc /tmp/innovus_temp_623900_ic312.vit.ac.in_vlsi_zHW7Xg/vergQTmpJjzvvi/qthread_0.drc
+saveDrc /tmp/innovus_temp_623900_ic312.vit.ac.in_vlsi_zHW7Xg/vergQTmpJjzvvi/qthread_1.drc
+verifyConnectivity -type all
+report_timing > [file join $REPORT_DIR "${DESIGN_NAME}_timing_post_route.rpt"]
+report_power > /home/vlsi/Desktop/FORGE/PID_16bit/reports/innovus/pid_top_power_post_route.rpt
+report_area > /home/vlsi/Desktop/FORGE/PID_16bit/reports/innovus/pid_top_area_post_route.rpt
+setAnalysisMode -checkType hold
+report_timing -max_paths 20 > [file join $REPORT_DIR "${DESIGN_NAME}_timing_hold.rpt"]
+setAnalysisMode -checkType setup
+report_timing -max_paths 20 > [file join $REPORT_DIR "${DESIGN_NAME}_timing_setup.rpt"]
+streamOut /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.gds
+defOut -floorplan -netlist -routing /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.def
+saveNetlist /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top_pnr.v
+saveDesign /home/vlsi/Desktop/FORGE/PID_16bit/netlist/pid_top.enc

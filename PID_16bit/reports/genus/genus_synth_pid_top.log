@@ -1,0 +1,138 @@
+Cadence Genus(TM) Synthesis Solution.
+Copyright 2022 Cadence Design Systems, Inc. All rights reserved worldwide.
+Cadence and the Cadence logo are registered trademarks and Genus is a trademark
+of Cadence Design Systems, Inc. in the United States and other countries.
+
+[10:53:29.328610] Configured Lic search path (21.01-s002): 5281@14.139.1.126:1717@14.139.1.126
+
+Version: 21.14-s082_1, built Thu Jun 23 02:02:08 PDT 2022
+Options: -files scripts/genus_synth.tcl -log reports/genus/genus_synth_pid_top.log 
+Date:    Sun Oct 11 10:53:29 2026
+Host:    ic312.vit.ac.in (x86_64 w/Linux 4.18.0-425.19.2.el8_7.x86_64) (12cores*20cpus*1physical cpu*12th Gen Intel(R) Core(TM) i7-12700 25600KB) (32402340KB)
+PID:     505066
+OS:      Red Hat Enterprise Linux release 8.7 (Ootpa)
+
+
+[10:53:31.107850] Periodic Lic check successful
+[10:53:31.107850] Feature usage summary:
+[10:53:31.107850] Genus_Synthesis
+Checking out license: Genus_Synthesis
+
+
+***********************************************************************************************************
+***********************************************************************************************************
+
+
+
+Loading tool scripts...
+Finished loading tool scripts (4 seconds elapsed).
+
+#@ Processing -files option
+@genus 1> source scripts/genus_synth.tcl
+#@ Begin verbose source ./scripts/genus_synth.tcl
+@file(genus_synth.tcl) 13: set SCRIPT_PATH [file normalize [info script]]
+@file(genus_synth.tcl) 14: set SCRIPT_DIR  [file dirname $SCRIPT_PATH]
+@file(genus_synth.tcl) 15: set PROJECT_ROOT [file normalize [file join $SCRIPT_DIR ".."]]
+@file(genus_synth.tcl) 17: if {![info exists DESIGN_NAME]} {
+    set DESIGN_NAME [expr {[info exists env(DESIGN_NAME)] ? $env(DESIGN_NAME) : "pid_top"}]
+}
+@file(genus_synth.tcl) 22: set LIB_FILE [expr {[info exists env(PDK_TYP_LIB)] ? $env(PDK_TYP_LIB) : \
+                   ([info exists env(PDK_LIB_FILE)] ? $env(PDK_LIB_FILE) : \
+                   "/home/install/FOUNDRY/digital/180nm/dig/lib/typical.lib")}]
+@file(genus_synth.tcl) 26: if {![file exists $LIB_FILE]} {
+    error "Target Liberty library not found: $LIB_FILE\nPlease export PDK_TYP_LIB=/path/to/typical.lib before running."
+}
+@file(genus_synth.tcl) 29: if {![file readable $LIB_FILE]} {
+    error "Target Liberty library is not readable: $LIB_FILE"
+}
+@file(genus_synth.tcl) 33: set_db init_lib_search_path [list [file dirname $LIB_FILE]]
+  Setting attribute of root '/': 'init_lib_search_path' = /home/install/FOUNDRY/digital/180nm/dig/lib
+@file(genus_synth.tcl) 34: set_db library $LIB_FILE
+
+Threads Configured:3
+Warning : Missing clock pin in the sequential cell. [LBR-525]
+        : Clock pin absent in sequential cell(s) 'RSLATNX1' (File /home/install/FOUNDRY/digital/180nm/dig/lib/typical.lib, Line 147265)
+        : Sequential timing checks, such as 'setup_rising' or 'hold_rising', on flop and latch cells require a clock pin. Verify that the 'clock' attribute of the clock pin is set to 'true' or that the clock pin has a 'clocked_on' attribute.
+Warning : Missing clock pin in the sequential cell. [LBR-525]
+        : Clock pin absent in sequential cell(s) 'RSLATNX2' (File /home/install/FOUNDRY/digital/180nm/dig/lib/typical.lib, Line 147568)
+Warning : Missing clock pin in the sequential cell. [LBR-525]
+        : Clock pin absent in sequential cell(s) 'RSLATNXL' (File /home/install/FOUNDRY/digital/180nm/dig/lib/typical.lib, Line 148174)
+Warning : Missing clock pin in the sequential cell. [LBR-525]
+        : Clock pin absent in sequential cell(s) 'RSLATNX4' (File /home/install/FOUNDRY/digital/180nm/dig/lib/typical.lib, Line 147871)
+Warning : Missing clock pin in the sequential cell. [LBR-525]
+        : Clock pin absent in sequential cell(s) 'RSLATX1' (File /home/install/FOUNDRY/digital/180nm/dig/lib/typical.lib, Line 148477)
+Warning : Missing clock pin in the sequential cell. [LBR-525]
+        : Clock pin absent in sequential cell(s) 'RSLATX2' (File /home/install/FOUNDRY/digital/180nm/dig/lib/typical.lib, Line 148841)
+Warning : Missing clock pin in the sequential cell. [LBR-525]
+        : Clock pin absent in sequential cell(s) 'RSLATX4' (File /home/install/FOUNDRY/digital/180nm/dig/lib/typical.lib, Line 149205)
+Warning : Missing clock pin in the sequential cell. [LBR-525]
+        : Clock pin absent in sequential cell(s) 'RSLATXL' (File /home/install/FOUNDRY/digital/180nm/dig/lib/typical.lib, Line 149569)
+
+  Message Summary for Library typical.lib:
+  ****************************************
+  Missing clock pin in the sequential cell. [LBR-525]: 8
+  Missing a function attribute in the output pin definition. [LBR-518]: 1
+  An unsupported construct was detected in this library. [LBR-40]: 1
+  ****************************************
+ 
+Info    : Created nominal operating condition. [LBR-412]
+        : Operating condition '_nominal_' was created for the PVT values (1.000000, 1.800000, 25.000000) in library 'typical.lib'.
+        : The nominal operating condition is represented, either by the nominal PVT values specified in the library source (via nom_process,nom_voltage and nom_temperature respectively), or by the default PVT values (1.0,1.0,1.0).
+  Setting attribute of root '/': 'library' = /home/install/FOUNDRY/digital/180nm/dig/lib/typical.lib
+@file(genus_synth.tcl) 35: set_db information_level 7
+  Setting attribute of root '/': 'information_level' = 7
+@file(genus_synth.tcl) 38: set RTL_DIR         [file join $PROJECT_ROOT "rtl"]
+@file(genus_synth.tcl) 39: set CONSTRAINT_FILE [file join $PROJECT_ROOT "constraints" "pid_timing.sdc"]
+@file(genus_synth.tcl) 40: set REPORT_DIR      [file join $PROJECT_ROOT "reports" "genus"]
+@file(genus_synth.tcl) 41: set NETLIST_DIR     [file join $PROJECT_ROOT "netlist"]
+@file(genus_synth.tcl) 43: if {![file isdirectory $RTL_DIR]} {
+    error "RTL directory not found: $RTL_DIR"
+}
+@file(genus_synth.tcl) 46: if {![file exists $CONSTRAINT_FILE]} {
+    error "SDC constraints file not found: $CONSTRAINT_FILE"
+}
+@file(genus_synth.tcl) 53: set_db init_hdl_search_path [list \
+    [file join $RTL_DIR "pkg"] \
+    [file join $RTL_DIR "core"] \
+    [file join $RTL_DIR "modes"] \
+    [file join $RTL_DIR "safety"] \
+    [file join $RTL_DIR "parallel"] \
+    [file join $RTL_DIR "shared"] \
+    $RTL_DIR \
+]
+  Setting attribute of root '/': 'init_hdl_search_path' = /home/vlsi/Desktop/FORGE/PID_16bit/rtl/pkg /home/vlsi/Desktop/FORGE/PID_16bit/rtl/core /home/vlsi/Desktop/FORGE/PID_16bit/rtl/modes /home/vlsi/Desktop/FORGE/PID_16bit/rtl/safety /home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel /home/vlsi/Desktop/FORGE/PID_16bit/rtl/shared /home/vlsi/Desktop/FORGE/PID_16bit/rtl
+@file(genus_synth.tcl) 64: set RTL_FILES [list \
+    [file join $RTL_DIR "pkg" "pid_pkg.sv"] \
+    [file join $RTL_DIR "core" "pid_mult.sv"] \
+    [file join $RTL_DIR "core" "pid_deriv_filter.sv"] \
+    [file join $RTL_DIR "core" "pid_integ_unit.sv"] \
+    [file join $RTL_DIR "core" "pid_sat_unit.sv"] \
+    [file join $RTL_DIR "modes" "pid_outer_loop.sv"] \
+    [file join $RTL_DIR "modes" "pid_gain_bank.sv"] \
+    [file join $RTL_DIR "modes" "pid_mode_mgr.sv"] \
+    [file join $RTL_DIR "safety" "pid_tilt_comp.sv"] \
+    [file join $RTL_DIR "safety" "pid_watchdog.sv"] \
+    [file join $RTL_DIR "safety" "pid_output_stage.sv"] \
+]
+@file(genus_synth.tcl) 79: if {[string match "*shared*" $DESIGN_NAME]} {
+    puts "=== [GENUS] Selecting Time-Shared Architecture Sources for $DESIGN_NAME ==="
+    lappend RTL_FILES [file join $RTL_DIR "shared" "pid_axis_engine_shared.sv"]
+    lappend RTL_FILES [file join $RTL_DIR "shared" "pid_top_shared.sv"]
+    if {[string match "*soc*" $DESIGN_NAME]} {
+        lappend RTL_FILES [file join $RTL_DIR "safety" "pid_mixer.sv"]
+        lappend RTL_FILES [file join $RTL_DIR "shared" "pid_soc_top_shared.sv"]
+    }
+} else {
+    puts "=== [GENUS] Selecting Fully Parallel Architecture Sources for $DESIGN_NAME ==="
+    lappend RTL_FILES [file join $RTL_DIR "core" "pid_axis_core.sv"]
+    lappend RTL_FILES [file join $RTL_DIR "parallel" "pid_axis_engine_parallel.sv"]
+    lappend RTL_FILES [file join $RTL_DIR "pid_top.sv"]
+    if {[string match "*soc*" $DESIGN_NAME]} {
+        lappend RTL_FILES [file join $RTL_DIR "safety" "pid_mixer.sv"]
+        lappend RTL_FILES [file join $RTL_DIR "pid_soc_top.sv"]
+    }
+}
+#@ End verbose source ./scripts/genus_synth.tcl
+invalid command name "GENUS"
+Encountered problems processing file: scripts/genus_synth.tcl
+WARNING: This version of the tool is 1570 days old.

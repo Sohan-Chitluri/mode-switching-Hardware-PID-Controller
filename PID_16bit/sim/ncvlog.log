@@ -1,0 +1,49 @@
+ncvlog(64): 15.20-s086: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
+`include "pid_pkg.sv"
+                    |
+ncvlog: *E,COFILX (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,13|20): cannot open include file 'pid_pkg.sv'.
+`include "pid_axis_core.sv"
+                          |
+ncvlog: *E,COFILX (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,14|26): cannot open include file 'pid_axis_core.sv'.
+import pid_pkg::*;
+     |
+ncvlog: *E,EXPMPA (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,16|5): expecting the keyword 'module', 'macromodule' or 'primitive'[A.1].
+    parameter int DATA_W  = 16,
+                       |
+ncvlog: *E,EXPEQL (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,19|23): expecting an equal sign ('=') [3.10(IEEE)].
+    parameter int FRACT_W = 12,
+                        |
+ncvlog: *E,EXPEQL (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,20|24): expecting an equal sign ('=') [3.10(IEEE)].
+    parameter int ACCUM_W = 24
+                        |
+ncvlog: *E,EXPEQL (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,21|24): expecting an equal sign ('=') [3.10(IEEE)].
+    input  logic                     clk,
+                                       |
+ncvlog: *E,EXPCORP (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,23|39): Expecting a ',' or ')' [A.1.4(IEEE-2001)].
+    input  logic                     clk,
+                                       |
+ncvlog: *E,EXPCORP (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,23|39): Expecting a ',' or ')' [12.3.2(IEEE)].
+    input  logic                     rst_n,
+                                         |
+ncvlog: *E,EXPCORP (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,24|41): Expecting a ',' or ')' [A.1.4(IEEE-2001)].
+    input  logic                     rst_n,
+                                         |
+ncvlog: *E,EXPCORP (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,24|41): Expecting a ',' or ')' [12.3.2(IEEE)].
+    input  logic                     sample_valid,
+                                                |
+ncvlog: *E,EXPCORP (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,25|48): Expecting a ',' or ')' [A.1.4(IEEE-2001)].
+    input  logic                     sample_valid,
+                                                |
+ncvlog: *E,EXPCORP (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,25|48): Expecting a ',' or ')' [12.3.2(IEEE)].
+    input  logic                     reseed_valid,
+                                                |
+ncvlog: *E,EXPCORP (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,28|48): Expecting a ',' or ')' [A.1.4(IEEE-2001)].
+    input  logic                     reseed_valid,
+                                                |
+ncvlog: *E,EXPCORP (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,28|48): Expecting a ',' or ')' [12.3.2(IEEE)].
+    input  logic signed [DATA_W-1:0] reseed_i_roll,
+                      |
+ncvlog: *E,EXPCORP (/home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv,29|22): Expecting a ',' or ')' [A.1.4(IEEE-2001)].
+ncvlog: *F,MAXERR: maximum error count reached (15).
+ncvlog: Memory Usage - 21.4M program + 27.4M data = 48.8M total
+ncvlog: CPU Usage - 0.0s system + 0.0s user = 0.0s total (0.0s, 100.0% cpu)

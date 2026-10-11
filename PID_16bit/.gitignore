@@ -1,14 +1,23 @@
+# Transient simulation waves and dumps
+*.vcd
+*.fst
+
+# Transient compiler & build output directories
 output/
 obj_dir/
 .venv/
-*.vcd
-*.fst
-*.log
-pid_formal_*/
 __pycache__/
 *.pyc
 .cache/
+pid_formal_*/
 tb/formal/pid_formal/
-PID_resources.zip
-netlist/
-reports/
+
+# Cadence Incisive simulator work libraries & binary dumps
+sim/worklib/
+sim/INCA_libs/
+sim/waves.shm/
+*.pak
+
+# Large binary GDS/DEF stream databases (>100MB exceeds GitHub hard limit)
+*.gds
+*.def

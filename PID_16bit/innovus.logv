@@ -1,0 +1,14 @@
+[10/11 13:11:45      0s] 
+[10/11 13:11:45      0s] Cadence Innovus(TM) Implementation System.
+[10/11 13:11:45      0s] Copyright 2021 Cadence Design Systems, Inc. All rights reserved worldwide.
+[10/11 13:11:45      0s] 
+[10/11 13:11:45      0s] Version:	v21.15-s110_1, built Fri Sep 23 13:08:12 PDT 2022
+[10/11 13:11:45      0s] Options:	-batch -no_gui -execute exit 
+[10/11 13:11:45      0s] Date:		Sun Oct 11 13:11:45 2026
+[10/11 13:11:45      0s] Host:		ic312.vit.ac.in (x86_64 w/Linux 4.18.0-425.19.2.el8_7.x86_64) (12cores*20cpus*12th Gen Intel(R) Core(TM) i7-12700 25600KB)
+[10/11 13:11:45      0s] OS:		Red Hat Enterprise Linux release 8.7 (Ootpa)
+[10/11 13:11:45      0s] 
+[10/11 13:11:45      0s] License:
+[10/11 13:11:45      0s] 		Initialization status was 'ERROR (LMC-01902): License call failed. The license server search path is defined as <none>. Can't find license file.
+
+Run 'lic_error LMC-01902' for more information.' (-902)
