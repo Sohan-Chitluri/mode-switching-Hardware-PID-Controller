@@ -213,7 +213,45 @@ test-formal:
 	@echo "=== [FORMAL] Running SymbiYosys Formal Property Suite ==="
 	$(SBY) -f $(TB_DIR)/formal/pid_formal.sby
 
+# Multi-Variant & Cadence Integration Targets
+.PHONY: test-shared test-16bit synth-shared cadence-all cadence-16bit cadence-32bit test-all
+
+test-shared:
+	@echo "=== [TEST-SHARED] Running 16-bit time-shared datapath testbench ==="
+	$(MAKE) -C PID_16bit test-shared
+
+test-16bit:
+	@echo "=== [TEST-16BIT] Running all 16-bit verification targets ==="
+	$(MAKE) -C PID_16bit test-unit
+	$(MAKE) -C PID_16bit test-top
+	$(MAKE) -C PID_16bit test-shared
+	$(MAKE) -C PID_16bit test-mixer
+	$(MAKE) -C PID_16bit test-soc
+	$(MAKE) -C PID_16bit test-stress
+	@echo "=== [TEST-16BIT] All 16-bit targets PASSED! ==="
+
+synth-shared:
+	@echo "=== [SYNTH-SHARED] Running Yosys synthesis for time-shared SoC ==="
+	$(MAKE) -C PID_16bit synth-shared
+
+cadence-all:
+	@echo "=== [CADENCE-ALL] Running all Cadence P&R runs ==="
+	./run_all_cases.sh
+
+cadence-16bit:
+	@echo "=== [CADENCE-16BIT] Running both 16-bit P&R runs ==="
+	./PID_16bit/scripts/run_pnr_both_cases.sh
+
+cadence-32bit:
+	@echo "=== [CADENCE-32BIT] Running 32-bit Q16.16 Cadence flow ==="
+	./PID_Q16_16/scripts/run_cadence_flow.sh parallel full
+
+test-all: test-unit test-top test-mixer test-soc test-stress test-edge-all test-16bit
+	@echo "=== [TEST-ALL] All 32-bit and 16-bit verification targets PASSED! ==="
+
 clean:
 	@echo "=== [CLEAN] Cleaning artifacts ==="
 	@rm -rf $(OUTPUT_DIR) obj_dir/ pid_formal_*/ *.vcd *.fst *.log __pycache__
+	$(MAKE) -C PID_Q16_16 clean
+	$(MAKE) -C PID_16bit clean
 	@echo "=== [CLEAN] Done ==="

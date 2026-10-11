@@ -1,0 +1,6 @@
+s1(11Oct2026:15:16:19):  irun -c -q -nostdout -access +rwc -ncelabargs -partialdesign -log ./.hal-irun.log /home/vlsi/Desktop/FORGE/PID_16bit/rtl/modes/pid_outer_loop.sv 
+s2(11Oct2026:15:16:22):  irun -c -q -nostdout -access +rwc -ncelabargs -partialdesign -log ./.hal-irun.log /home/vlsi/Desktop/FORGE/PID_16bit/rtl/modes/pid_outer_loop.sv 
+s3(11Oct2026:15:20:12):  irun -c -q -nostdout -access +rwc -ncelabargs -partialdesign -log ./.hal-irun.log /home/vlsi/Desktop/FORGE/PID_16bit/rtl/modes/pid_mode_mgr.sv 
+s4(11Oct2026:15:24:07):  irun -c -q -nostdout -access +rwc -ncelabargs -partialdesign -log ./.hal-irun.log /home/vlsi/Desktop/FORGE/PID_16bit/rtl/core/pid_axis_core.sv 
+s5(11Oct2026:15:27:02):  irun -c -q -nostdout -access +rwc -ncelabargs -partialdesign -log ./.hal-irun.log /home/vlsi/Desktop/FORGE/PID_16bit/rtl/pid_top.sv 
+s6(11Oct2026:15:28:34):  irun -c -q -nostdout -access +rwc -ncelabargs -partialdesign -log ./.hal-irun.log /home/vlsi/Desktop/FORGE/PID_16bit/rtl/parallel/pid_axis_engine_parallel.sv 

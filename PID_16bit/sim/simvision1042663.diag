@@ -1,0 +1,90 @@
+*** Message Type: info ***
+When: Sun Oct 11 03:27:15  IST IST 2026
+SimVision started.
+Version: TOOL:  simvision(64)   15.20-s086
+User: vlsi
+Host: ic312.vit.ac.in
+Platform: Linux/x86_64/4.18.0-425.19.2.el8_7.x86_64
+Started: Sun Oct 11 03:27:15  IST IST 2026
+Command: /home/install/INCISIVE152/tools.lnx86/simvision/bin/64bit/simvision.exe -connect dc:ic312.vit.ac.in:34749 -64BIT
+Work Directory: /home/vlsi/Desktop/FORGE/PID_16bit/sim
+ 
+*** Message Type: info ***
+When: Sun Oct 11 03:27:15  IST IST 2026
+Create browser window: "Design Browser 1"
+ 
+*** Message Type: info ***
+When: Sun Oct 11 03:27:16  IST IST 2026
+Create console window: "Console"
+ 
+*** Message Type: info ***
+When: Sun Oct 11 03:27:17  IST IST 2026
+Connect to Simulator
+      Design: worklib.pid_top:module
+   Languages: verilog
+   Simulator: NC-Sim
+     Version: TOOL:     ncsim(64)       15.20-s086
+        User: vlsi
+        Host: ic312.vit.ac.in
+Time Started: Sun Oct 11 03:27:15  IST IST 2026
+  Process ID: 1042657
+   Directory: /home/vlsi/Desktop/FORGE/PID_16bit/sim
+     Command: ncsim -gui -cdslib /home/vlsi/Desktop/FORGE/PID_16bit/sim/cds.lib -logfile ncsim.log -errormax 15 -status worklib.pid_top:module
+
+ 
+*** Message Type: info ***
+When: Sun Oct 11 03:27:17  IST IST 2026
+Create utility window: "Properties"
+ 
+*** Message Type: info ***
+When: Sun Oct 11 03:27:26  IST IST 2026
+Create schematic window: "Schematic Tracer 1"
+ 
+*** Message Type: info ***
+When: Sun Oct 11 03:28:08  IST IST 2026
+Delete browser window: "Design Browser 1"
+ 
+*** Message Type: info ***
+When: Sun Oct 11 03:30:05  IST IST 2026
+Exit NC-Sim: abnormal
+      Design: worklib.pid_top:module
+   Languages: verilog
+   Simulator: NC-Sim
+     Version: TOOL:     ncsim(64)       15.20-s086
+        User: vlsi
+        Host: ic312.vit.ac.in
+Time Started: Sun Oct 11 03:27:15  IST IST 2026
+  Process ID: 1042657
+   Directory: /home/vlsi/Desktop/FORGE/PID_16bit/sim
+     Command: ncsim -gui -cdslib /home/vlsi/Desktop/FORGE/PID_16bit/sim/cds.lib -logfile ncsim.log -errormax 15 -status worklib.pid_top:module
+
+ 
+*** Message Type: error ***
+When: Sun Oct 11 03:30:05  IST IST 2026
+NC-Sim Crashed:
+      Design: worklib.pid_top:module
+   Languages: verilog
+   Simulator: NC-Sim
+     Version: TOOL:     ncsim(64)       15.20-s086
+        User: vlsi
+        Host: ic312.vit.ac.in
+Time Started: Sun Oct 11 03:27:15  IST IST 2026
+  Process ID: 1042657
+   Directory: /home/vlsi/Desktop/FORGE/PID_16bit/sim
+     Command: ncsim -gui -cdslib /home/vlsi/Desktop/FORGE/PID_16bit/sim/cds.lib -logfile ncsim.log -errormax 15 -status worklib.pid_top:module
+      Design: worklib.pid_top:module
+   Languages: verilog
+   Simulator: NC-Sim
+     Version: TOOL:       ncsim(64)       15.20-s086
+        User: vlsi
+        Host: ic312.vit.ac.in
+Time Started: Sun Oct 11 03:27:15  IST IST 2026
+  Process ID: 1042657
+   Directory: /home/vlsi/Desktop/FORGE/PID_16bit/sim
+     Command: ncsim -gui -cdslib /home/vlsi/Desktop/FORGE/PID_16bit/sim/cds.lib -logfile ncsim.log -errormax 15 -status worklib.pid_top:module
+
+ 
+*** Message Type: info ***
+When: Sun Oct 11 03:30:12  IST IST 2026
+SimVision Exit.
+ 

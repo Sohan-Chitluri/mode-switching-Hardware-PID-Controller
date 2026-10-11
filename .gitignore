@@ -10,5 +10,26 @@ __pycache__/
 .cache/
 tb/formal/pid_formal/
 PID_resources.zip
+Final.zip
+Pictures.zip
+
+# Binary CAD deliverables & checkpoints
+*.gds
+*.def
+*.pak
+*.bin
+*.enc.dat/
+*.enc
+*.gz
+*.logv*
+
+# Build outputs per variant
+PID_*/output/
+PID_*/obj_dir/
+PID_*/.venv/
+PID_*/sim/worklib/
+PID_*/sim/INCA_libs/
+PID_*/sim/waves.shm/
+
 netlist/
 reports/

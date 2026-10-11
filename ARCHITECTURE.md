@@ -199,12 +199,28 @@ flowchart TD
 | **Formal Verification Tractability** | **Trivial:** Each axis core is an isolated mathematical block; SMT proofs converge in seconds. | **Difficult:** SMT solvers must reason across multiple unrolled sequencing cycles and RAM/RF states; proof depth explodes. | Formal verification with SymbiYosys/Z3 is vastly superior on parallel cores. |
 | **Fault Isolation** | **High:** Arithmetic fault or overflow in one channel cannot corrupt another channel's state registers. | **Low:** Single datapath defect or memory pointer glitch corrupts all 4 flight axes simultaneously. | Parallel design provides vital safety redundancy and failure isolation for flight control. |
 
-### Architectural Recommendation
-**Baseline Decision:** **Option A (Fully Parallel Cores)** is chosen as the primary implementation architecture.
-- *Justification:* In flight-control hardware, reliability, verification simplicity, and absolute fault isolation far outweigh marginal silicon area savings. A modular `pid_axis_core` instantiated 4 times guarantees deterministic timing, simple formal properties, and zero multi-cycle context hazards.
-- *Provisional Fallback:* The `pid_axis_core` is designed with clean parameterization so that if strict hackathon silicon area limits are later imposed, a shared time-multiplexed wrapper can be dropped in without redesigning the underlying arithmetic blocks.
+### Architectural Implementation & Silicon Trade-Off (Cadence Innovus TSMC 180nm @ 50 MHz)
 
----
+Both architectures—along with the high-precision 32-bit Q16.16 variant—have been fully implemented through synthesis (Cadence Genus) and physical design (Cadence Innovus):
+
+| Silicon Sign-Off Metric | 16-bit Parallel (`pid_top`) | 16-bit Shared (`pid_top_shared`) | Silicon Benefit (Shared vs. Parallel) | 32-bit Parallel (`PID_Q16_16`) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Datapath Multipliers** | 12 Multipliers (Parallel 16×16) | 4 Multipliers (Multiplexed 16×16) | **3× fewer multipliers** | 12 Multipliers (Parallel 32×32) |
+| **Standard Cell Instances**| 42,112 cells | 31,440 cells | **-25.3% cell count** | 103,523 cells |
+| **Standard Cell Area** | 923,395 $\mu\text{m}^2$ (0.92 mm²) | 713,452 $\mu\text{m}^2$ (0.71 mm²) | **-22.7% area reduction** | 2,509,612 $\mu\text{m}^2$ (2.51 mm²) |
+| **Total Power (@ 50 MHz)** | 87.33 mW | 64.41 mW | **-26.2% power savings** | 282.37 mW |
+| **Throughput Latency** | 1 Clock Cycle (20 ns) | 4 Clock Cycles (80 ns) | 4× latency tradeoff | 1 Clock Cycle (20 ns) |
+| **Maximum Sample Rate** | 50.0 MSamples/s | 12.5 MSamples/s | Both >1500× above 8 kHz IMU rate | 50.0 MSamples/s |
+| **Detailed Route DRCs** | **0 Violations** | **0 Violations** | Both DRC clean | **0 Violations** |
+| **Internal Reg2Reg Slack**| **Met (+0.065 ns)** | **Met (+0.189 ns)** | Both 100% closed @ 50 MHz | **Met (+0.009 ns)** |
+| **GDSII Stream File Size** | 40.8 MB | 33.7 MB | -17.4% file size | 139.6 MB |
+
+### Multi-Variant Codebase Organization
+The project repository houses both design variants in clean, self-contained sub-trees:
+1. `PID_Q16_16/`: High-precision 32-bit Q16.16 parallel flight controller with full mathematical saturation, derivative clamp, and atomic fault latching.
+2. `PID_16bit/`: Compact 16-bit Q4.12 flight controller supporting both Fully Parallel (`pid_top`) and Time-Shared (`pid_top_shared`) silicon implementations.
+3. `docs/`: Technical report, formal proof documentation, and Cadence layout proof schematics.
+4. `run_all_cases.sh`: Top-level batch script executing physical implementation across all three cases.
 
 ## 5. Altitude Hold: Physical Analysis, Sensor Interface & Assumptions
 
